@@ -1,0 +1,26 @@
+@import "../css/Colors.scss";
+@import "../css/Animations.scss";
+
+.fullscreen-loader {
+  align-items: center;
+  background-color: #6663;
+  display: grid;
+  place-content: center;
+  left: 0;
+  top: 0;
+  width: 100%;
+  z-index: 10;
+}
+
+.fullscreen-loader[data-fullscreen="true"] {
+  height: 100vh;
+  position: fixed;
+  width: 100vw;
+}
+
+.fullscreen-loader > .content {
+  @extend .scale-in;
+  background-color: darken($darkGrey, 4%);
+  border-radius: 8px;
+  padding: 1rem;
+}

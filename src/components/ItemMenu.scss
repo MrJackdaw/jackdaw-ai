@@ -1,0 +1,36 @@
+@import "../css/Colors.scss";
+
+.item-menu--container {
+  background-color: $dark;
+  border-radius: 8px;
+  border: 1px solid #8883;
+  box-shadow: 0 2px 4px #000;
+  height: fit-content;
+  max-height: 400px;
+  padding: 0.6rem 0;
+  place-content: center;
+  position: absolute;
+  width: 300px;
+  z-index: inherit;
+}
+
+.item-menu--container.item-menu--round {
+  border: none;
+  text-align: center;
+}
+
+.item-menu--container > * {
+  padding: 0;
+}
+
+.item-menu--container .item-menu__item {
+  align-items: center;
+  cursor: pointer;
+  display: grid;
+  grid-template-columns: 1fr 40px;
+  padding: 0 0.6rem;
+
+  &:hover {
+    background-color: lighten($color: $darkGrey, $amount: 10);
+  }
+}

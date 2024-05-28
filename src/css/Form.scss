@@ -1,0 +1,198 @@
+/** Forms */
+
+@import "./Mixins.scss";
+@import "./Colors.scss";
+@import "./Animations.scss";
+
+@mixin shared--radio {
+  display: inline-block;
+  margin: 0 0.3rem;
+  order: -1;
+  width: 1rem;
+  height: 1rem;
+}
+
+button,
+.button {
+  @include shared--button();
+  padding: 0.6em 1.2em;
+}
+
+.button--float {
+  position: absolute;
+  top: 0;
+
+  &.left {
+    left: 0;
+  }
+
+  &.right {
+    right: 0;
+  }
+}
+
+.button--grid {
+  align-items: center;
+  column-gap: 0.4rem;
+  display: grid;
+  grid-template-columns: repeat(2, max-content);
+  place-content: center;
+}
+
+button.transparent,
+button[class$="--transparent"],
+.button--transparent {
+  background-color: transparent;
+}
+
+.button--round {
+  align-items: center;
+  border-radius: 8rem;
+  display: flex;
+  height: 2.4rem;
+  padding: 0.4rem;
+  place-content: center;
+  width: 2.4rem;
+}
+
+fieldset {
+  border: 1px solid transparent;
+  border-radius: 4px;
+  border-top-color: #9993;
+  padding: 0 0 2.4rem;
+
+  &:last-child,
+  &:last-of-type {
+    margin-bottom: 0;
+  }
+
+  &:first-of-type {
+    margin-top: 0;
+  }
+}
+
+legend {
+  @include h4;
+  @include legendary;
+  border: 0;
+  margin-bottom: 1rem;
+  width: 100%;
+
+  &::after {
+    background-color: $grey;
+  }
+}
+
+legend.grid {
+  align-items: center;
+  display: grid;
+  column-gap: 0.6rem;
+  grid-template-columns: max-content 1fr;
+}
+
+form {
+  margin: 0 auto;
+  padding: 1rem 0;
+  max-width: 600px;
+}
+
+label {
+  @include h6;
+  display: grid;
+  grid-template-columns: 1fr;
+  line-height: 2rem;
+
+  &[data-checkbox] {
+    align-items: center;
+    grid-template-columns: auto 1fr;
+  }
+
+  > input,
+  > select,
+  > textarea {
+    padding-left: 0.4rem;
+    padding-right: 0.4rem;
+  }
+}
+
+label:not(:first-of-type) {
+  margin-top: 1.2rem;
+}
+
+[aria-required],
+[aria-required] > .label,
+.required {
+  &::after {
+    content: "*";
+    color: #ff007b;
+    display: inline-block;
+    filter: saturate(2);
+  }
+}
+
+input,
+input[type="text"],
+input[type="password"],
+input[type="email"],
+input[type="number"],
+input[type="date"],
+input[type="time"],
+input[type="datetime-local"],
+input[type="month"],
+input[type="week"],
+input[type="search"],
+input[type="tel"],
+input[type="url"],
+input[type="color"],
+input[type="file"],
+select {
+  height: 50px;
+}
+
+input,
+select,
+textarea {
+  @include shared--input;
+}
+
+input[type="checkbox"],
+input[type="radio"] {
+  @include shared--radio;
+}
+
+:disabled,
+[disabled="true"],
+[aria-disabled="true"],
+[data-disabled="true"] {
+  &,
+  * {
+    cursor: not-allowed;
+    font-style: italic;
+    opacity: 0.8;
+  }
+}
+
+select {
+  @media screen and (max-width: 500px) {
+    width: 100%;
+  }
+}
+
+select option {
+  font-size: 16px;
+}
+
+textarea {
+  height: 180px;
+  width: inherit;
+}
+
+.input--clearable input {
+  width: 100%;
+}
+
+.checkbox-wrapper {
+  align-items: center;
+  display: grid;
+  grid-template-columns: auto 1fr;
+}

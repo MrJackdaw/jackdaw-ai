@@ -1,0 +1,45 @@
+@import "./Mixins.scss";
+@import "./Animations.scss";
+@import "./Colors.scss";
+
+details {
+  @include shared--button;
+  cursor: default;
+  pointer-events: none;
+  padding: 0 1.2em;
+  margin: 1.2rem 0;
+}
+
+details[open]::after {
+  display: block;
+  content: "";
+  height: 1rem;
+}
+
+details[open] > p,
+details[open] > div,
+details[open] > span,
+details[open] > section {
+  @extend .slide-in-down;
+}
+
+details,
+details > summary {
+  display: grid;
+  column-gap: 0.6rem;
+  grid-template-columns: repeat(auto-fill, minmax(max-content, 5%));
+}
+
+summary {
+  align-items: center;
+  cursor: pointer;
+  font-size: 0.85rem;
+  font-weight: 300;
+  line-height: 2rem;
+  padding: 0.2rem 0;
+  pointer-events: all;
+}
+
+summary > .material-symbols-outlined {
+  color: $grey;
+}

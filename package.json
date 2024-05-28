@@ -1,0 +1,46 @@
+{
+  "name": "@jackcom/jackdaw-ai",
+  "description": "Talk to your mailbox, and other documents.",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "scripts": {
+    "start": "dotenv -e .env.local -- vite",
+    "build": "dotenv -e .env.prod -- tsc && dotenv -e .env.prod -- vite build",
+    "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "@jackcom/raphsducks": "^3.0.1",
+    "@langchain/community": "^0.2.2",
+    "@langchain/core": "^0.2.0",
+    "@langchain/openai": "^0.0.33",
+    "@xenova/transformers": "^2.17.1",
+    "buffer": "^6.0.3",
+    "dexie": "^4.0.5",
+    "events": "^3.3.0",
+    "langchain": "^0.2.1",
+    "luxon": "^3.4.4",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "react-markdown": "^9.0.1",
+    "react-router-dom": "^6.23.0"
+  },
+  "devDependencies": {
+    "@types/luxon": "^3.4.2",
+    "@types/node": "^20.12.7",
+    "@types/react": "^18.2.66",
+    "@types/react-dom": "^18.2.22",
+    "@typescript-eslint/eslint-plugin": "^7.2.0",
+    "@typescript-eslint/parser": "^7.2.0",
+    "@vitejs/plugin-react": "^4.2.1",
+    "dotenv": "^16.4.5",
+    "eslint": "^8.57.0",
+    "eslint-plugin-react-hooks": "^4.6.0",
+    "eslint-plugin-react-refresh": "^0.4.6",
+    "sass": "^1.77.0",
+    "typescript": "^5.2.2",
+    "vite": "^5.2.0",
+    "vite-tsconfig-paths": "^4.3.2"
+  }
+}

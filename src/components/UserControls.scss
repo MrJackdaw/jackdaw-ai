@@ -1,0 +1,23 @@
+$avatarSize: 40px;
+
+.user-controls.list-item--grid,
+.user-controls.list-item--grid:last-of-type {
+  cursor: pointer;
+  margin-bottom: 0;
+}
+
+.user-controls img.avatar {
+  height: auto;
+  width: $avatarSize;
+  border-radius: 100%;
+}
+
+.user-controls .toggle-settings {
+  align-items: center;
+  display: grid;
+  grid-template-columns: $avatarSize 1fr;
+}
+
+.user-control__item.item-menu__item {
+  height: 2.6rem;
+}

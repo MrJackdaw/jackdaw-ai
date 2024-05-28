@@ -1,0 +1,100 @@
+@import "../css/Mixins.scss";
+
+.module--chat-messages {
+  display: grid;
+  grid-template-columns: 1fr;
+  grid-template-rows: 1fr auto;
+  height: 100%;
+  padding: 0.6rem 0.6rem 0;
+}
+
+.list--chat-messages {
+  display: flex;
+  flex-direction: column;
+  padding: 1rem;
+  place-content: end;
+}
+
+.message {
+  display: flex;
+
+  &.user {
+    align-self: flex-end;
+  }
+
+  .message--outgoing {
+    place-content: end;
+  }
+}
+
+.message--incoming,
+.message--outgoing {
+  border-radius: 8px;
+  margin-bottom: 1rem;
+  padding: 0.6rem;
+  text-align: left;
+  width: fit-content;
+}
+
+.message--incoming {
+  background-color: #000;
+  border-top-left-radius: 0;
+  margin-right: 2.5rem;
+}
+
+.message--outgoing {
+  align-self: end;
+  background-color: #333;
+  border-top-right-radius: 0;
+  border: 1px solid #67676788;
+  margin-left: 2.5rem;
+
+  .message__text b {
+    text-align: right;
+  }
+}
+
+.message__text,
+.message__text p {
+  margin: 0;
+  width: fit-content;
+}
+
+.message__text b {
+  display: block;
+}
+
+.module--chat-messages__list-container {
+  @include hide-scrollbar();
+  border-radius: 8px;
+  transition: border 500ms ease-in;
+  overflow-y: auto;
+
+  &[data-loaded="false"] {
+    border: 1px dashed #67676788;
+  }
+
+  &[data-loaded="true"] {
+    border: 1px solid #8c65ae;
+  }
+
+  &[data-error="true"]::after {
+    color: #ff5e5e;
+  }
+
+  &[data-empty="true"]::after {
+    @include h1();
+
+    content: attr(data-empty-message);
+    font-weight: bold;
+    display: block;
+    margin: 0 auto;
+    opacity: 0.3;
+    position: absolute;
+    text-align: center;
+    top: 50%;
+    left: 50%;
+    margin-left: -200px;
+    width: 400px;
+  }
+}

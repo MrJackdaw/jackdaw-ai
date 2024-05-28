@@ -1,0 +1,56 @@
+@import "../css/Mixins.scss";
+
+/** TabbedInterface.scss */
+$special: #aaaaaa55;
+$gray: #999;
+
+/** Row of tabs on top of container */
+.tabbed-interface__tabs {
+  @include hide-scrollbar;
+  background-color: inherit;
+  column-gap: 0;
+  grid-template-columns: repeat(auto-fill, minmax(max-content, 25%));
+  list-style: none;
+  margin: 1.2rem 0 0;
+  max-width: 100vw;
+  overflow-x: auto;
+  padding: 0;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+
+.tabbed-interface__tabs .tab {
+  @include h5;
+  border-bottom-style: solid;
+  border-bottom-width: 1px;
+  border-radius: 4px 4px 0 0;
+  column-gap: .6rem;
+  cursor: pointer;
+  grid-template-columns: 24px max-content;
+  font-size: smaller;
+  padding: 0.4rem 1rem;
+}
+
+.tabbed-interface__tabs .tab:not(.active) {
+  border-color: transparent;
+  border-bottom-color: $special;
+  color: $gray;
+}
+
+.tabbed-interface__tabs .tab.active {
+  border-color: #8889;
+  border-width: 1px;
+  border-style: solid;
+  border-bottom: 0;
+  font-style: initial;
+}
+
+.tabbed-interface__content {
+  padding: 0.6rem;
+  border-color: #8889;
+  border-width: 1px;
+  border-style: solid;
+  border-radius: 0 0 4px 4px;
+  border-top: none;
+}

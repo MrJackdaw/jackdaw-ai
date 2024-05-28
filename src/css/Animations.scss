@@ -1,0 +1,538 @@
+/******************************************
+*  File : Animations.scss
+*******************************************/
+@keyframes beacon {
+  0% {
+    transform: scale(1, 1);
+    opacity: 1;
+  }
+
+  100% {
+    transform: scale(1.4);
+    opacity: 0;
+  }
+}
+
+@keyframes blossom {
+  0% {
+    transform: translateY(8%) scale(0);
+    opacity: 0;
+  }
+
+  50% {
+    opacity: 0;
+  }
+
+  100% {
+    transform: translateY(-8%) scale(1);
+    opacity: 1;
+  }
+}
+
+@keyframes bounce {
+  0% {
+    transform: translateY(-1%);
+  }
+
+  100% {
+    transform: translateY(12%);
+  }
+}
+
+@keyframes collapse-horizontal {
+  from {
+    transform: scaleX(1);
+  }
+
+  to {
+    transform: scaleX(0);
+  }
+}
+
+@keyframes collapse-vertical {
+  from {
+    transform: scaleY(1);
+  }
+
+  to {
+    transform: scaleY(0);
+  }
+}
+
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes fade-out {
+  from {
+    opacity: 1;
+  }
+
+  to {
+    opacity: 0;
+  }
+}
+
+@keyframes mirror {
+  0% {
+    transform: scaleX(1);
+  }
+
+  100% {
+    transform: scaleX(-1);
+  }
+}
+
+@keyframes pulse {
+  0% {
+    box-shadow: 0 0 0.7rem #3c99dc78;
+    color: #3c99dc;
+  }
+
+  100% {
+    box-shadow: 0 0 4px #3c99dc00;
+    color: inherit;
+  }
+}
+
+@keyframes rotate90 {
+  from {
+    transform: rotate(-45deg);
+  }
+
+  to {
+    transform: rotate(45deg);
+  }
+}
+
+@keyframes tachometer {
+  0% {
+    transform: rotate(-67.5deg);
+  }
+
+  80% {
+    transform: rotate(45deg);
+  }
+
+  100% {
+    transform: rotate(45deg);
+  }
+}
+
+@keyframes rotate180 {
+  from {
+    transform: rotate(0deg);
+  }
+
+  to {
+    transform: rotate(180deg);
+  }
+}
+
+@keyframes spin-pause {
+  15% {
+    transform: rotate(0deg);
+  }
+
+  65% {
+    transform: rotate(90deg);
+  }
+
+  100% {
+    transform: rotate(90deg);
+  }
+}
+
+@keyframes rotateZY360 {
+  0% {
+    transform: scaleY(1);
+  }
+
+  50% {
+    transform: scaleY(-1);
+  }
+
+  100% {
+    transform: scaleY(1);
+  }
+}
+
+@keyframes rotateZX360 {
+  0% {
+    transform: scaleX(1);
+  }
+
+  50% {
+    transform: scaleX(-1);
+  }
+
+  100% {
+    transform: scaleX(1);
+  }
+}
+
+@keyframes hanging-sign {
+  0% {
+    transform-origin: 0 0;
+    transform: scale(1) rotate3d(0, 0, 0, 0deg);
+  }
+
+  50% {
+    filter: brightness(0.8);
+    transform-origin: 0 0;
+    transform: rotate3d(1, 0, 0, -20deg);
+  }
+
+  100% {
+    filter: brightness(1);
+    transform-origin: 0 0;
+    transform: rotate3d(1, 0, 0, 20deg);
+  }
+}
+
+@keyframes scale-in {
+  0% {
+    transform: scale(0.9);
+    opacity: 0.25;
+  }
+
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+@keyframes scale-up {
+  0% {
+    transform: scale(1);
+  }
+
+  100% {
+    transform: scale(1.04);
+  }
+}
+
+@keyframes shake {
+  0% {
+    transform: translate(-10%, 0);
+    opacity: 0.25;
+  }
+
+  25% {
+    transform: translate(8%, 0);
+    opacity: 0.65;
+  }
+
+  50% {
+    transform: translate(-4%, 0);
+    opacity: 0.75;
+  }
+
+  75% {
+    transform: translate(2%, 0);
+    opacity: 0.95;
+  }
+
+  100% {
+    transform: translate(0);
+    opacity: 1;
+  }
+}
+
+@keyframes slide-left {
+  from {
+    transform: translateX(5%);
+  }
+
+  to {
+    transform: translateX(0);
+  }
+}
+
+@keyframes slide-right {
+  from {
+    transform: translateX(-10%);
+  }
+
+  to {
+    transform: translateX(0%);
+  }
+}
+
+@keyframes slide-down {
+  from {
+    transform: translateY(-10%);
+  }
+
+  to {
+    transform: translateX(0%);
+  }
+}
+
+@keyframes slide-up {
+  from {
+    transform: translateY(10%);
+  }
+
+  to {
+    transform: translateX(0%);
+  }
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes waggle {
+  0% {
+    transform: translate(-10%, 8%);
+    opacity: 0.25;
+  }
+
+  25% {
+    transform: translate(8%, -2%);
+    opacity: 0.65;
+  }
+
+  50% {
+    transform: translate(-4%, 6%);
+    opacity: 0.75;
+  }
+
+  75% {
+    transform: translate(2%, -2%);
+    opacity: 0.95;
+  }
+
+  100% {
+    transform: translate(0, -10%);
+    opacity: 1;
+  }
+}
+
+/* Animation Mixins */
+@mixin collapse($horizontal: true, $duration: 180ms) {
+  @if $horizontal {
+    animation: collapse-horizontal $duration ease-out;
+  } @else {
+    animation: collapse-vertical $duration ease-out;
+  }
+}
+
+@mixin expand($horizontal: true, $duration: 180ms) {
+  @if $horizontal {
+    animation: expand-horizontal 180ms ease-out;
+  } @else {
+    animation: expand-horizontal 180ms ease-out;
+  }
+}
+
+@mixin merge-animations($a1, $a2, $d1: 250ms, $d2: 250ms) {
+  animation: $a1 $d1 ease-out forwards, $a2 $d2 ease-out forwards;
+  animation-fill-mode: forwards;
+}
+
+@mixin spinner($size: 0.75rem) {
+  animation: spin 0.8s linear infinite;
+  border-radius: 50%;
+  border: 0.15rem solid;
+  border-top-color: transparent;
+  content: "";
+  display: inline-block;
+  height: $size;
+  left: 48%;
+  top: 40%;
+  transform-origin: center;
+  width: $size;
+}
+
+/* Classes */
+.spinner--after,
+.spinner--before {
+  display: flex;
+}
+
+.spinner--after::after,
+.spinner--before::before {
+  @include spinner;
+}
+
+.spinner--after::after {
+  margin-left: 0.3rem;
+}
+
+.spinner--before::before {
+  margin-right: 0.3rem;
+}
+
+.beacon {
+  animation: beacon 800ms ease-out;
+}
+
+.bounce {
+  animation: bounce 750ms ease-out;
+}
+
+.blossom {
+  animation: blossom 750ms ease-out;
+}
+
+.collapse--horizontal {
+  @include merge-animations(fade-out, collapse-horizontal, 400ms);
+  animation-fill-mode: both;
+}
+
+.collapse--vertical {
+  @include merge-animations(fade-out, collapse-vertical, 400ms);
+  animation-fill-mode: both;
+}
+
+.expand--horizontal {
+  @extend .collapse--horizontal;
+  animation-direction: reverse;
+  transform-origin: left center;
+}
+
+.expand--vertical {
+  @extend .collapse--vertical;
+  animation-direction: reverse;
+  transform-origin: center top;
+}
+
+.fade-in {
+  animation: fade-in 250ms ease-out;
+  animation-fill-mode: both;
+}
+
+.fade-in-bounce {
+  @include merge-animations(fade-in, bounce, 0.8s);
+}
+
+.fade-out {
+  @extend .fade-in;
+  animation-direction: reverse;
+  animation-fill-mode: forwards;
+}
+
+.pulse {
+  animation: pulse 2.1s ease-out infinite;
+}
+
+.rotate {
+  transform: rotate(180deg);
+  transition: transform 500ms;
+}
+
+.rotate-reverse {
+  transform: rotate(0deg);
+  transition: transform 500ms;
+  animation-fill-mode: forwards;
+}
+
+.scale-in {
+  animation: scale-in 180ms ease-out;
+  animation-fill-mode: forwards;
+}
+
+.slide-in-up {
+  will-change: opacity, transform;
+  @include merge-animations(slide-up, fade-in, 300ms, 300ms);
+}
+
+.slide-in-down {
+  will-change: opacity, transform;
+  @include merge-animations(slide-down, fade-in, 300ms, 300ms);
+}
+
+.slide-in-right {
+  will-change: opacity, transform;
+  animation-fill-mode: forwards;
+  @include merge-animations(slide-right, fade-in, 250ms, 250ms);
+}
+
+.slide-in-left {
+  will-change: opacity, transform;
+  animation-fill-mode: forwards;
+  @include merge-animations(slide-left, fade-in, 250ms, 250ms);
+}
+
+.slide-out-right {
+  @extend .slide-in-right;
+  animation-direction: reverse;
+}
+
+.slide-out-up {
+  @include merge-animations(slide-up, fade-out, 250ms, 250ms);
+}
+
+.slide-left {
+  animation: slide-left 400ms ease-out;
+}
+
+.slide-right {
+  animation: slide-left 400ms ease-out;
+}
+
+.shake {
+  animation: shake 400ms ease-out;
+}
+
+.spin {
+  animation: spin 250ms ease-out;
+}
+
+.mirror {
+  animation: mirror 250ms ease-out;
+}
+
+.z360 {
+  animation: rotateZX360 infinite 10s ease-out;
+}
+
+.hanging-sign {
+  animation: hanging-sign infinite alternate 01s ease-out;
+}
+
+.zy360 {
+  animation: rotateZY360 infinite 10s ease-out;
+}
+
+/* Duration helpers */
+.infinite {
+  &.infinite {
+    animation-iteration-count: infinite;
+    animation-direction: alternate;
+  }
+}
+
+.infinity-mirror {
+  animation: mirror infinite 10s ease-out;
+}
+
+.tachometer {
+  animation: tachometer infinite alternate 2.5s ease-out;
+}
+
+.rotor-180 {
+  animation: rotate180 infinite alternate 4s linear;
+}
+
+.spinfinite {
+  animation: spin infinite 20s linear;
+}
+
+.spinfinite-pause {
+  animation: spin-pause infinite 4s linear;
+}

@@ -1,0 +1,23 @@
+@import "./../../css/Colors.scss";
+
+//
+.list-item--projects {
+  &.active > .list-item__icon-column .button--round,
+  &.active.compact > * {
+    border: 0.1rem solid $success;
+    color: $success;
+  }
+
+  .editable:hover {
+    background-color: #8886;
+    cursor: pointer;
+  }
+
+  .list-item__content {
+    pointer-events: none;
+  }
+
+  .list-item__content .editable {
+    pointer-events: fill;
+  }
+}

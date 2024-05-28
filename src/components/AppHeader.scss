@@ -1,0 +1,48 @@
+@import "./../css/Mixins.scss";
+
+#app-header {
+  align-items: center;
+  display: grid;
+  grid-template-columns: auto;
+  height: $appHeaderHeight;
+  padding: 0.5rem 1rem;
+
+  > .logo-link {
+    @include h6;
+    display: flex;
+    align-items: center;
+    font-weight: 300;
+    margin: 0;
+  }
+
+  img {
+    height: auto;
+    width: 40px;
+  }
+
+  img.avatar {
+    border-radius: 100%;
+  }
+
+  img.logo {
+    transform: rotate(270deg);
+    margin-right: 0.4rem;
+    will-change: filter;
+    transition: filter 300ms;
+  }
+
+  img.logo:hover {
+    filter: drop-shadow(0 0 2em #646cffaa);
+  }
+
+  img.logo.react:hover {
+    filter: drop-shadow(0 0 2em #61dafbaa);
+  }
+
+  .user-controls {
+    align-items: center;
+    display: grid;
+    grid-template-columns: repeat(2, max-content);
+    column-gap: 0.4rem;
+  }
+}

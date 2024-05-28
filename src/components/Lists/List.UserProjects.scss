@@ -1,0 +1,21 @@
+.list-view--user-projects {
+  padding: 1rem 0;
+}
+
+.list-view--user-projects .button--grid.transparent {
+  color: white;
+}
+
+.list-view--user-projects .controls--grid {
+  grid-template-columns: repeat(2, 1fr);
+}
+
+.list-view--user-projects .enable-cloud-storage {
+  padding: 0.4rem 0 0;
+  width: 100%;
+}
+
+.list-view--user-projects .enable-cloud-storage > label {
+  padding: 0;
+  width: 100%;
+}

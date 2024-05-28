@@ -1,0 +1,37 @@
+.input-group {
+  display: grid;
+  grid-template-columns: 1fr max-content;
+  margin: 1rem 0;
+  max-width: initial;
+  width: 100%;
+
+  &,
+  &.bordered {
+    border: 1px solid #9998;
+    border-radius: 8px;
+    overflow: hidden;
+  }
+
+  input {
+    border: 0;
+    border-bottom-left-radius: 8px;
+    border-top-left-radius: 8px;
+    padding: 0.6rem;
+    padding-left: 40px;
+  }
+
+  input::placeholder {
+    color: #999;
+  }
+
+  .button--attach {
+    color: #ddd;
+    margin-top: 0.3rem;
+  }
+
+  .button--send {
+    border-bottom-left-radius: 0;
+    border-top-left-radius: 0;
+    min-width: 80px;
+  }
+}

@@ -1,0 +1,38 @@
+@import "./../../css/Mixins.scss";
+
+.list-item.grid,
+.list-item--grid {
+  align-items: start;
+  border-bottom: 0.1rem solid #8883;
+  grid-template-columns: auto 1fr auto;
+  padding: 0.6rem 0.4rem;
+
+  &:last-of-type {
+    border: 0;
+    margin-bottom: 1rem;
+  }
+
+  &:hover {
+    background-color: #8881;
+  }
+}
+
+.list-item__title {
+  @include h6;
+  // @include legendary;
+}
+
+.list-item__content {
+  display: grid;
+  grid-template-columns: 1fr;
+  place-content: start;
+}
+
+.list-item__content .hint {
+  padding: 0;
+}
+
+.list-item__icon-column {
+  align-self: stretch;
+  cursor: pointer;
+}

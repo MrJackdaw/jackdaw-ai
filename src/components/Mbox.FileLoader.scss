@@ -1,0 +1,21 @@
+[class^="file-loader--"] {
+  margin: 0 auto;
+}
+
+.file-loader--info {
+  text-align: left;
+  opacity: 0.8;
+}
+
+.file-loader--info > .spinner--before {
+  align-items: center;
+  display: flex;
+}
+
+.file-loader--form label {
+  margin-bottom: 0;
+}
+
+.file-loader--form .slider__label {
+  font-size: smaller;
+}

@@ -1,0 +1,84 @@
+/* COLOR DEFINITIONS */
+$blue: #07f;
+$grey: #888;
+$gold: gold;
+$purple: #8c65ae;
+$error: #ff5e5e;
+$success: #03a030;
+$white: #fff;
+$darkGrey: #242424;
+$dark: #1a1a1a;
+
+:root {
+  --blue: $blue;
+  --grey: $grey;
+  --gold: $gold;
+  --purple: $purple;
+  --error: $error;
+  --success: $success;
+  --white: $white;
+  --darkGrey: $darkGrey;
+  --dark: $dark;
+}
+
+/* COLOR-SPECIFIC CLASS DEFINITIONS */
+
+/* TEXT COLOR */
+.blue {
+  color: $blue;
+}
+
+.error {
+  color: $error;
+}
+
+.purple {
+  color: $purple;
+}
+
+.gray,
+.grey {
+  color: $grey;
+}
+
+.gold {
+  color: $gold;
+}
+
+.success {
+  color: $success;
+}
+
+.white {
+  color: $white;
+}
+
+/* BACKGROUND COLORS */
+.bg--blue {
+  background-color: $blue;
+}
+
+.bg--error {
+  background-color: $error;
+}
+
+.bg--purple {
+  background-color: $purple;
+}
+
+.bg--gray,
+.bg--grey {
+  background-color: $grey;
+}
+
+.bg--gold {
+  background-color: $gold;
+}
+
+.bg--success {
+  background-color: $success;
+}
+
+.bg--white {
+  background-color: $white;
+}

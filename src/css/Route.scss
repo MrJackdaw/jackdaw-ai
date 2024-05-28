@@ -1,0 +1,13 @@
+@import "./Mixins.scss";
+
+/** Route containers */
+.route {
+  min-height: calc(100vh - $appHeaderHeight);
+  height: 100vh;
+  overflow-y: auto;
+}
+
+.route > header {
+  text-align: center;
+  padding: 0.6rem 0 1rem;
+}

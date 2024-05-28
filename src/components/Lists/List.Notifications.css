@@ -1,0 +1,26 @@
+/** Notifications List */
+
+.notifications-list {
+    margin: 0 auto;
+    max-width: 400px;
+    overflow: hidden auto;
+    padding: .4rem;
+    pointer-events: none;
+    position: fixed;
+    right: 1rem;
+    top: 1rem;
+    width: 100%;
+    z-index: 9999;
+}
+
+@media screen and (max-width: 600px) {
+    .notifications-list {
+        bottom: 0;
+        left: 0;
+        height: initial;
+        top: initial;
+        padding: 0;
+        margin: 0;
+        max-width: 100%;
+    }
+}

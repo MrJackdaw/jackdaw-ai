@@ -1,0 +1,140 @@
+@import "./../../css/Mixins.scss";
+
+/*  */
+.list-view {
+  display: grid;
+  padding: 0;
+
+  &:not(.list-view--grid) {
+    list-style: none;
+    margin: 0;
+  }
+
+  &.centered {
+    margin: 0 auto;
+  }
+}
+
+.list-view.list-view--grid {
+  align-items: flex-start;
+  column-gap: 1.75rem;
+  row-gap: 4.2rem;
+  display: grid;
+  grid-auto-rows: minmax(112px, auto);
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  padding: 1rem 0;
+  margin: 0 auto;
+  max-width: 100%;
+  width: 100%;
+}
+
+.list-view.list-view--masonry {
+  column-count: 2;
+  column-gap: 0.4rem;
+  display: block;
+  margin: 0 auto;
+  max-width: 100%;
+  padding: 1rem 0;
+  width: 100%;
+
+  > * {
+    display: inline-block;
+    break-inside: avoid;
+    margin-bottom: 1rem;
+    width: 100%;
+  }
+}
+
+.list-view .list-view__scroll-container {
+  -ms-overflow-style: none;
+  flex-shrink: 0;
+  scrollbar-width: none;
+  text-align: left;
+
+  &::-webkit-scrollbar {
+    display: none;
+  }
+
+  &:last-of-type {
+    border: 0;
+  }
+
+  &.rounded {
+    &:last-child,
+    &:first-child {
+      border-radius: 0.2rem;
+    }
+
+    &:last-child {
+      border-top-left-radius: 0;
+      border-top-right-radius: 0;
+    }
+
+    &:first-child {
+      border-bottom-left-radius: 0;
+      border-bottom-right-radius: 0;
+    }
+  }
+}
+
+/*  */
+@media screen and (max-width: 1250px) {
+  .list-view.list-view--grid {
+    column-gap: 0.6rem;
+  }
+}
+
+/*  */
+@media screen and (max-width: $Breakpoint__xl) {
+  .list-view.list-view--grid {
+    column-gap: 0.6rem;
+    padding-left: 0.6rem;
+    padding-right: 0.6rem;
+    row-gap: 1rem;
+  }
+}
+
+@media screen and (max-width: 1300px) {
+  .list-view.list-view--grid {
+    row-gap: 0.2rem;
+    column-gap: 0.2rem;
+  }
+}
+
+/*  */
+@media screen and (max-width: $Breakpoint__First) {
+  .list-view.list-view--masonry {
+    padding-left: 0.6rem;
+    padding-right: 0.6rem;
+    column-gap: 0.6rem;
+  }
+}
+
+/*  */
+@media screen and (max-width: $Breakpoint__Tablet) {
+}
+
+/*  */
+@media screen and (max-width: 600px) {
+  .list-view.list-view--grid {
+    > * {
+      margin-bottom: 0.2rem;
+    }
+  }
+}
+
+/*  */
+@media screen and (max-width: $Breakpoint__Mobile) {
+  .list-view--header {
+    padding-left: 1rem;
+    padding-right: 1rem;
+  }
+
+  .list-view.list-view--grid {
+    row-gap: 1.6rem;
+  }
+
+  .list-view.list-view--masonry {
+    column-count: 1;
+  }
+}

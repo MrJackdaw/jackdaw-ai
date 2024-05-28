@@ -1,0 +1,177 @@
+@import "css/Mixins.scss";
+@import "css/Colors.scss";
+
+#root,
+#overlays {
+  min-height: -webkit-fill-available;
+  height: 100%;
+  width: 100vw;
+}
+
+#root {
+  display: grid;
+  grid-template-columns: max-content 1fr;
+
+  > footer {
+    grid-column: 1 / -1;
+  }
+
+  > .route {
+    grid-column: 2;
+  }
+}
+
+#overlays {
+  align-items: center;
+  display: grid;
+  height: 100vh;
+  left: 0;
+  place-content: center;
+  position: fixed;
+  pointer-events: none;
+  top: 0;
+
+  > * {
+    pointer-events: fill;
+    z-index: 10;
+  }
+}
+
+h1,
+.h1 {
+  @include h1();
+}
+
+h2,
+.h2 {
+  @include h2();
+}
+
+h3,
+.h3 {
+  @include h3();
+}
+
+h4,
+.h4 {
+  @include h4();
+}
+
+h5,
+.h5 {
+  @include h5();
+}
+
+h6,
+.h6 {
+  @include h6();
+}
+
+.app-footer {
+  align-items: center;
+  display: grid;
+  font-size: 0.8rem;
+  height: 2rem;
+  line-height: 2rem;
+  padding: 0 0.6rem;
+  place-content: end;
+}
+
+.card {
+  padding: 2em;
+}
+
+.center {
+  text-align: center;
+  align-items: center;
+  place-content: center;
+}
+
+.centered {
+  margin: 0 auto;
+}
+
+.clear,
+.transparent {
+  background-color: transparent;
+  color: transparent;
+}
+
+.flex {
+  display: flex;
+}
+
+.flex,
+.grid,
+[class^="grid--"],
+[class$="--grid"] {
+  align-items: center;
+}
+
+.grid,
+[class^="grid--"],
+[class$="--grid"] {
+  display: grid;
+  column-gap: 0.6rem;
+}
+
+.grid.inline,
+.inline--grid {
+  display: -ms-inline-grid;
+  display: inline-grid;
+}
+
+.hint {
+  font-size: 0.8rem;
+  opacity: 0.6;
+  padding-left: 0.4rem;
+  padding-right: 0.4rem;
+  margin: 0.2rem 0 0;
+}
+
+.legendary {
+  @include legendary;
+
+  &::after {
+    background-color: $grey;
+  }
+}
+
+.wide {
+  width: 100%;
+}
+
+[data-tooltip] {
+  cursor: pointer;
+  position: relative;
+  z-index: 1000;
+
+  &:hover::before {
+    @include body-font;
+    background-color: #000;
+    border-radius: 0.4em;
+    top: 100%;
+    color: $grey;
+    content: attr(data-tooltip);
+    cursor: default;
+    font-size: 0.8rem;
+    left: 50%;
+    line-height: initial;
+    max-width: 300px;
+    min-width: 120px;
+    padding: 0.4em;
+    position: absolute;
+    pointer-events: none;
+    transform: translateX(-50%);
+    z-index: 10001;
+  }
+}
+
+@keyframes logo-spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}

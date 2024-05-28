@@ -1,0 +1,61 @@
+/** Dialog components */
+@import "./Animations.scss";
+@import "./Colors.scss";
+
+dialog {
+  animation: scale-in 180ms ease-in;
+  background-color: $dark;
+  border-radius: 8px;
+  border: 1px solid #aaa4;
+  box-shadow: 0 2px 4px #111;
+  padding: 1rem;
+  text-align: left;
+  width: 100vw;
+  z-index: 100;
+}
+
+dialog > header {
+  align-items: center;
+  display: grid;
+  grid-template-columns: 1fr auto;
+}
+
+dialog > .modal__header .button--icon {
+  border: 1px solid #8883;
+  pointer-events: none;
+  cursor: default;
+}
+
+dialog > .modal__header > .button--exit {
+  align-self: flex-end;
+}
+
+dialog > header h1,
+dialog > header h2,
+dialog > header h3,
+dialog > header h4,
+dialog > header h5,
+dialog > header h6 {
+  font-size: 1.4rem;
+  margin: 0;
+}
+
+dialog .dialog-controls {
+  align-items: center;
+  column-gap: 0.6rem;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(35%, 1fr));
+  margin: 2rem 0 0;
+  place-content: center;
+}
+
+@media screen and (max-width: 768px) {
+  dialog {
+    padding: 1rem 0;
+  }
+
+  dialog > header {
+    padding-left: 0.4rem;
+    padding-right: 0.4rem;
+  }
+}
