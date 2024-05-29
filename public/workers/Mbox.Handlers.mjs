@@ -4,13 +4,13 @@ import { ERR_NO_FILE } from "./Mbox.Strings.mjs";
 import { setActiveEmbedder } from "./Workers.ActiveEmbedder.mjs";
 import {
   MboxWorkerStore,
-  exportWorkerState__,
+  exportWorkerState,
   STATE__INIT,
   STATE__LOADING
 } from "./Workers.State.mjs";
 import {
-  addToVectorStore__,
-  initializeVectorStore__,
+  addToVectorStore,
+  initializeVectorStore,
   setContentOwner
 } from "./Workers.VectorStore.mjs";
 
@@ -22,7 +22,7 @@ export async function parseFile(file, contentOwner = "") {
   if (!file) return workerError(ERR_NO_FILE);
   setContentOwner(contentOwner);
 
-  exportWorkerState__(STATE__LOADING);
+  exportWorkerState(STATE__LOADING);
 
   // MBOX (plain text mailbox file with no file type) and normal plain-text files
   const fileName = file.name;
@@ -39,7 +39,7 @@ export async function parseFile(file, contentOwner = "") {
     // TXTs
     default: {
       if (import.meta.env.DEV) console.log(file);
-      return exportWorkerState__(
+      return exportWorkerState(
         undefined,
         STATUS.ERROR,
         `${fileName} has an unsupported file type`
@@ -53,7 +53,7 @@ export async function parseFile(file, contentOwner = "") {
  * @param {File} pdf .mbox file to be read */
 export async function parsePdfFile(_pdf) {
   const err = "PDF files will be supported soon";
-  exportWorkerState__({ loading: false }, STATUS.ERROR, err);
+  exportWorkerState({ loading: false }, STATUS.ERROR, err);
 }
 
 /**
@@ -61,7 +61,7 @@ export async function parsePdfFile(_pdf) {
  * @param {File} file .mbox file to be read */
 export async function parsePlainTextFile(file) {
   startTimer("initializeVectorStore");
-  await initializeVectorStore__();
+  await initializeVectorStore();
   stopTimer("initializeVectorStore");
 
   startTimer("readFileStream");
@@ -90,7 +90,7 @@ export async function readFileStream(file) {
    */
   function onFileStream({ done, value }) {
     if (done) return;
-    if (value) addToVectorStore__(decoder.decode(value, { stream: true }));
+    if (value) addToVectorStore(decoder.decode(value, { stream: true }));
     return reader.read().then(onFileStream);
   }
 }
@@ -103,18 +103,18 @@ export function initializeMboxWorker(opts) {
   if (embedder) setActiveEmbedder(embedder, apiKey);
 
   const initialized = Boolean(contentOwner);
-  return exportWorkerState__({ ...STATE__INIT, initialized });
+  return exportWorkerState({ ...STATE__INIT, initialized });
 }
 
 /** @LifeCycle Clear inbox stuff */
 export function resetMboxWorker() {
-  if (!MboxWorkerStore.getState().initialized) return exportWorkerState__();
-  exportWorkerState__(STATE__LOADING);
-  initializeVectorStore__();
+  if (!MboxWorkerStore.getState().initialized) return exportWorkerState();
+  exportWorkerState(STATE__LOADING);
+  initializeVectorStore();
 }
 
 /** Change owner email in state */
 export function changeOwner(contentOwner = "") {
   setContentOwner(contentOwner);
-  exportWorkerState__();
+  exportWorkerState();
 }

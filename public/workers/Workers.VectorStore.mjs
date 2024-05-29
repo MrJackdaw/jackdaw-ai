@@ -4,7 +4,7 @@ import { MemoryVectorStore } from "langchain/vectorstores/memory";
 import { pruneHTMLString, STATUS } from "./Mbox.Utils.mjs";
 import { getEmbedder } from "./Workers.ActiveEmbedder.mjs";
 import { RES_VECTOR_SEARCH } from "./Mbox.Strings.mjs";
-import { exportWorkerState__ } from "./Workers.State.mjs";
+import { exportWorkerState } from "./Workers.State.mjs";
 
 /**
  * In-memory VectorStore instance
@@ -21,7 +21,7 @@ export function setContentOwner(newOwner = "") {
 }
 
 /** @LifeCycle Initialize vector store (if not already done) */
-export async function initializeVectorStore__(contentOwner = "") {
+export async function initializeVectorStore(contentOwner = "") {
   console.log("initializeVectorStore");
 
   owner = contentOwner;
@@ -39,10 +39,10 @@ let errorMessage = "";
  * Initialize a `MemoryVectorStore` instance for `MailboxReader` from a single text blurb
  * @param {string|undefined} blurb
  * @param {boolean} [done=false] When true, just notify the UI that work is completed */
-export async function addToVectorStore__(blurb, done = false) {
+export async function addToVectorStore(blurb, done = false) {
   if (done) return void (__done = true);
 
-  const { documents, emailFragments } = await documentsFromTextBlurb__(blurb);
+  const { documents, emailFragments } = await documentsFromTextBlurb(blurb);
 
   // THIS TAKES A LONG TIME WHEN the embedder is running locally. Amount of time
   // will scale horribly with file size.
@@ -58,7 +58,7 @@ export async function addToVectorStore__(blurb, done = false) {
     })
     .finally(() => {
       const status = errorMessage ? STATUS.ERROR : STATUS.OK;
-      exportWorkerState__(
+      exportWorkerState(
         {
           docsCount,
           loading: false,
@@ -74,8 +74,8 @@ export async function addToVectorStore__(blurb, done = false) {
 /**
  * Turns a text blurb into multiple Langchain `Document` objects with some owner metadata
  * @param {string} blurb Text blurb to be converted */
-function documentsFromTextBlurb__(blurb) {
-  return splitTextBlurb__(pruneHTMLString(blurb)).then((parts) => {
+function documentsFromTextBlurb(blurb) {
+  return splitTextBlurb(pruneHTMLString(blurb)).then((parts) => {
     /** @type {string[]} Optimistically separated email fragments */
     const emailFragments = [];
     /** @type {Document[]} Langchain `Documents` from email fragments */
@@ -97,7 +97,7 @@ function documentsFromTextBlurb__(blurb) {
 /**
  * Generates LangChain `Document` objects from an input string
  * @param {string} prunedString Plain text string without special characters */
-async function splitTextBlurb__(prunedString) {
+async function splitTextBlurb(prunedString) {
   const fileSplitter = new RecursiveCharacterTextSplitter({
     // separators: ["From ", "From: "],
     chunkOverlap: 100,
@@ -110,7 +110,7 @@ async function splitTextBlurb__(prunedString) {
 /**
  * Search for relevant content in vector store instance. Expects a query string.
  * @param {string} q Query string (e.g. user question) */
-export async function searchVectors__(q) {
+export async function searchVectors(q) {
   if (!MVectorStore) throw new Error("MVectorStore is not initialized");
 
   return (

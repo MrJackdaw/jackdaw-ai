@@ -8,7 +8,7 @@ import {
 } from "./Mbox.Handlers.mjs";
 import { setActiveEmbedder } from "./Workers.ActiveEmbedder.mjs";
 import { MboxWorkerStore } from "./Workers.State.mjs";
-import { searchVectors__ } from "./Workers.VectorStore.mjs";
+import { searchVectors } from "./Workers.VectorStore.mjs";
 
 self.addEventListener(
   "message",
@@ -41,7 +41,7 @@ self.addEventListener(
       // Find relevant vectors: Expects a query string at `e.data.data`
       case "Mbox.searchVectors": {
         return data.query
-          ? searchVectors__(data.query)
+          ? searchVectors(data.query)
           : workerError(ERR_NO_DATA);
       }
 

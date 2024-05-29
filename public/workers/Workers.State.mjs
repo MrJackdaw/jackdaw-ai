@@ -26,7 +26,7 @@ export const MboxWorkerStore = createState(STATE__INIT);
  * @param {"ok"|"error"|"loading"} [status=STATUS.OK] Response status (default "ok")
  * @param {string|undefined} error (Optional) Response error details if any
  */
-export function exportWorkerState__(state = null, status = STATUS.OK, error) {
+export function exportWorkerState(state = null, status = STATUS.OK, error) {
   if (state) MboxWorkerStore.multiple(state);
 
   self.postMessage({
