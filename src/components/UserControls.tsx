@@ -1,13 +1,17 @@
 import { version } from "../../package.json";
 import { Link } from "react-router-dom";
-import useUser from "hooks/useUser";
+import { suppressEvent } from "utils/general";
 import { MODAL, ModalStore, clearModal, setModal } from "state/modal";
+import { toggleOnlineVectorStore } from "state/settings-store";
+import useUser from "hooks/useUser";
 import useSubmenuHandler from "hooks/useSubmenuHandler";
+import useSettings from "hooks/useSettings";
 import ListViewItem, { ListViewItemContent } from "./Lists/ListViewItem";
 import ItemMenu from "./ItemMenu";
 import "./UserControls.scss";
 
 export default function UserControls() {
+  const { enableCloudStorage } = useSettings(["enableCloudStorage"]);
   const { avatar, authenticated } = useUser(["avatar", "authenticated"]);
   const { close, openSubmenu, submenuIsVisible, target } = useSubmenuHandler();
   const toggleSettings = () => {
@@ -56,16 +60,14 @@ export default function UserControls() {
           </Link>
 
           {authenticated ? (
-            <>
-              <Link
-                className="item-menu__item user-control__item"
-                to="/settings/my-projects"
-                onClick={close}
-              >
-                <span>My Projects</span>
-                <span className="material-symbols-outlined">security</span>
-              </Link>
-            </>
+            <Link
+              className="item-menu__item user-control__item"
+              to="/settings/my-projects"
+              onClick={close}
+            >
+              <span>My Projects</span>
+              <span className="material-symbols-outlined">security</span>
+            </Link>
           ) : (
             <Link
               className="item-menu__item user-control__item"
@@ -77,8 +79,21 @@ export default function UserControls() {
             </Link>
           )}
 
+          <form className="enable-cloud-storage" onSubmit={suppressEvent}>
+            <label className="hint" data-checkbox>
+              <input
+                type="checkbox"
+                onChange={toggleOnlineVectorStore}
+                checked={enableCloudStorage}
+              />
+              <span className="label">Store Documents online</span>
+            </label>
+          </form>
+
           <hr />
-          <p className="hint">version {version}</p>
+          <p className="hint" style={{ textAlign: "right" }}>
+            version {version}
+          </p>
         </ItemMenu>
       )}
     </div>

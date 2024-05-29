@@ -7,13 +7,13 @@ import {
   parseFile
 } from "./Mbox.Parser.mjs";
 import { setActiveEmbedder } from "./Workers.ActiveEmbedder.mjs";
-import { MboxWorkerStore } from "./Workers.State.mjs";
+import { MboxWorkerSettings, MboxWorkerStore } from "./Workers.State.mjs";
 import { searchVectors } from "./Workers.VectorStore.mjs";
 
 /**
  * This uses "Mbox" because it was originally conceived to handle just Mbox files.
  * Since that's changed, it now represents "Magic Box." Or that's what I tell myself
- * to justify leaving it here. 
+ * to justify leaving it here.
  */
 self.addEventListener(
   "message",
@@ -55,7 +55,7 @@ self.addEventListener(
       }
 
       case "Mbox.changeOwner": {
-        return changeOwner(data.owner ?? "");
+        return changeOwner(data.owner ?? "", data.enableCloudStorage);
       }
 
       case "Mbox.changeEmbedder": {
@@ -64,7 +64,14 @@ self.addEventListener(
           : workerError(ERR_NO_DATA);
       }
 
+      case "Mbox.updateSettings": {
+        return data.settings
+          ? MboxWorkerSettings.multiple(data.settings)
+          : MboxWorkerSettings.reset();
+      }
+
       default: {
+        console.log({ action, data });
         return workerError(ERR_NO_ACTION, action);
       }
     }

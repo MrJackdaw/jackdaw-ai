@@ -5,7 +5,7 @@ import useProjects from "hooks/useProjects";
 import { MODAL, setModal } from "state/modal";
 import { cloudDataFetch } from "data/requests.shared";
 import useUser from "hooks/useUser";
-import { UserProject, suppressEvent, updateUserSettings } from "utils/general";
+import { UserProject, suppressEvent } from "utils/general";
 import { cacheProject, deleteCachedProject } from "indexedDB";
 import UserProjectListItem from "./ListItem.UserProjects";
 import { LS_USE_CLOUD_STORE } from "utils/strings";
@@ -13,7 +13,7 @@ import { updateAsError } from "state/notifications";
 import { loadProjects } from "data/requests.projects";
 import { DataAction } from "data/requests.types";
 import useSettings from "hooks/useSettings";
-import { SettingsStore, toggleOnlineVectorStore } from "state/settings-store";
+import { toggleOnlineVectorStore } from "state/settings-store";
 import "./List.UserProjects.scss";
 
 let init = false;
@@ -109,10 +109,8 @@ export default function UserProjectsList() {
     setLoading(true);
     removeFromCloud.then((res) => onProjectChanged(res?.error, cacheKey));
   };
-  const onChangeOnlineStatus = () => {
-    toggleOnlineVectorStore();
-    updateUserSettings(SettingsStore.getState());
-  };
+  /* updates worker*/
+  const onChangeOnlineStatus = () => toggleOnlineVectorStore();
 
   useEffect(() => {
     if (init) return;

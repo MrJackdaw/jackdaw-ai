@@ -19,7 +19,11 @@ import {
  * @Action Read Inbox file and initialize VectorStore (async)
  * @param {File} file .mbox file to be read
  * @param {string} contentOwner Identifier of owner */
-export async function parseFile(file, contentOwner = "", enableCloudStorage = false) {
+export async function parseFile(
+  file,
+  contentOwner = "",
+  enableCloudStorage = false
+) {
   if (!file) return workerError(ERR_NO_FILE);
   setContentOwner(contentOwner, enableCloudStorage);
 
@@ -88,7 +92,6 @@ export async function parsePdfFile(_pdf) {
  * @Action Read Inbox file and initialize VectorStore (async)
  * @param {File} file .mbox file to be read */
 export async function parsePlainTextFile(file) {
-
   startTimer("readFileStream");
   await readFileStream(file);
   stopTimer("readFileStream");
@@ -121,15 +124,16 @@ function onFileStream({ done, value }, reader) {
   return reader.read().then((x) => onFileStream(x, reader));
 }
 
-/** @LifeCycle Initialize */
+/**
+ * @LifeCycle Initialize or reset the worker
+ * @param {object} opts
+ * @param {string|undefined} opts.embedder
+ * @param {string|undefined} opts.apiKey
+ */
 export function initializeMboxWorker(opts) {
-  const { email: existing } = MboxWorkerStore.getState();
-  const { owner: contentOwner = existing, embedder, apiKey } = opts;
-  if (contentOwner) setContentOwner(contentOwner);
+  const { embedder, apiKey } = opts;
   if (embedder) setActiveEmbedder(embedder, apiKey);
-
-  const initialized = Boolean(contentOwner);
-  return exportWorkerState({ ...STATE__INIT, initialized });
+  return exportWorkerState({ ...STATE__INIT, initialized: true });
 }
 
 /** @LifeCycle Clear inbox stuff */
@@ -139,8 +143,11 @@ export function resetMboxWorker() {
   initializeVectorStore();
 }
 
-/** Change owner email in state */
-export function changeOwner(contentOwner = "") {
-  setContentOwner(contentOwner);
+/**
+ * Change owner email in state
+ * @param {string} [contentOwner=""] Content owner handle
+ * @param {boolean} [enableCloudStorage=false] Save documents to cloud when true */
+export function changeOwner(contentOwner = "", enableCloudStorage = false) {
+  setContentOwner(contentOwner, enableCloudStorage);
   exportWorkerState();
 }

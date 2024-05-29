@@ -4,7 +4,7 @@ import { MemoryVectorStore } from "langchain/vectorstores/memory";
 import { pruneHTMLString, STATUS } from "./Mbox.Utils.mjs";
 import { getEmbedder } from "./Workers.ActiveEmbedder.mjs";
 import { RES_VECTOR_SEARCH } from "./Mbox.Strings.mjs";
-import { exportWorkerAlert, exportWorkerState } from "./Workers.State.mjs";
+import { exportWorkerAlert, exportWorkerState, MboxWorkerSettings } from "./Workers.State.mjs";
 
 /**
  * In-memory VectorStore instance
@@ -18,6 +18,7 @@ let useCloudStorage = false;
  * @param {string} newOwner New owner
  */
 export function setContentOwner(newOwner = "", enableCloudStorage = false) {
+  console.log('::Worker.VectorStore::', MboxWorkerSettings.getState())
   owner = newOwner;
   useCloudStorage = enableCloudStorage;
 }
@@ -60,14 +61,13 @@ export async function addToVectorStore(blurb, done = false) {
       return true;
     })
     .catch((error) => {
-      console.log("error adding doc to store", error);
-      errorMessage = error ?? new Error("Error adding to vector store").message;
+      errorMessage = error || "Error adding document to vector store";
       return false;
     })
     .finally(() => {
       const status = errorMessage ? STATUS.ERROR : STATUS.OK;
       const alert =
-        errorMessage ?? `Document ${useCloudStorage ? "saved" : "loaded"}`;
+        errorMessage || `Document ${useCloudStorage ? "saved" : "loaded"}`;
       exportWorkerAlert(alert, errorMessage ? "Error" : "Info");
       exportWorkerState(
         {

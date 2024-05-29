@@ -20,6 +20,17 @@ export const STATE__INIT = {
 /** Shared worker state */
 export const MboxWorkerStore = createState(STATE__INIT);
 
+/** Copy of user settings from LocalStorage and IndexedDB */
+export const MboxWorkerSettings = createState({
+  assistantAPIKey: "",
+  assistantLLM: "",
+  colorIdent: "",
+  embedder: "", // "jackcom" | "huggingface" | "ollama" | "openai"
+  embedderAPIKey: "",
+  enableCloudStorage: false,
+  owner: ""
+});
+
 /**
  * Export Worker state to UI listener
  * @param {Partial<ReturnType<typeof MboxWorkerStore.getState>>|null} state State updates to apply

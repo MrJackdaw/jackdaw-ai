@@ -166,5 +166,6 @@ export function updateUserSettings(d: LocalUserSettings) {
   if (d.owner) localStorage.setItem(LS_OWNER_KEY, d.owner);
   if (d.colorIdent) localStorage.setItem(LS_COLOR_IDENT_OVERRIDE, d.colorIdent);
   else localStorage.setItem(LS_COLOR_IDENT_OVERRIDE, stringToColor(d.owner));
+
   if (willRefresh) window.location.reload();
 }

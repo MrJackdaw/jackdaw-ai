@@ -130,6 +130,10 @@ label:not(:first-of-type) {
   }
 }
 
+.label {
+  cursor: pointer;
+}
+
 input,
 input[type="text"],
 input[type="password"],

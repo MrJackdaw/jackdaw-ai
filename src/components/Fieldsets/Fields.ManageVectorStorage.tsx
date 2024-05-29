@@ -1,11 +1,10 @@
 import { useMemo } from "react";
 import useUser from "hooks/useUser";
 import Slider from "../Forms/Slider";
-import { SettingsStore, toggleOnlineVectorStore } from "state/settings-store";
-import { updateUserSettings } from "utils/general";
+import { toggleOnlineVectorStore } from "state/settings-store";
 import useSettings from "hooks/useSettings";
 
-type MVSFProps = { saveImmediately?: boolean };
+type MVSFProps = { disabled?: boolean; saveImmediately?: boolean };
 
 export default function ManageVectorStorageFields(props: MVSFProps) {
   const { authenticated, initialized } = useUser([
@@ -24,12 +23,9 @@ export default function ManageVectorStorageFields(props: MVSFProps) {
           "(Note that performance may degrade with larger files.)"
         ];
   }, [enableCloudStorage]);
-  const onSelectionChange = () => {
-    toggleOnlineVectorStore();
-    if (props.saveImmediately) updateUserSettings(SettingsStore.getState());
-  };
+  const onSelectionChange = () => toggleOnlineVectorStore(); /* updates worker*/
   const disabled = useMemo(
-    () => !initialized || !authenticated,
+    () => props.disabled || !initialized || !authenticated,
     [initialized, authenticated]
   );
 

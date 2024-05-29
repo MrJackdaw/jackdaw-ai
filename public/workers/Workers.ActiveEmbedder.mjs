@@ -1,4 +1,5 @@
 import { HFEmbedder, JackComEmbedder, OpenAIEmbedder } from "./Workers.Models";
+import { MboxWorkerSettings } from "./Workers.State.mjs";
 
 /** @type {AsyncSingleton} Active embedding (user can conditionally override) */
 let activeEmbedder = null;
@@ -16,6 +17,9 @@ export async function getEmbedder() {
  * @param {string?} apiKey  */
 
 export async function setActiveEmbedder(e, apiKey = "") {
+  // Update shared worker settings state
+  MboxWorkerSettings.multiple({ embedder: e, embedderAPIKey: apiKey });
+
   switch (e) {
     case "jackcom": {
       activeEmbedder = await JackComEmbedder.getInstance();

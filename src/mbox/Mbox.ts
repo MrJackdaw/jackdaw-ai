@@ -1,4 +1,4 @@
-import { SettingsStore } from "state/settings-store";
+import { SettingsStore, refreshSettingsFromCache } from "state/settings-store";
 import {
   CHANNELS,
   updateAsError,
@@ -16,6 +16,7 @@ type WorkerUpdate = (WorkerResponseData | WorkerStateUpdate) &
 type ResponseStatus = "ok" | "error" | "loading";
 type ResponseCore = { message: string; status: ResponseStatus };
 
+/** Primary Web Worker that handles document parsing, embedding, and vector storage */
 export const DocumentHandler = new Worker(
   new URL("/workers/Worker.Main.mjs", import.meta.url).href,
   { type: "module", credentials: "include", name: "Parser" }
@@ -28,14 +29,20 @@ export function initializeMboxModule() {
   if (subscribed) return;
   subscribed = true;
 
+  // Send initial user settings to Worker and alert whenever user settings change
+  copySettingsToParser();
+  const unsubscribe = SettingsStore.subscribe(copySettingsToParser);
+
+  // Listen for any messages from Worker
   DocumentHandler.addEventListener("message", onWorkerUpdate);
+
+  // Unsubscribe from Worker before window unloads
   window.addEventListener("beforeunload", () => {
+    unsubscribe();
     DocumentHandler.removeEventListener("message", onWorkerUpdate);
   });
 
-  const { owner } = SettingsStore.getState();
   sendParserMessage("Mbox.initialize", {
-    owner,
     embedder: localStorage.getItem(LS_EMBEDDER_KEY),
     apiKey: localStorage.getItem(LS_EMBEDDER_APIKEY)
   });
@@ -74,9 +81,10 @@ export function clearParserModelCache() {
 }
 
 export function changeMboxOwner(owner: string = "") {
-  sendParserMessage("Mbox.changeOwner", { owner });
   SettingsStore.multiple({ owner, colorIdent: stringToColor(owner) });
   updateUserSettings(SettingsStore.getState());
+  refreshSettingsFromCache();
+  copySettingsToParser();
 }
 
 export function sendFilesToParser(
@@ -89,7 +97,11 @@ export function sendFilesToParser(
     const { owner, enableCloudStorage } = SettingsStore.getState();
     const fileName = uploadedFile.name;
     updateNotification(`Loading ${fileName}...`, undefined, true);
-    sendParserMessage("Mbox.parseFile", { file: uploadedFile, owner, enableCloudStorage });
+    sendParserMessage("Mbox.parseFile", {
+      file: uploadedFile,
+      owner,
+      enableCloudStorage
+    });
     return [fileName];
   } catch (error) {
     const errorM = (error as Error)?.message ?? error?.toString();
@@ -105,11 +117,19 @@ type ParserAction =
   | "Mbox.clearCache"
   | "Mbox.clearEmails"
   | "Mbox.changeOwner"
-  | "Mbox.changeEmbedder";
+  | "Mbox.changeEmbedder"
+  | "Mbox.updateSettings";
 
+/** Helper: Send a standardized message format to the active `Web Worker` */
 export function sendParserMessage(
   action: ParserAction,
   data?: Record<string, any>
 ) {
   DocumentHandler.postMessage({ action, data });
+}
+
+/** Copy current user settings to `Worker` */
+function copySettingsToParser() {
+  const settings = () => ({ settings: SettingsStore.getState() });
+  sendParserMessage("Mbox.updateSettings", settings());
 }
