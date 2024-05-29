@@ -1,4 +1,3 @@
-import { sendParserMessage } from "mbox/Mbox";
 import { FormEventHandler } from "react";
 import {
   LS_EMBEDDER_KEY,
@@ -101,34 +100,6 @@ export function hexToRgb(hex: string) {
     : { r: 0, g: 0, b: 0 };
 }
 
-/**
- * Change embeddings model (so user can do it locally if they want)
- * @param data New embedder
- */
-export function changeEmbedder(data: AISource, apiKey?: string) {
-  localStorage.setItem(LS_EMBEDDER_KEY, data);
-  if (data !== "openai") localStorage.removeItem(LS_EMBEDDER_APIKEY);
-  else {
-    if (!apiKey) throw new Error("OpenAI API key required");
-    localStorage.setItem(LS_EMBEDDER_APIKEY, apiKey);
-  }
-
-  sendParserMessage("Mbox.changeEmbedder", {
-    embedder: data,
-    apiKey: localStorage.getItem(LS_EMBEDDER_APIKEY)
-  });
-}
-
-/** Set the LLM that will help the user  */
-export function changeLLMSource(src: string, apiKey?: string) {
-  localStorage.setItem(LS_ASSISTANT_KEY, src);
-  if (!src.startsWith("openAI")) localStorage.removeItem(LS_ASSISTANT_APIKEY);
-  else {
-    if (!apiKey) throw new Error("OpenAI API key required");
-    localStorage.setItem(LS_ASSISTANT_APIKEY, apiKey);
-  }
-}
-
 export type LocalUserSettings = {
   assistantAPIKey: string;
   assistantLLM: string;
@@ -154,18 +125,31 @@ export function getUserSettings() {
   };
 }
 
-/** Write user settings to device/localStorage */
+/** Write user settings from state to device/localStorage */
 export function updateUserSettings(d: LocalUserSettings) {
   const willRefresh =
     localStorage.getItem(LS_ASSISTANT_KEY) !== d.assistantLLM ||
     localStorage.getItem(LS_EMBEDDER_KEY) !== d.embedder;
-  changeLLMSource(d.assistantLLM, d.assistantAPIKey);
-  changeEmbedder(d.embedder, d.embedderAPIKey);
+
+  // Change chat LLM
+  localStorage.setItem(LS_ASSISTANT_KEY, d.assistantLLM);
+  localStorage.setItem(LS_ASSISTANT_APIKEY, d.assistantAPIKey);
+
+  // Change Embedding model settings
+  localStorage.setItem(LS_EMBEDDER_KEY, d.embedder);
+  localStorage.setItem(LS_EMBEDDER_APIKEY, d.embedderAPIKey);
+
+  // Cloud Storage settings ("Store Documents online")
   if (d.enableCloudStorage) localStorage.setItem(LS_USE_CLOUD_STORE, "1");
   else localStorage.removeItem(LS_USE_CLOUD_STORE);
+
+  // Application owner handler
   if (d.owner) localStorage.setItem(LS_OWNER_KEY, d.owner);
+
+  // Custom UI color
   if (d.colorIdent) localStorage.setItem(LS_COLOR_IDENT_OVERRIDE, d.colorIdent);
-  else localStorage.setItem(LS_COLOR_IDENT_OVERRIDE, stringToColor(d.owner));
+  else if (d.owner)
+    localStorage.setItem(LS_COLOR_IDENT_OVERRIDE, stringToColor(d.owner));
 
   if (willRefresh) window.location.reload();
 }

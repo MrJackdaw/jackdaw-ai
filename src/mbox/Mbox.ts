@@ -1,4 +1,4 @@
-import { SettingsStore, refreshSettingsFromCache } from "state/settings-store";
+import { SettingsStore } from "state/settings-store";
 import {
   CHANNELS,
   updateAsError,
@@ -83,8 +83,6 @@ export function clearParserModelCache() {
 export function changeMboxOwner(owner: string = "") {
   SettingsStore.multiple({ owner, colorIdent: stringToColor(owner) });
   updateUserSettings(SettingsStore.getState());
-  refreshSettingsFromCache();
-  copySettingsToParser();
 }
 
 export function sendFilesToParser(
@@ -116,7 +114,6 @@ type ParserAction =
   | "Mbox.searchVectors"
   | "Mbox.clearCache"
   | "Mbox.clearEmails"
-  | "Mbox.changeOwner"
   | "Mbox.changeEmbedder"
   | "Mbox.updateSettings";
 

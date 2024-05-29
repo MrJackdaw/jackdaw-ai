@@ -23,7 +23,6 @@ export default function AssistantSettingsDialog({ open }: { open?: boolean }) {
   }, [local.embedder, local.embedderAPIKey]);
   const confirmUpdateSettings = () => {
     updateUserSettings(SettingsStore.getState());
-    refreshSettingsFromCache();
     clearModal();
     setTimeout(() => updateNotification("Settings updated"));
   };
@@ -40,7 +39,7 @@ export default function AssistantSettingsDialog({ open }: { open?: boolean }) {
       setLocal(SettingsStore.getState());
     });
 
-    // Unsubscribe AND wipe the shared store, since it is exclusive to this modal
+    // Unsubscribe AND wipe the shared store
     return () => {
       unsubscribe();
       refreshSettingsFromCache();

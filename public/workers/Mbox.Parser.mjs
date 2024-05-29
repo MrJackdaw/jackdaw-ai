@@ -11,21 +11,15 @@ import {
 } from "./Workers.State.mjs";
 import {
   addToVectorStore,
-  initializeVectorStore,
-  setContentOwner
+  initializeVectorStore
 } from "./Workers.VectorStore.mjs";
 
 /**
  * @Action Read Inbox file and initialize VectorStore (async)
  * @param {File} file .mbox file to be read
  * @param {string} contentOwner Identifier of owner */
-export async function parseFile(
-  file,
-  contentOwner = "",
-  enableCloudStorage = false
-) {
+export async function parseFile(file) {
   if (!file) return workerError(ERR_NO_FILE);
-  setContentOwner(contentOwner, enableCloudStorage);
 
   exportWorkerState(STATE__LOADING);
 
@@ -47,7 +41,6 @@ export async function parseFile(
       return void parsePdfFile(file);
     }
 
-    // TXTs
     default: {
       if (import.meta.env.DEV) console.log(file);
       return exportWorkerState(
@@ -67,16 +60,16 @@ function readTextFile__Other(file) {
   const reader = new FileReader();
   reader.onload = () => {
     console.log("yeah");
-    console.log(reader.result);
+    console.log(reader.result.slice(0, 150).padEnd(153, "..."));
+
+    // TODO stream text contents to document vector store
+    return readFileStream(new Blob([reader.result], { type: "text/plain" }));
   };
   reader.onerror = () => {
     throw new Error(`${file.name} is unsupported`);
   };
 
   reader.readAsText(file);
-
-  // TODO stream text contents to document vector store
-  new Blob().stream();
 }
 
 /**
@@ -141,13 +134,4 @@ export function resetMboxWorker() {
   if (!MboxWorkerStore.getState().initialized) return exportWorkerState();
   exportWorkerState(STATE__LOADING);
   initializeVectorStore();
-}
-
-/**
- * Change owner email in state
- * @param {string} [contentOwner=""] Content owner handle
- * @param {boolean} [enableCloudStorage=false] Save documents to cloud when true */
-export function changeOwner(contentOwner = "", enableCloudStorage = false) {
-  setContentOwner(contentOwner, enableCloudStorage);
-  exportWorkerState();
 }

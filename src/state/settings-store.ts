@@ -18,7 +18,7 @@ export function toggleOnlineVectorStore() {
   updateUserSettings(SettingsStore.getState());
 }
 
-/** Reload state with local-storage changes */
+/** Copy user settings from local-storage to state */
 export function refreshSettingsFromCache() {
   return SettingsStore.multiple(getUserSettings());
 }

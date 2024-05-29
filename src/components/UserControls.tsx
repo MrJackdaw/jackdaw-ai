@@ -79,10 +79,15 @@ export default function UserControls() {
             </Link>
           )}
 
-          <form className="enable-cloud-storage" onSubmit={suppressEvent}>
+          <form
+            className="enable-cloud-storage"
+            onSubmit={suppressEvent}
+            data-tooltip={authenticated ? undefined : "Log in to change"}
+          >
             <label className="hint" data-checkbox>
               <input
                 type="checkbox"
+                disabled={!authenticated}
                 onChange={toggleOnlineVectorStore}
                 checked={enableCloudStorage}
               />

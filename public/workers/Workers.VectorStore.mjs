@@ -4,30 +4,20 @@ import { MemoryVectorStore } from "langchain/vectorstores/memory";
 import { pruneHTMLString, STATUS } from "./Mbox.Utils.mjs";
 import { getEmbedder } from "./Workers.ActiveEmbedder.mjs";
 import { RES_VECTOR_SEARCH } from "./Mbox.Strings.mjs";
-import { exportWorkerAlert, exportWorkerState, MboxWorkerSettings } from "./Workers.State.mjs";
+import {
+  exportWorkerAlert,
+  exportWorkerState,
+  MboxWorkerSettings
+} from "./Workers.State.mjs";
 
 /**
  * In-memory VectorStore instance
  * @type {import("langchain/vectorstores/memory").MemoryVectorStore} */
 let MVectorStore;
-let owner = "";
-let useCloudStorage = false;
-
-/**
- * Set owner to be appended to documents
- * @param {string} newOwner New owner
- */
-export function setContentOwner(newOwner = "", enableCloudStorage = false) {
-  console.log('::Worker.VectorStore::', MboxWorkerSettings.getState())
-  owner = newOwner;
-  useCloudStorage = enableCloudStorage;
-}
 
 /** @LifeCycle Initialize vector store (if not already done) */
-export async function initializeVectorStore(contentOwner = "") {
+export async function initializeVectorStore() {
   if (import.meta.env.DEV) console.log("\t ::initializeVectorStore");
-
-  owner = contentOwner;
 
   return getEmbedder()
     .then((embedder) => MemoryVectorStore.fromDocuments([], embedder))
@@ -45,14 +35,15 @@ export async function addToVectorStore(blurb, done = false) {
   if (done) return;
 
   const { documents, emailFragments } = await documentsFromTextBlurb(blurb);
+  const { enableCloudStorage } = MboxWorkerSettings.getState();
 
-  if (useCloudStorage)
+  if (enableCloudStorage)
     exportWorkerAlert(
       `Documents are TOOOOTALLY being stored online.`,
       "Warning"
     );
 
-  // THIS TAKES A LONG TIME WHEN the embedder is running locally. Amount of time
+  // Local embedders are slow (unless a good model replacement is found). Amount of time
   // will scale horribly with file size.
   return MVectorStore.addDocuments(documents)
     .then(() => {
@@ -67,7 +58,8 @@ export async function addToVectorStore(blurb, done = false) {
     .finally(() => {
       const status = errorMessage ? STATUS.ERROR : STATUS.OK;
       const alert =
-        errorMessage || `Document ${useCloudStorage ? "saved" : "loaded"}`;
+        errorMessage || `Document ${enableCloudStorage ? "saved" : "loaded"}`;
+
       exportWorkerAlert(alert, errorMessage ? "Error" : "Info");
       exportWorkerState(
         {
@@ -78,6 +70,9 @@ export async function addToVectorStore(blurb, done = false) {
         },
         status
       );
+
+      docsCount = 0;
+      errorMessage = "";
     });
 }
 
@@ -85,6 +80,8 @@ export async function addToVectorStore(blurb, done = false) {
  * Turns a text blurb into multiple Langchain `Document` objects with some owner metadata
  * @param {string} blurb Text blurb to be converted */
 function documentsFromTextBlurb(blurb) {
+  const { owner } = MboxWorkerSettings.getState();
+
   return splitTextBlurb(pruneHTMLString(blurb)).then((parts) => {
     /** @type {string[]} Optimistically separated email fragments */
     const emailFragments = [];

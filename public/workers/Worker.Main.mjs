@@ -2,7 +2,6 @@ import { STATUS, clearCachedModels, workerError } from "./Mbox.Utils.mjs";
 import { ERR_NO_ACTION, ERR_NO_DATA } from "./Mbox.Strings.mjs";
 import {
   initializeMboxWorker,
-  changeOwner,
   resetMboxWorker,
   parseFile
 } from "./Mbox.Parser.mjs";
@@ -52,10 +51,6 @@ self.addEventListener(
 
       case "Mbox.clearEmails": {
         return resetMboxWorker();
-      }
-
-      case "Mbox.changeOwner": {
-        return changeOwner(data.owner ?? "", data.enableCloudStorage);
       }
 
       case "Mbox.changeEmbedder": {
