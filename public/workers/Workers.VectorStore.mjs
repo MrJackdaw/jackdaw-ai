@@ -4,7 +4,7 @@ import { MemoryVectorStore } from "langchain/vectorstores/memory";
 import { pruneHTMLString, STATUS } from "./Mbox.Utils.mjs";
 import { getEmbedder } from "./Workers.ActiveEmbedder.mjs";
 import { RES_VECTOR_SEARCH } from "./Mbox.Strings.mjs";
-import { exportWorkerState__, MboxWorkerStore } from "./Workers.State.mjs";
+import { exportWorkerState__ } from "./Workers.State.mjs";
 
 /**
  * In-memory VectorStore instance
@@ -48,9 +48,7 @@ export async function addToVectorStore__(blurb, done = false) {
   // will scale horribly with file size.
   return MVectorStore.addDocuments(documents)
     .then(() => {
-      console.log("added doc to store");
       docsCount = docsCount + emailFragments.length;
-
       return true;
     })
     .catch((error) => {
@@ -59,14 +57,17 @@ export async function addToVectorStore__(blurb, done = false) {
       return false;
     })
     .finally(() => {
-      MboxWorkerStore.multiple({
-        docsCount,
-        loading: false,
-        vectorStoreLoaded: true,
-        messagesLoaded: docsCount > 0
-      });
       const status = errorMessage ? STATUS.ERROR : STATUS.OK;
-      exportWorkerState__(status, errorMessage);
+      exportWorkerState__(
+        {
+          docsCount,
+          loading: false,
+          vectorStoreLoaded: true,
+          messagesLoaded: docsCount > 0
+        },
+        status,
+        errorMessage
+      );
     });
 }
 

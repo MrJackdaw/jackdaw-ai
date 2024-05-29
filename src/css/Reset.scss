@@ -34,10 +34,6 @@ body {
   /* Smooth scrolling haxx -- need this for Glory™ on iOS devices */
   -webkit-overflow-scrolling: touch;
 
-  // &,
-  // * {
-  // }
-
   [data-mini] {
     max-width: 300px;
   }
@@ -61,6 +57,11 @@ a {
   }
 }
 
+code,
+pre {
+  color: #7263d1;
+}
+
 details,
 summary {
   ::selection {
@@ -77,6 +78,10 @@ hr {
   margin: 0.6rem 0;
   border: 0;
   height: 0.05rem;
+}
+
+pre {
+  overflow-x: auto;
 }
 
 @media (prefers-color-scheme: light) {

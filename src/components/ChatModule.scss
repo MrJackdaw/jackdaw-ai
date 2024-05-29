@@ -31,7 +31,7 @@
 .message--outgoing {
   border-radius: 8px;
   margin-bottom: 1rem;
-  padding: 0.6rem;
+  padding: 0.6rem 0.6rem 2rem;
   text-align: left;
   width: fit-content;
 }
@@ -52,6 +52,11 @@
   .message__text b {
     text-align: right;
   }
+}
+
+.message__source {
+  padding: 1rem 0;
+  font-size: 0.9rem;
 }
 
 .message__text,

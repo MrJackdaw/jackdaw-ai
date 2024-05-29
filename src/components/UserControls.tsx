@@ -2,10 +2,10 @@ import { version } from "../../package.json";
 import { Link } from "react-router-dom";
 import useUser from "hooks/useUser";
 import { MODAL, ModalStore, clearModal, setModal } from "state/modal";
-import "./UserControls.scss";
 import useSubmenuHandler from "hooks/useSubmenuHandler";
 import ListViewItem, { ListViewItemContent } from "./Lists/ListViewItem";
 import ItemMenu from "./ItemMenu";
+import "./UserControls.scss";
 
 export default function UserControls() {
   const { avatar, authenticated } = useUser(["avatar", "authenticated"]);
@@ -21,11 +21,7 @@ export default function UserControls() {
     <div>
       <ListViewItem className="user-controls" onClick={openSubmenu}>
         {/* User Settings */}
-        <button
-          className="button--round transparent white"
-          type="button"
-          disabled
-        >
+        <button className="button--round transparent white" type="button">
           {authenticated && avatar ? (
             <img src={avatar} height={39} width="auto" className="avatar" />
           ) : (
@@ -37,32 +33,6 @@ export default function UserControls() {
         <ListViewItemContent>Settings</ListViewItemContent>
 
         <span className="material-symbols-outlined">arrow_forward_ios</span>
-
-        {/* App Settings * /}
-          <button className="button--round" type="button" onClick={toggleSettings}>
-            <span className="material-symbols-outlined">psychology</span>
-          </button>
-    
-          <footer className="app-footer">
-            <span className="version">{version}</span>
-          </footer>
-    
-          {authenticated && avatar ? (
-            <Link to="/settings" className="grid">
-              <img src={avatar} height={39} width="auto" className="avatar" />
-            </Link>
-          ) : (
-            /* User Avatar / Login / Logout * /
-            <Link to="/settings">
-              <button
-                className="button--round"
-                type="button"
-                onClick={() => clearModal(true)}
-              >
-                <span className="material-symbols-outlined">security</span>
-              </button>
-            </Link>
-          ) */}
       </ListViewItem>
 
       {submenuIsVisible && (

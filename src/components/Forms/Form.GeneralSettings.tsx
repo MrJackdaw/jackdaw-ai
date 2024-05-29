@@ -18,6 +18,7 @@ import useSettings from "hooks/useSettings";
 import ManageVectorStorageFields from "components/Fieldsets/Fields.ManageVectorStorage";
 import "./Form.GeneralSettings.scss";
 import useUser from "hooks/useUser";
+import { ChatStore } from "state/chat-store";
 
 const CHANNEL = notificationChannel("GeneralSettingsForm");
 
@@ -42,6 +43,7 @@ export default function GeneralSettingsForm() {
     }
   };
   const clearInbox = () => {
+    ChatStore.reset();
     sendParserMessage("Mbox.clearEmails");
     setTimeout(() => navigate("/"));
   };

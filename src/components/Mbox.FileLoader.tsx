@@ -1,8 +1,7 @@
 import { useMemo, useRef } from "react";
-import { SettingsStore } from "state/settings-store";
-import { sendParserMessage } from "mbox/Mbox";
+import { sendFilesToParser } from "mbox/Mbox";
 import { useMboxStore } from "hooks/useMboxStore";
-import { updateAsError, updateNotification } from "state/notifications";
+import { updateAsError } from "state/notifications";
 import { notificationChannel } from "utils/general";
 import "./Mbox.FileLoader.scss";
 
@@ -27,21 +26,10 @@ const MboxFileLoader = (props: Props) => {
   }, [messagesLoaded, docsCount]);
   const $inputRef = useRef<HTMLInputElement>(null);
   const onFiles = async (files: FileList | null) => {
-    const [uploadedFile] = files ?? [];
-    if (!uploadedFile) return;
-
-    try {
-      const { owner } = SettingsStore.getState();
-      updateNotification("Loading inbox...", undefined, true);
-      sendParserMessage("Mbox.parseFile", { file: uploadedFile, owner });
-      props.onParserNotified?.(uploadedFile.name);
-    } catch (error) {
-      const errorM = (error as Error)?.message ?? error?.toString();
-      const fullM = `MboxFileLoader.onFiles.Error::${errorM ?? "No details"}`;
-      updateAsError(fullM, CHANNEL);
-    }
+    const [fileName, error] = sendFilesToParser(files);
+    if (error) return void updateAsError(error, CHANNEL);
+    if (fileName) props.onParserNotified?.(fileName);
   };
-
   const openFileSelection = () => {
     if ($inputRef.current) $inputRef.current.click();
   };

@@ -70,6 +70,25 @@ export function changeMboxOwner(owner: string = "") {
   updateUserSettings(SettingsStore.getState());
 }
 
+export function sendFilesToParser(
+  files: FileList | null
+): [fileName: string | null, errorMessage?: string] {
+  const [uploadedFile] = files ?? [];
+  if (!uploadedFile) return [null, "No file was uploaded"];
+
+  try {
+    const { owner } = SettingsStore.getState();
+    const fileName = uploadedFile.name;
+    updateNotification(`Loading ${fileName}...`, undefined, true);
+    sendParserMessage("Mbox.parseFile", { file: uploadedFile, owner });
+    return [fileName];
+  } catch (error) {
+    const errorM = (error as Error)?.message ?? error?.toString();
+    const fullM = `Mbox.SendFilesToParser.Error::${errorM ?? "No details"}`;
+    return [null, fullM];
+  }
+}
+
 type ParserAction =
   | "x::Mbox.parsePDF"
   | "Mbox.initialize"

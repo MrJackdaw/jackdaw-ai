@@ -22,10 +22,13 @@ export const MboxWorkerStore = createState(STATE__INIT);
 
 /**
  * Export Worker state to UI listener
+ * @param {Partial<ReturnType<typeof MboxWorkerStore.getState>>|null} state State updates to apply
  * @param {"ok"|"error"|"loading"} [status=STATUS.OK] Response status (default "ok")
- * @param {string} error (Optional) Response error details if any
+ * @param {string|undefined} error (Optional) Response error details if any
  */
-export function exportWorkerState__(status = STATUS.OK, error) {
+export function exportWorkerState__(state = null, status = STATUS.OK, error) {
+  if (state) MboxWorkerStore.multiple(state);
+
   self.postMessage({
     state: MboxWorkerStore.getState(),
     status,

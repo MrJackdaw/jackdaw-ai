@@ -1,30 +1,20 @@
-import createState from "@jackcom/raphsducks";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { askAssistant } from "chains";
+import { ChatStore } from "state/chat-store";
 import { useMboxStore } from "hooks/useMboxStore";
 import useUser from "hooks/useUser";
 import useSettings from "hooks/useSettings";
 import InputGroup from "./InputGroup";
 import Markdown from "react-markdown";
+import { sendFilesToParser } from "mbox/Mbox";
 import "./ChatModule.scss";
-
-type ChatMessage = {
-  from: string;
-  text: string;
-  incoming?: boolean;
-};
-
-const ChatModuleStore = createState({
-  messages: [] as ChatMessage[],
-  question: "",
-  loading: false
-});
 
 /** Chat message list and input */
 const ChatModule = () => {
+  const $fileInputRef = useRef<HTMLInputElement>(null);
   const { owner, colorIdent } = useSettings(["owner", "colorIdent"]);
   const { criticalError } = useUser(["criticalError"]);
-  const [state, setState] = useState(ChatModuleStore.getState());
+  const [state, setState] = useState(ChatStore.getState());
   const { question, messages, loading } = useMemo(
     () => state,
     [state.loading, state.messages, state.question]
@@ -40,20 +30,27 @@ const ChatModule = () => {
     if (!messages.length) return "Ask a question";
     return "";
   }, [messagesLoaded]);
+  const placeholder = useMemo(() => {
+    return messagesLoaded ? "Ask a question" : "( No document loaded )";
+  }, [messagesLoaded]);
   const formDisabled = useMemo(
     () => !vectorStoreLoaded || loading,
     [vectorStoreLoaded, loading]
   );
+  const showFilePicker = () => {
+    if ($fileInputRef.current) $fileInputRef.current.click();
+  };
   /** Send question to API; update messages list */
   const askQuestion = async () => {
     if (!question || loading) return;
     const next = [...messages, { from: owner, text: question }];
-    ChatModuleStore.multiple({ loading: true, messages: next });
+    ChatStore.multiple({ loading: true, messages: next });
 
     try {
       const res = await askAssistant(question);
       if (res) next.push({ from: "Assistant", text: res, incoming: true });
     } catch (error) {
+      console.log("Error generating response::", error);
       next.push({
         from: "Application",
         text: "Error generating response",
@@ -62,7 +59,7 @@ const ChatModule = () => {
     } finally {
       const $view = document.querySelector("#message-view");
       if ($view) $view.scrollTop = $view.scrollHeight;
-      ChatModuleStore.multiple({
+      ChatStore.multiple({
         messages: next,
         question: "",
         loading: false
@@ -71,7 +68,7 @@ const ChatModule = () => {
   };
 
   useEffect(() => {
-    const unsubscribe = ChatModuleStore.subscribe((s) =>
+    const unsubscribe = ChatStore.subscribe((s) =>
       setState((prev) => ({ ...prev, ...s }))
     );
     return () => unsubscribe();
@@ -96,16 +93,14 @@ const ChatModule = () => {
             >
               <div className={`message--${incoming ? "incoming" : "outgoing"}`}>
                 <div className="message__text">
-                  <b style={incoming ? undefined : { color: colorIdent }}>
+                  <b
+                    className="message__source"
+                    style={incoming ? undefined : { color: colorIdent }}
+                  >
                     {from}
                   </b>
 
-                  {text
-                    .split("\n")
-                    .filter((x) => Boolean(x))
-                    .map((t, ti) => (
-                      <Markdown key={ti}>{t}</Markdown>
-                    ))}
+                  <Markdown>{text}</Markdown>
                 </div>
               </div>
             </div>
@@ -121,15 +116,21 @@ const ChatModule = () => {
       )}
 
       {/* User text input */}
-      {messagesLoaded && vectorStoreLoaded && (
-        <InputGroup
-          allowAttachments
-          placeholder="Ask a question"
-          onChange={ChatModuleStore.question}
-          disabled={formDisabled}
-          handleSubmit={askQuestion}
-        />
-      )}
+      <InputGroup
+        allowAttachments
+        highlightAttachmentsCtrl={!messagesLoaded}
+        placeholder={placeholder}
+        onChange={ChatStore.question}
+        onChangeFileContext={showFilePicker}
+        disabled={formDisabled}
+        handleSubmit={askQuestion}
+      />
+      <input
+        type="file"
+        ref={$fileInputRef}
+        onChange={({ currentTarget }) => sendFilesToParser(currentTarget.files)}
+        hidden
+      />
     </section>
   );
 };

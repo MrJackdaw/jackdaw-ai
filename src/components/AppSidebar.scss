@@ -3,6 +3,7 @@
 .app-sidebar {
   display: grid;
   grid-template-rows: $appHeaderHeight 1fr max-content;
+  padding-bottom: 0.6rem;
   width: 200px;
   height: 100vh;
 }

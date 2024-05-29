@@ -6,6 +6,7 @@ import useSubmenuHandler from "hooks/useSubmenuHandler";
 type InputGroupOpts = {
   disabled?: boolean;
   allowAttachments?: boolean;
+  highlightAttachmentsCtrl?: boolean;
   placeholder?: string;
   label?: string;
   handleSubmit?: { (): any | Promise<any> };
@@ -32,12 +33,14 @@ export default function InputGroup(opts: InputGroupOpts) {
   };
   const handleAddNewFile = () => {
     close();
-    opts.onAddNewFile?.();
+    if (opts.onAddNewFile) opts.onAddNewFile?.();
   };
   const handleChangeFileContext = () => {
     close();
     opts.onChangeFileContext?.();
   };
+  const attachTriggerClass = ["material-symbols-outlined"];
+  if (opts.highlightAttachmentsCtrl) attachTriggerClass.push("pulse infinite");
 
   return (
     <label className="input-group">
@@ -58,7 +61,7 @@ export default function InputGroup(opts: InputGroupOpts) {
         className="button--attach button--round button--transparent button--grid button--float left"
         type="button"
       >
-        <span className="material-symbols-outlined">attach_file</span>
+        <span className={attachTriggerClass.join(" ")}>attach_file</span>
       </button>
 
       <button className="button--send" disabled={disabled} type="button">
@@ -68,12 +71,13 @@ export default function InputGroup(opts: InputGroupOpts) {
       {submenuIsVisible && (
         <ItemMenu target={target} onClose={close} placement="top">
           <span
-            className="item-menu__item"
             aria-disabled
+            data-tooltip="Coming soon"
+            className="item-menu__item"
             onClick={handleAddNewFile}
             role="menuitem"
           >
-            <span>Add File to chat</span>
+            <span>Add file to chat</span>
             <span className="material-symbols-outlined">attach_file_add</span>
           </span>
 
@@ -82,7 +86,7 @@ export default function InputGroup(opts: InputGroupOpts) {
             onClick={handleChangeFileContext}
             role="menuitem"
           >
-            <span>Load new File context</span>
+            <span>Load new Document</span>
             <span className="material-symbols-outlined">attach_file</span>
           </span>
         </ItemMenu>

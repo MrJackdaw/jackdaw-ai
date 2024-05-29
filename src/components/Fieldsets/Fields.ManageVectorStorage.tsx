@@ -35,7 +35,7 @@ export default function ManageVectorStorageFields(props: MVSFProps) {
 
   const $label = (
     <span>
-      Enable online storage (
+      Store Documents online (
       <b className={enableCloudStorage ? "gold" : undefined}>
         {enableCloudStorage ? "enabled" : "disabled"}
       </b>

@@ -22,22 +22,28 @@ export async function parseFile(file, contentOwner = "") {
   if (!file) return workerError(ERR_NO_FILE);
   setContentOwner(contentOwner);
 
-  MboxWorkerStore.multiple(STATE__LOADING);
-  exportWorkerState__();
+  exportWorkerState__(STATE__LOADING);
 
-  // MBOX (these don't have a file type)
-  if (/mbox$/.test(file.name)) return void parseMBoxFile(file);
+  // MBOX (plain text mailbox file with no file type) and normal plain-text files
+  const fileName = file.name;
+  if (/mbox$/.test(fileName) || file.type === "text/plain")
+    return void parsePlainTextFile(file);
 
+  // Everything else gets filtered
   switch (file.type) {
     // PDFs
     case "application/pdf": {
       return void parsePdfFile(file);
     }
 
-    // case
+    // TXTs
     default: {
-      console.log(file.type);
-      return exportWorkerState__(STATUS.ERROR, "Unsupported file type");
+      if (import.meta.env.DEV) console.log(file);
+      return exportWorkerState__(
+        undefined,
+        STATUS.ERROR,
+        `${fileName} has an unsupported file type`
+      );
     }
   }
 }
@@ -47,14 +53,13 @@ export async function parseFile(file, contentOwner = "") {
  * @param {File} pdf .mbox file to be read */
 export async function parsePdfFile(_pdf) {
   const err = "PDF files will be supported soon";
-  MboxWorkerStore.multiple({ loading: false });
-  exportWorkerState__(STATUS.ERROR, err);
+  exportWorkerState__({ loading: false }, STATUS.ERROR, err);
 }
 
 /**
  * @Action Read Inbox file and initialize VectorStore (async)
  * @param {File} file .mbox file to be read */
-export async function parseMBoxFile(file) {
+export async function parsePlainTextFile(file) {
   startTimer("initializeVectorStore");
   await initializeVectorStore__();
   stopTimer("initializeVectorStore");
@@ -98,21 +103,14 @@ export function initializeMboxWorker(opts) {
   if (embedder) setActiveEmbedder(embedder, apiKey);
 
   const initialized = Boolean(contentOwner);
-  MboxWorkerStore.multiple({ ...STATE__INIT, initialized });
-  return exportWorkerState__();
+  return exportWorkerState__({ ...STATE__INIT, initialized });
 }
 
 /** @LifeCycle Clear inbox stuff */
 export function resetMboxWorker() {
   if (!MboxWorkerStore.getState().initialized) return exportWorkerState__();
-
-  MboxWorkerStore.multiple(STATE__LOADING);
-  exportWorkerState__();
-
-  initializeVectorStore__().then(() => {
-    MboxWorkerStore.multiple({ loading: false, vectorStoreLoaded: true });
-    exportWorkerState__();
-  });
+  exportWorkerState__(STATE__LOADING);
+  initializeVectorStore__();
 }
 
 /** Change owner email in state */

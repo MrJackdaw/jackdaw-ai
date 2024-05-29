@@ -138,7 +138,7 @@ export default function UserProjectsList() {
                 onChange={onChangeOnlineStatus}
                 checked={enableCloudStorage}
               />
-              <span className="label">Enable online storage</span>
+              <span className="label">Store Documents online</span>
             </label>
           </form>
         </>
