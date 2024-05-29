@@ -111,18 +111,15 @@ export default function GeneralSettingsForm() {
         <details>
           <summary>
             <span className="material-symbols-outlined">help</span>
-            <span>What is this?</span>
+            <span>Clear Callsign</span>
           </summary>
           <div className="hint">
+            <span className="gold">Your Callsign </span>(display name){" "}
             <span className="gold">
-              This is how the AI will identify you during conversations
+              is how the AI identifies you in conversations
             </span>
-            , or from the data you provide. It may work a little harder to guess
-            who you are without it.&nbsp;
-            <span className="gold">
-              You can safely clear this handle without logging out
-            </span>{" "}
-            (if you have an account and are logged in).
+            .&nbsp;You can safely clear it without logging out (for logged-in
+            account owners).
           </div>
         </details>
 
@@ -132,28 +129,28 @@ export default function GeneralSettingsForm() {
           onClick={clearOwnerIdent}
         >
           <span className="material-symbols-outlined">close</span>
-          <span>Clear Identifier</span>
+          <span>Clear Callsign</span>
         </button>
       </fieldset>
 
       <ManageVectorStorageFields saveImmediately />
 
       <fieldset>
-        <legend>In-memory Data</legend>
+        <legend>Active Conversation</legend>
 
         <details>
           <summary>
             <span className="material-symbols-outlined">help</span>
-            <span>Clear Memory</span>
+            <span>Clear memory</span>
           </summary>
 
           <p className="hint">
             <span className="gold">
-              This will clear any documents you have loaded into memory
+              This will clear your active conversation, along with any documents
+              and associated text embeddings you have loaded into memory
             </span>
-            , along with any text embeddings that were generated for them. The
-            action <span className="gold">DOES NOT affect your cloud data</span>{" "}
-            (if you have an account and are logged in).
+            . It <b>DOES NOT affect cloud data</b> (for logged-in account
+            owners).
           </p>
         </details>
 
@@ -169,7 +166,7 @@ export default function GeneralSettingsForm() {
         <details>
           <summary>
             <span className="material-symbols-outlined">help</span>
-            <span>Remove Cached Models</span>
+            <span>Clear Model cache</span>
           </summary>
 
           <p className="hint">
@@ -191,43 +188,44 @@ export default function GeneralSettingsForm() {
       </fieldset>
 
       <fieldset>
-        <legend>All browser Data</legend>
+        <legend>Extreme Log out</legend>
 
         <details>
           <summary>
             <span className="material-symbols-outlined">help</span>
-            <span>Clear Browser data</span>
+            <span>Clear Browser</span>
           </summary>
 
           <div className="hint">
             <p>
-              <span className="gold">
-                LOGS OUT, <em>and then</em>
-              </span>{" "}
-              wipes:
+              <span className="gold">Log outs, then clears:</span>
             </p>
             <ul>
-              <li>Your display name</li>
+              <li>Your cached display name</li>
               <li>Any API keys you stored in the browser for this app</li>
+              <li>All downloaded models and anything you stashed in memory</li>
               <li>Anything else you put in the browser with this app</li>
             </ul>
             <p>
-              This action{" "}
-              <span className="gold">DOES NOT delete your account</span> (if you
-              have one), or any cloud data (if you have created any).
+              <span className="gold">
+                This DOES NOT delete your account or cloud data
+              </span>{" "}
+              (for logged-in account owners).
             </p>
           </div>
         </details>
 
         <button
           type="button"
-          className={`button--grid ${authenticated ? "bg--error" : ""}`.trim()}
+          className={`button--grid ${
+            authenticated ? "bg--error dark" : ""
+          }`.trim()}
           onClick={clearAllData}
         >
           <span className="material-symbols-outlined">
             {authenticated ? "power_settings_new" : "close"}
           </span>
-          <span>{authenticated ? "Log out" : "Clear Everything"}</span>
+          <span>{authenticated ? "Log out" : "Clear Browser"}</span>
         </button>
       </fieldset>
     </form>
