@@ -2,7 +2,7 @@ import { AnimationEventHandler, useEffect, useMemo, useRef } from "react";
 import { Alert, removeNotification } from "state/notifications";
 import useEscapeKeyListener from "hooks/useEscapeKeyListener";
 import SVGCloseButton from "../CloseButton";
-import "./ListItem.Notification.css";
+import "./ListItem.Notification.scss";
 import { noOp } from "utils/general";
 
 type NotificationProps = {
@@ -56,7 +56,13 @@ export const Notification = (props: NotificationProps) => {
       onAnimationEnd={onAnimationEnded}
     >
       {/* Close notification button */}
-      <SVGCloseButton onClick={onClear} />
+      <button
+        className="button--close button--round"
+        type="button"
+        onClick={onClear}
+      >
+        <SVGCloseButton size={10} />
+      </button>
 
       {notification.persistent && notification.type === "info" ? (
         // show spinner for loading notifications of type 'info'
@@ -65,9 +71,7 @@ export const Notification = (props: NotificationProps) => {
         <MatIcon icon={icon} className={iconClass} />
       )}
 
-      <div>
-        <b>{msg}</b>
-      </div>
+      <span className="notification__text">{msg}</span>
     </aside>
   );
 };

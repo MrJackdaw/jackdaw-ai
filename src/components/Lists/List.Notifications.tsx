@@ -2,6 +2,7 @@ import { createPortal } from "react-dom";
 import Notification from "./ListItem.Notification";
 import { useEffect, useState } from "react";
 import { Notifications, NotificationsStore } from "state/notifications";
+import 'css/Colors.scss'
 import "./List.Notifications.css";
 
 /** @ListComponent Specialized component that shows recent global notifications. */

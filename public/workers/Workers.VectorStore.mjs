@@ -11,13 +11,15 @@ import { exportWorkerAlert, exportWorkerState } from "./Workers.State.mjs";
  * @type {import("langchain/vectorstores/memory").MemoryVectorStore} */
 let MVectorStore;
 let owner = "";
+let useCloudStorage = false;
 
 /**
  * Set owner to be appended to documents
  * @param {string} newOwner New owner
  */
-export function setContentOwner(newOwner = "") {
+export function setContentOwner(newOwner = "", enableCloudStorage = false) {
   owner = newOwner;
+  useCloudStorage = enableCloudStorage;
 }
 
 /** @LifeCycle Initialize vector store (if not already done) */
@@ -43,10 +45,11 @@ export async function addToVectorStore(blurb, done = false) {
 
   const { documents, emailFragments } = await documentsFromTextBlurb(blurb);
 
-  exportWorkerAlert(
-    `SHAME! This is where you should be sending to server, maybe! (${docsCount})`,
-    "Error"
-  );
+  if (useCloudStorage)
+    exportWorkerAlert(
+      `Documents are TOOOOTALLY being stored online.`,
+      "Warning"
+    );
 
   // THIS TAKES A LONG TIME WHEN the embedder is running locally. Amount of time
   // will scale horribly with file size.
@@ -63,7 +66,9 @@ export async function addToVectorStore(blurb, done = false) {
     })
     .finally(() => {
       const status = errorMessage ? STATUS.ERROR : STATUS.OK;
-      exportWorkerAlert("Document Loaded");
+      const alert =
+        errorMessage ?? `Document ${useCloudStorage ? "saved" : "loaded"}`;
+      exportWorkerAlert(alert, errorMessage ? "Error" : "Info");
       exportWorkerState(
         {
           docsCount,
@@ -71,8 +76,7 @@ export async function addToVectorStore(blurb, done = false) {
           vectorStoreLoaded: true,
           messagesLoaded: docsCount > 0
         },
-        status,
-        errorMessage
+        status
       );
     });
 }

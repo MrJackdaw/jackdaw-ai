@@ -1,11 +1,11 @@
-@import "../../css/Colors.scss";
+$success: #03a030;
 
 .notification__item {
   align-items: center;
   background-color: #000;
   display: grid;
   border-radius: 8px;
-  grid-template-columns: repeat(2, 22px) 1fr;
+  grid-template-columns: 22px 1fr;
   gap: 0.4rem;
   margin-bottom: 0.4rem;
   padding: 0.4rem;
@@ -13,7 +13,7 @@
 }
 
 .notification__item.warning {
-  color: $gold;
+  color: gold;
 }
 
 .notification__item.info {
@@ -22,6 +22,15 @@
 
 .notification__item:last-of-type {
   margin: 0;
+}
+
+.notification__item .button--close {
+  position: absolute;
+  padding: 0;
+  width: 24px;
+  height: 24px;
+  top: -8px;
+  left: -8px;
 }
 
 @media screen and (max-width: 600px) {

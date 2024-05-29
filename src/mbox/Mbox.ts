@@ -33,10 +33,9 @@ export function initializeMboxModule() {
     DocumentHandler.removeEventListener("message", onWorkerUpdate);
   });
 
-  const { enableCloudStorage, owner } = SettingsStore.getState();
+  const { owner } = SettingsStore.getState();
   sendParserMessage("Mbox.initialize", {
     owner,
-    enableCloudStorage,
     embedder: localStorage.getItem(LS_EMBEDDER_KEY),
     apiKey: localStorage.getItem(LS_EMBEDDER_APIKEY)
   });
@@ -87,10 +86,10 @@ export function sendFilesToParser(
   if (!uploadedFile) return [null, "No file was uploaded"];
 
   try {
-    const { owner } = SettingsStore.getState();
+    const { owner, enableCloudStorage } = SettingsStore.getState();
     const fileName = uploadedFile.name;
     updateNotification(`Loading ${fileName}...`, undefined, true);
-    sendParserMessage("Mbox.parseFile", { file: uploadedFile, owner });
+    sendParserMessage("Mbox.parseFile", { file: uploadedFile, owner, enableCloudStorage });
     return [fileName];
   } catch (error) {
     const errorM = (error as Error)?.message ?? error?.toString();

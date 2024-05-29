@@ -19,11 +19,15 @@ import {
  * @Action Read Inbox file and initialize VectorStore (async)
  * @param {File} file .mbox file to be read
  * @param {string} contentOwner Identifier of owner */
-export async function parseFile(file, contentOwner = "") {
+export async function parseFile(file, contentOwner = "", enableCloudStorage = false) {
   if (!file) return workerError(ERR_NO_FILE);
-  setContentOwner(contentOwner);
+  setContentOwner(contentOwner, enableCloudStorage);
 
   exportWorkerState(STATE__LOADING);
+
+  startTimer("initializeVectorStore");
+  await initializeVectorStore();
+  stopTimer("initializeVectorStore");
 
   // MBOX (plain text mailbox file with no file type) and normal plain-text files
   const fileName = file.name;
@@ -84,9 +88,6 @@ export async function parsePdfFile(_pdf) {
  * @Action Read Inbox file and initialize VectorStore (async)
  * @param {File} file .mbox file to be read */
 export async function parsePlainTextFile(file) {
-  startTimer("initializeVectorStore");
-  await initializeVectorStore();
-  stopTimer("initializeVectorStore");
 
   startTimer("readFileStream");
   await readFileStream(file);

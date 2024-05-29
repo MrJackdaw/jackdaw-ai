@@ -39,7 +39,7 @@ self.addEventListener(
       // Load an mbox file
       case "Mbox.parseFile": {
         return data
-          ? parseFile(data.file, data.owner)
+          ? parseFile(data.file, data.owner, data.enableCloudStorage)
           : workerError(ERR_NO_DATA);
       }
 
