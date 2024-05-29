@@ -20,7 +20,7 @@ const MboxFileLoader = (props: Props) => {
     "docsCount"
   ]);
   const btnText = useMemo(() => {
-    if (!messagesLoaded) return "Load Inbox";
+    if (!messagesLoaded) return "Load Document";
     if (docsCount === 0) return "Inbox is Empty";
     return `Messages Loaded`;
   }, [messagesLoaded, docsCount]);
@@ -35,7 +35,7 @@ const MboxFileLoader = (props: Props) => {
   };
   const $loadNewElem = (
     <a role="button" style={{ cursor: "pointer" }} onClick={openFileSelection}>
-      Load new Inbox
+      Load new Document
     </a>
   );
   const $fileInputElem = (

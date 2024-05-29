@@ -6,7 +6,8 @@ import {
   MboxWorkerStore,
   exportWorkerState,
   STATE__INIT,
-  STATE__LOADING
+  STATE__LOADING,
+  exportWorkerAlert
 } from "./Workers.State.mjs";
 import {
   addToVectorStore,
@@ -29,6 +30,8 @@ export async function parseFile(file, contentOwner = "") {
   if (/mbox$/.test(fileName) || file.type === "text/plain")
     return void parsePlainTextFile(file);
 
+  if (file.type.startsWith("text/")) return void readTextFile__Other(file);
+
   // Everything else gets filtered
   switch (file.type) {
     // PDFs
@@ -49,11 +52,32 @@ export async function parseFile(file, contentOwner = "") {
 }
 
 /**
+ * Read a file and assume it is a utf-8-encoded text file. Throw a fit if it isn't.
+ * @param {File} file (Hopefully text) File to read
+ */
+function readTextFile__Other(file) {
+  const reader = new FileReader();
+  reader.onload = () => {
+    console.log("yeah");
+    console.log(reader.result);
+  };
+  reader.onerror = () => {
+    throw new Error(`${file.name} is unsupported`);
+  };
+
+  reader.readAsText(file);
+
+  // TODO stream text contents to document vector store
+  new Blob().stream();
+}
+
+/**
  * @Action Read PDF file and initialize VectorStore (async)
  * @param {File} pdf .mbox file to be read */
 export async function parsePdfFile(_pdf) {
   const err = "PDF files will be supported soon";
-  exportWorkerState({ loading: false }, STATUS.ERROR, err);
+  exportWorkerAlert(err, "Error");
+  exportWorkerState({ loading: false });
 }
 
 /**
@@ -73,26 +97,27 @@ export async function parsePlainTextFile(file) {
  * @Action Read Inbox file and initialize VectorStore (async)
  * @param {File} file .mbox file to be read */
 export async function readFileStream(file) {
-  const decoder = new TextDecoder();
   const reader = file.stream().getReader();
 
   return reader
     .read()
     .catch(() => workerError("Error opening file"))
-    .then(onFileStream);
+    .then((x) => onFileStream(x, reader));
+}
 
-  /**
-   * File stream handler
-   * @param {ReadableStreamReadResult<Uint8Array>} streamResult
-   * @param {boolean} streamResult.done
-   * @param {Uint8Array|undefined} streamResult.value
-   * @returns
-   */
-  function onFileStream({ done, value }) {
-    if (done) return;
-    if (value) addToVectorStore(decoder.decode(value, { stream: true }));
-    return reader.read().then(onFileStream);
-  }
+/**
+ * File stream handler: adds `Documents` to the Vector store for each stream result
+ * @param {ReadableStreamReadResult<Uint8Array>} streamResult
+ * @param {boolean} streamResult.done
+ * @param {Uint8Array|undefined} streamResult.value
+ * @param {ReadableStreamDefaultReader<Uint8Array>} reader
+ * @returns
+ */
+function onFileStream({ done, value }, reader) {
+  if (done) return;
+  const decoder = new TextDecoder();
+  if (value) addToVectorStore(decoder.decode(value, { stream: true }));
+  return reader.read().then((x) => onFileStream(x, reader));
 }
 
 /** @LifeCycle Initialize */

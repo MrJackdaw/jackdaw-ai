@@ -36,3 +36,16 @@ export function exportWorkerState(state = null, status = STATUS.OK, error) {
     error
   });
 }
+
+/**
+ * Send a message that triggers a UI notification
+ * @param {string} msg Alert to frontend
+ * @param {"Info"|"Error"|"Warning"} type Type of Alert
+ */
+export function exportWorkerAlert(msg, type = "Info") {
+  self.postMessage({
+    message: `Mbox.Alert::${type}`,
+    data: { msg, error: type === "Error", warning: type === "Warning" },
+    status: STATUS.OK
+  });
+}

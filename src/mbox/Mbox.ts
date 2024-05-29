@@ -1,5 +1,10 @@
 import { SettingsStore } from "state/settings-store";
-import { updateAsError, updateNotification } from "state/notifications";
+import {
+  CHANNELS,
+  updateAsError,
+  updateAsWarning,
+  updateNotification
+} from "state/notifications";
 import { LS_EMBEDDER_APIKEY, LS_EMBEDDER_KEY } from "../utils/strings";
 import { MBoxStoreInstance, MBoxStore } from "./mbox-store";
 import { stringToColor, updateUserSettings } from "utils/general";
@@ -42,21 +47,26 @@ export function initializeMboxModule() {
  * @param e Message from Web Worker
  */
 function onWorkerUpdate(e: MessageEvent<WorkerUpdate>) {
-  if (e.data.message !== "Mbox.State::Update") return;
-  const update = (e.data as WorkerStateUpdate).state;
-  if (!update) throw new Error("missing key 'state' in worker update data");
+  if (e.data.message === "Mbox.State::Update") {
+    const update = (e.data as WorkerStateUpdate).state;
+    if (!update) throw new Error("missing key 'state' in worker update data");
+    return MBoxStore.multiple(update);
+  }
+
+  if (e.data.message.startsWith("Mbox.Alert::")) {
+    const { msg, error, warning } = e.data.data;
+    if (error) return updateAsError(msg, CHANNELS.ERROR);
+    if (warning) return updateAsWarning(msg, CHANNELS.WARNING);
+    return updateNotification(msg);
+  }
+
+  // This is now an edge-case
   if (e.data.status !== "ok") {
     const msg: string =
       e.data.error?.message ??
       (e.data.error ? JSON.stringify(e.data.error) : "Error updating worker");
     return void updateAsError(msg);
   }
-
-  const { messagesLoaded } = MBoxStore.getState();
-  if (update.messagesLoaded && !messagesLoaded) {
-    updateNotification("Inbox loaded");
-  }
-  return MBoxStore.multiple(update);
 }
 
 export function clearParserModelCache() {
@@ -90,7 +100,6 @@ export function sendFilesToParser(
 }
 
 type ParserAction =
-  | "x::Mbox.parsePDF"
   | "Mbox.initialize"
   | "Mbox.parseFile"
   | "Mbox.searchVectors"

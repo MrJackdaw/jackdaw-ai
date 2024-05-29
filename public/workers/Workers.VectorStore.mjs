@@ -1,10 +1,10 @@
-import { RecursiveCharacterTextSplitter } from "langchain/text_splitter";
+import { RecursiveCharacterTextSplitter } from "@langchain/textsplitters";
 import { Document } from "@langchain/core/documents";
 import { MemoryVectorStore } from "langchain/vectorstores/memory";
 import { pruneHTMLString, STATUS } from "./Mbox.Utils.mjs";
 import { getEmbedder } from "./Workers.ActiveEmbedder.mjs";
 import { RES_VECTOR_SEARCH } from "./Mbox.Strings.mjs";
-import { exportWorkerState } from "./Workers.State.mjs";
+import { exportWorkerAlert, exportWorkerState } from "./Workers.State.mjs";
 
 /**
  * In-memory VectorStore instance
@@ -22,7 +22,7 @@ export function setContentOwner(newOwner = "") {
 
 /** @LifeCycle Initialize vector store (if not already done) */
 export async function initializeVectorStore(contentOwner = "") {
-  console.log("initializeVectorStore");
+  if (import.meta.env.DEV) console.log("\t ::initializeVectorStore");
 
   owner = contentOwner;
 
@@ -31,7 +31,6 @@ export async function initializeVectorStore(contentOwner = "") {
     .then((mvstoreInstance) => void (MVectorStore = mvstoreInstance));
 }
 
-let __done = false;
 let docsCount = 0;
 let errorMessage = "";
 
@@ -40,15 +39,21 @@ let errorMessage = "";
  * @param {string|undefined} blurb
  * @param {boolean} [done=false] When true, just notify the UI that work is completed */
 export async function addToVectorStore(blurb, done = false) {
-  if (done) return void (__done = true);
+  if (done) return;
 
   const { documents, emailFragments } = await documentsFromTextBlurb(blurb);
+
+  exportWorkerAlert(
+    `SHAME! This is where you should be sending to server, maybe! (${docsCount})`,
+    "Error"
+  );
 
   // THIS TAKES A LONG TIME WHEN the embedder is running locally. Amount of time
   // will scale horribly with file size.
   return MVectorStore.addDocuments(documents)
     .then(() => {
       docsCount = docsCount + emailFragments.length;
+
       return true;
     })
     .catch((error) => {
@@ -58,6 +63,7 @@ export async function addToVectorStore(blurb, done = false) {
     })
     .finally(() => {
       const status = errorMessage ? STATUS.ERROR : STATUS.OK;
+      exportWorkerAlert("Document Loaded");
       exportWorkerState(
         {
           docsCount,
