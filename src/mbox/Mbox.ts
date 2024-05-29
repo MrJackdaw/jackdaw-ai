@@ -1,8 +1,8 @@
+import { SettingsStore } from "state/settings-store";
 import { updateAsError, updateNotification } from "state/notifications";
 import { LS_EMBEDDER_APIKEY, LS_EMBEDDER_KEY } from "../utils/strings";
 import { MBoxStoreInstance, MBoxStore } from "./mbox-store";
 import { stringToColor, updateUserSettings } from "utils/general";
-import { SettingsStore } from "state/settings-store";
 
 type WorkerResponseData = { data: any } & ResponseCore;
 type WorkerStateUpdate = { state: MBoxStoreInstance } & ResponseCore;
@@ -11,8 +11,8 @@ type WorkerUpdate = (WorkerResponseData | WorkerStateUpdate) &
 type ResponseStatus = "ok" | "error" | "loading";
 type ResponseCore = { message: string; status: ResponseStatus };
 
-export const Parser = new Worker(
-  new URL("/workers/Mbox.Parser.mjs", import.meta.url).href,
+export const DocumentHandler = new Worker(
+  new URL("/workers/Worker.Main.mjs", import.meta.url).href,
   { type: "module", credentials: "include", name: "Parser" }
 );
 
@@ -23,9 +23,9 @@ export function initializeMboxModule() {
   if (subscribed) return;
   subscribed = true;
 
-  Parser.addEventListener("message", onWorkerUpdate);
+  DocumentHandler.addEventListener("message", onWorkerUpdate);
   window.addEventListener("beforeunload", () => {
-    Parser.removeEventListener("message", onWorkerUpdate);
+    DocumentHandler.removeEventListener("message", onWorkerUpdate);
   });
 
   const { enableCloudStorage, owner } = SettingsStore.getState();
@@ -84,7 +84,7 @@ export function sendFilesToParser(
     return [fileName];
   } catch (error) {
     const errorM = (error as Error)?.message ?? error?.toString();
-    const fullM = `Mbox.SendFilesToParser.Error::${errorM ?? "No details"}`;
+    const fullM = `Mbox.SendFilesToHandler.Error::${errorM ?? "No details"}`;
     return [null, fullM];
   }
 }
@@ -103,5 +103,5 @@ export function sendParserMessage(
   action: ParserAction,
   data?: Record<string, any>
 ) {
-  Parser.postMessage({ action, data });
+  DocumentHandler.postMessage({ action, data });
 }
