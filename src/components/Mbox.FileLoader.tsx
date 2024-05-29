@@ -90,7 +90,6 @@ const MboxFileLoader = (props: Props) => {
           <span className="material-symbols-outlined">upload</span>
           <span>{btnText}</span>
         </button>
-        <span className="hint">Stored on your computer.</span>
       </label>
 
       {$fileInputElem}

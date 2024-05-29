@@ -9,7 +9,7 @@ import ItemMenu from "./ItemMenu";
 
 export default function UserControls() {
   const { avatar, authenticated } = useUser(["avatar", "authenticated"]);
-  const { close, openSubmenu, showSubmenu, target } = useSubmenuHandler();
+  const { close, openSubmenu, submenuIsVisible, target } = useSubmenuHandler();
   const toggleSettings = () => {
     close();
     const { active } = ModalStore.getState();
@@ -65,7 +65,7 @@ export default function UserControls() {
           ) */}
       </ListViewItem>
 
-      {showSubmenu && (
+      {submenuIsVisible && (
         <ItemMenu target={target} onClose={close} placement="top">
           <div
             role="menu-item"

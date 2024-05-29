@@ -20,7 +20,7 @@ type ListItemProps = {
 
 /** @ListItemComponent */
 export default function UserProjectListItem(props: ListItemProps) {
-  const { target, openSubmenu, close, showSubmenu } = useSubmenuHandler();
+  const { target, openSubmenu, close, submenuIsVisible } = useSubmenuHandler();
   const { enableCloudStorage } = SettingsStore.getState();
   const { project, onProjectChange, onProjectDelete } = props;
   const notifyProjectChanged = (
@@ -102,7 +102,7 @@ export default function UserProjectListItem(props: ListItemProps) {
         <span className="material-symbols-outlined">more_vert</span>
       </button>
 
-      {showSubmenu && (
+      {submenuIsVisible && (
         <ItemMenu target={target} onClose={close}>
           <span
             className="item-menu__item"

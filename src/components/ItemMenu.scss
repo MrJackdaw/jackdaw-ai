@@ -28,6 +28,7 @@
   cursor: pointer;
   display: grid;
   grid-template-columns: 1fr 40px;
+  min-height: 2.6rem;
   padding: 0 0.6rem;
 
   &:hover {

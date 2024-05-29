@@ -20,22 +20,22 @@ import { suppressEvent } from "utils/general";
  * - And a helper function for closing (not toggling) the submenu. */
 export default function useSubmenuHandler() {
   const [target, setTarget] = useState<HTMLElement | null>(null);
-  const [showSubmenu, setShowSubmenu] = useState(false);
+  const [submenuIsVisible, setSubmenuIsVisible] = useState(false);
   const close = () => {
-    setShowSubmenu(false);
+    setSubmenuIsVisible(false);
     setTarget(null);
   };
   const openSubmenu: MouseEventHandler = (e) => {
     suppressEvent(e);
     setTarget(e.currentTarget as HTMLElement);
-    setShowSubmenu(true);
+    setSubmenuIsVisible(true);
   };
 
   return {
     /** element that was clicked on (for positioning). Usage: `<ContentSubmenu target={target} />` */
     target,
     /** Submenu is visible when "true" */
-    showSubmenu,
+    submenuIsVisible,
     /** Toggle Submenu visibility */
     openSubmenu,
     /** close Submenu */

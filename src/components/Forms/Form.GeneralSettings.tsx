@@ -6,7 +6,11 @@ import {
   updateUserSettings
 } from "utils/general";
 import CookieStore from "utils/cookie-store";
-import { sendParserMessage, changeMboxOwner, clearParser } from "mbox/Mbox";
+import {
+  sendParserMessage,
+  changeMboxOwner,
+  clearParserModelCache
+} from "mbox/Mbox";
 import { logoutUser } from "data/requests";
 import { updateNotification } from "state/notifications";
 import { SettingsStore } from "state/settings-store";
@@ -54,7 +58,7 @@ export default function GeneralSettingsForm() {
   };
   const clearAllData = async () => {
     await logoutUser().finally(() => {
-      clearParser();
+      clearParserModelCache();
       CookieStore.reset();
       localStorage.clear();
       window.location.reload();
@@ -158,7 +162,34 @@ export default function GeneralSettingsForm() {
       </fieldset>
 
       <fieldset>
-        <legend>Browser Data</legend>
+        <legend>Cached Models</legend>
+
+        <details>
+          <summary>
+            <span className="material-symbols-outlined">help</span>
+            <span>Remove Cached Models</span>
+          </summary>
+
+          <p className="hint">
+            <span className="gold">
+              Clear any models you have previously downloaded for offline work.
+            </span>{" "}
+            This will not log you out, or affect your other settings.
+          </p>
+        </details>
+
+        <button
+          className="button--grid"
+          type="button"
+          onClick={clearParserModelCache}
+        >
+          <span className="material-symbols-outlined">close</span>
+          <span>Clear Model Cache</span>
+        </button>
+      </fieldset>
+
+      <fieldset>
+        <legend>All browser Data</legend>
 
         <details>
           <summary>

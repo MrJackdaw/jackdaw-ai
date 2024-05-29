@@ -4,10 +4,9 @@ import { askAssistant } from "chains";
 import { useMboxStore } from "hooks/useMboxStore";
 import useUser from "hooks/useUser";
 import useSettings from "hooks/useSettings";
-import MboxFileLoader from "./Mbox.FileLoader";
 import InputGroup from "./InputGroup";
-import "./ChatModule.scss";
 import Markdown from "react-markdown";
+import "./ChatModule.scss";
 
 type ChatMessage = {
   from: string;
@@ -124,15 +123,13 @@ const ChatModule = () => {
       {/* User text input */}
       {messagesLoaded && vectorStoreLoaded && (
         <InputGroup
+          allowAttachments
           placeholder="Ask a question"
           onChange={ChatModuleStore.question}
           disabled={formDisabled}
           handleSubmit={askQuestion}
         />
       )}
-
-      {/* File loader button (page bottom) */}
-      {Boolean(owner) && <MboxFileLoader />}
     </section>
   );
 };

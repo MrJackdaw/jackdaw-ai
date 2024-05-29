@@ -59,7 +59,7 @@ function onWorkerUpdate(e: MessageEvent<WorkerUpdate>) {
   return MBoxStore.multiple(update);
 }
 
-export function clearParser() {
+export function clearParserModelCache() {
   changeMboxOwner();
   sendParserMessage("Mbox.clearCache");
 }
