@@ -33,10 +33,10 @@ export async function askAssistant(input: string) {
         })
   ]);
 
-  return chain.invoke({ input, context, owner }).then((answer) => {
-    loading = false;
-    return answer;
-  });
+  const invokeParams = { input, context, owner };
+  const stream = await chain.stream(invokeParams);
+  loading = false;
+  return stream;
 }
 
 /** Allow user to query their vector embeddings when offline or just using hf */

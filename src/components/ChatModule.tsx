@@ -12,8 +12,10 @@ import "./ChatModule.scss";
 /** Chat message list and input */
 const ChatModule = () => {
   const $fileInputRef = useRef<HTMLInputElement>(null);
+  const $messageView = useRef<HTMLDivElement>(null);
   const { owner, colorIdent } = useSettings(["owner", "colorIdent"]);
   const { criticalError } = useUser(["criticalError"]);
+  const [streamResponse, setStreamResponse] = useState("");
   const [state, setState] = useState(ChatStore.getState());
   const { question, messages, loading } = useMemo(
     () => state,
@@ -36,22 +38,36 @@ const ChatModule = () => {
   const showFilePicker = () => {
     if ($fileInputRef.current) $fileInputRef.current.click();
   };
+  const scrollMessagesView = () => {
+    const $view = $messageView.current;
+    if (!$view) return;
+    $view.scrollTop = $view.scrollHeight;
+  };
   const updateAndScroll = (messages: JChatMessage[]) => {
-    const $view = document.querySelector("#message-view");
-    if ($view) $view.scrollTop = $view.scrollHeight;
-    console.log("final");
+    setStreamResponse("");
     ChatStore.multiple({ messages, question: "", loading: false });
+    scrollMessagesView();
   };
   /** Send question to API; update messages list */
   const askQuestion = async () => {
     if (!question || loading) return;
     const next = [...messages, { from: owner, text: question }];
     ChatStore.multiple({ loading: true, messages: next });
+    scrollMessagesView();
 
     try {
       const res = await askAssistant(question);
-      if (res) next.push({ from: "Assistant", text: res, incoming: true });
+      let text = "";
+      const chunks: string[] = [];
+      for await (const chunk of res) {
+        chunks.push(chunk);
+        text = chunks.join("");
+        setStreamResponse(text);
+        scrollMessagesView();
+      }
 
+      if (!text) return;
+      next.push({ from: "Assistant", text, incoming: true });
       return updateAndScroll(next);
     } catch (error) {
       console.log("Error generating response::", error);
@@ -74,6 +90,7 @@ const ChatModule = () => {
       {/* Messages */}
       <div
         id="message-view"
+        ref={$messageView}
         className="module--chat-messages__list-container"
         data-loaded={messagesLoaded}
         data-error={criticalError}
@@ -100,6 +117,18 @@ const ChatModule = () => {
               </div>
             </div>
           ))}
+
+          {streamResponse && (
+            <div className={`message assistant`}>
+              <div className={`message--incoming`}>
+                <div className="message__text">
+                  <b className="message__source">Assistant</b>
+
+                  <Markdown>{streamResponse}</Markdown>
+                </div>
+              </div>
+            </div>
+          )}
         </div>
       </div>
 
