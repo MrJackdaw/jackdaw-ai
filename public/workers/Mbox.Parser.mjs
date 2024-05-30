@@ -5,7 +5,6 @@ import { setActiveEmbedder } from "./Workers.ActiveEmbedder.mjs";
 import {
   MboxWorkerStore,
   exportWorkerState,
-  STATE__INIT,
   STATE__LOADING,
   exportWorkerAlert
 } from "./Workers.State.mjs";
@@ -22,10 +21,6 @@ export async function parseFile(file) {
   if (!file) return workerError(ERR_NO_FILE);
 
   exportWorkerState(STATE__LOADING);
-
-  startTimer("initializeVectorStore");
-  await initializeVectorStore();
-  stopTimer("initializeVectorStore");
 
   // MBOX (plain text mailbox file with no file type) and normal plain-text files
   const fileName = file.name;
@@ -58,13 +53,8 @@ export async function parseFile(file) {
  */
 function readTextFile__Other(file) {
   const reader = new FileReader();
-  reader.onload = () => {
-    console.log("yeah");
-    console.log(reader.result.slice(0, 150).padEnd(153, "..."));
-
-    // TODO stream text contents to document vector store
-    return readFileStream(new Blob([reader.result], { type: "text/plain" }));
-  };
+  reader.onload = () =>
+    readFileStream(new Blob([reader.result], { type: "text/plain" }));
   reader.onerror = () => {
     throw new Error(`${file.name} is unsupported`);
   };
@@ -123,10 +113,15 @@ function onFileStream({ done, value }, reader) {
  * @param {string|undefined} opts.embedder
  * @param {string|undefined} opts.apiKey
  */
-export function initializeMboxWorker(opts) {
+export async function initializeMboxWorker(opts) {
   const { embedder, apiKey } = opts;
   if (embedder) setActiveEmbedder(embedder, apiKey);
-  return exportWorkerState({ ...STATE__INIT, initialized: true });
+
+  startTimer("initializeVectorStore");
+  await initializeVectorStore();
+  stopTimer("initializeVectorStore");
+
+  return exportWorkerState({ initialized: true });
 }
 
 /** @LifeCycle Clear inbox stuff */

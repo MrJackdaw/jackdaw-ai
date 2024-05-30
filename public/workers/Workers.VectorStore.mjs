@@ -17,6 +17,14 @@ let MVectorStore;
 
 /** @LifeCycle Initialize vector store (if not already done) */
 export async function initializeVectorStore() {
+  // Exit immediately if using remote db for embedding and vector storage
+  const { enableCloudStorage } = MboxWorkerSettings.getState();
+  if (enableCloudStorage)
+    return exportWorkerState(
+      { loading: false, vectorStoreLoaded: true, messagesLoaded: true },
+      STATUS.OK
+    );
+
   if (import.meta.env.DEV) console.log("\t ::initializeVectorStore");
 
   return getEmbedder()
@@ -78,6 +86,12 @@ export async function addToVectorStore(blurb, done = false) {
  * Search for relevant content in vector store instance. Expects a query string.
  * @param {string} q Query string (e.g. user question) */
 export async function searchVectors(q) {
+  const { enableCloudStorage, selectedProject } = MboxWorkerSettings.getState();
+  if (enableCloudStorage) {
+    if (!selectedProject) throw new Error("Project is required");
+    return searchVectorsOnline(q, selectedProject);
+  }
+
   if (!MVectorStore) throw new Error("MVectorStore is not initialized");
 
   return (
@@ -131,14 +145,44 @@ async function splitTextBlurb(prunedString) {
   return fileSplitter.splitText(prunedString);
 }
 
+const SERVER_URL = import.meta.env.VITE_SERVER_URL;
+const SUPABASE_URL = `${SERVER_URL}/data`;
+const SESSION_URL = `${SERVER_URL}/session`;
+
+/**
+ * Match user query to relevant vector documents
+ * @param {string} query User Search
+ * @param {number|UUID} projectId 
+ * @returns 
+ */
+async function searchVectorsOnline(query, projectId) {
+  if (!projectId || projectId <= 0)
+    return exportWorkerAlert(
+      "Please select a Project for online document storage!",
+      "Error"
+    );
+
+  const body = { action: "vector-search", data: { query, projectId } };
+  return fetch(SUPABASE_URL, {
+    method: "post",
+    credentials: "include",
+    body: JSON.stringify(body)
+  })
+    .then((res) => res.json())
+    .then(checkSessionExpired)
+    .then((v) => {
+      // refetch data (depending on whether session was/wasn't refreshed)
+      if (!v) return null;
+      if (v.email) return searchVectorsOnline(query, projectId);
+      return v;
+    });
+}
+
 /**
  * Save one or more `Documents` to an online vector store
  * @param {import("@langchain/core/documents").Document[]} documents Documents to save
  */
 async function addDocumentsOnline(documents) {
-  const SERVER_URL = import.meta.env.VITE_SERVER_URL;
-  const SUPABASE_URL = `${SERVER_URL}/data`;
-
   const { selectedProject: projectId } = MboxWorkerSettings.getState();
   if (!projectId || projectId <= 0)
     return exportWorkerAlert(
@@ -147,13 +191,19 @@ async function addDocumentsOnline(documents) {
     );
 
   const body = { action: "documents:upsert", data: { documents, projectId } };
-
   return fetch(SUPABASE_URL, {
     method: "post",
     credentials: "include",
     body: JSON.stringify(body)
   })
     .then((res) => res.json())
+    .then(checkSessionExpired)
+    .then((v) => {
+      // refetch data (depending on whether session was/wasn't refreshed)
+      if (!v) return null;
+      if (v.email) return addDocumentsOnline(documents);
+      return v;
+    })
     .then((res) => {
       console.log("added docs online, got", res);
     })
@@ -172,3 +222,34 @@ async function addDocumentsOnline(documents) {
   | "vector-search";
 
 */
+
+let localRefreshFailed = false;
+let refreshing = false;
+async function refreshUserSession() {
+  if (localRefreshFailed || refreshing) return null;
+  refreshing = true;
+
+  try {
+    const { user } = await fetch(SESSION_URL, {
+      method: "POST",
+      credentials: "include",
+      body: JSON.stringify({ action: "session:refresh" })
+    });
+    // if (user) cacheUserSetting(SETTING__USER_KEY, JSON.stringify(user));
+    refreshing = false;
+    return user;
+  } catch (error) {
+    localRefreshFailed = true;
+    return null;
+  }
+}
+
+/**
+ * @type {T extends { message: string } & Record<string, any>}
+ * @description Check if session expired based on response from server
+ * @param {T} v Response from server
+ */
+export function checkSessionExpired(v) {
+  if (v.message === "Session Expired") return refreshUserSession();
+  return v;
+}

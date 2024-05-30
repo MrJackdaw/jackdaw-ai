@@ -68,10 +68,8 @@ const ChatModule = () => {
   };
 
   useEffect(() => {
-    const unsubscribe = ChatStore.subscribe((s) =>
-      setState((prev) => ({ ...prev, ...s }))
-    );
-    return () => unsubscribe();
+    const onState = () => setState(ChatStore.getState());
+    return ChatStore.subscribe(onState);
   }, []);
 
   return (

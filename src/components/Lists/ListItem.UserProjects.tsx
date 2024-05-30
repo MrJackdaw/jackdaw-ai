@@ -86,22 +86,23 @@ export default function UserProjectListItem(props: ListItemProps) {
       {/* Title + Description */}
       <ListViewItemContent>
         <ListViewItemTitle>
-          <ContentEditable
-            aria-disabled={props.display === "compact"}
-            notifyTextChanged={handleTitleChange}
-          >
-            {project.project_name}
-          </ContentEditable>
+          {props.display === "compact" ? (
+            <span className="description hint">
+              {project.description ?? "(No description)"}
+            </span>
+          ) : (
+            <ContentEditable notifyTextChanged={handleTitleChange}>
+              {project.project_name}
+            </ContentEditable>
+          )}
         </ListViewItemTitle>
 
-        {props.display !== "compact" && (
-          <ContentEditable
-            className="description hint"
-            notifyTextChanged={handleDescrChange}
-          >
-            {project.description ?? "(No description)"}
-          </ContentEditable>
-        )}
+        <ContentEditable
+          className="description hint"
+          notifyTextChanged={handleDescrChange}
+        >
+          {project.description ?? "(No description)"}
+        </ContentEditable>
       </ListViewItemContent>
 
       {/* Delete button */}
@@ -117,7 +118,9 @@ export default function UserProjectListItem(props: ListItemProps) {
         <ItemMenu target={target} onClose={close}>
           <span
             className="item-menu__item"
-            onClick={() => {
+            onClick={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
               close();
               onProjectDelete?.(project);
             }}

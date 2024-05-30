@@ -18,7 +18,7 @@ export async function cacheValue<T>(opts: PutInCacheOpts<T>): Promise<void> {
 }
 
 export async function deleteCachedValue(key: string, db: Dexie.Table) {
-  return db.delete(key);
+  return db.where('key').equals(key).delete()
 }
 
 export async function getCachedValue<X>(

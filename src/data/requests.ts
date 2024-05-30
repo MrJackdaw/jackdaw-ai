@@ -20,7 +20,7 @@ import { refreshSettingsFromCache } from "state/settings-store";
 export async function isUserAuthenticated() {
   const cached: User = await getCachedUser();
   if (cached) {
-    const expires = DateTime.fromISO(cached.lastSeen).plus({ days: 7 });
+    const expires = DateTime.fromISO(cached.lastSeen).plus({ minutes: 30 });
     const stillAuthed = expires.toMillis() >= DateTime.now().toMillis();
     if (stillAuthed) return cached; // exit with cached user
     deleteCachedSetting(SETTING__USER_KEY);

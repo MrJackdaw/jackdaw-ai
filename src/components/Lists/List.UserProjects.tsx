@@ -67,16 +67,12 @@ export default function UserProjectsList({ display }: Props) {
       )
       .then(refreshProjectsCache);
   };
-  const onProjectChanged = (
-    error?: string | null,
-    cacheKey?: string | null
-  ) => {
+  const onProjectChanged = (error?: string | null) => {
     if (error) {
       setLoading(false);
       return void updateAsError(error);
     }
 
-    if (cacheKey) deleteCachedProject(cacheKey);
     return void refreshProjectsCache();
   };
   const optsFromProject = (project: UserProject) => ({
@@ -93,23 +89,24 @@ export default function UserProjectsList({ display }: Props) {
     const action: DataAction = project.id
       ? "user-projects:update"
       : "user-projects:insert";
-    cloudDataFetch<ProjectResp>(action, opts).then((res) =>
-      onProjectChanged(res?.error, cacheKey)
-    );
+    cloudDataFetch<ProjectResp>(action, opts).then((res) => {
+      if (cacheKey) deleteCachedProject(cacheKey);
+      onProjectChanged(res?.error);
+    });
   };
   const handleProjectDelete = async (project: UserProject) => {
-    const opts = { projectId: project.id };
     const cacheKey = (project.__cacheKey || project.id?.toString()) ?? null;
-    const removeFromCloud =
-      project.id && localStorage.getItem(LS_USE_CLOUD_STORE)
-        ? cloudDataFetch<{ data: { projectId: number }; error?: string }>(
-            "user-projects:delete",
-            opts
-          )
-        : Promise.resolve(null);
+    if (cacheKey) deleteCachedProject(cacheKey);
 
-    setLoading(true);
-    removeFromCloud.then((res) => onProjectChanged(res?.error, cacheKey));
+    const opts = { projectId: project.id };
+    if (project.id) {
+      return cloudDataFetch<{ data: { projectId: number }; error?: string }>(
+        "user-projects:delete",
+        opts
+      ).then((res) => onProjectChanged(res?.error));
+    }
+
+    return onProjectChanged();
   };
   /* updates worker*/
   const onChangeOnlineStatus = () => toggleOnlineVectorStore();

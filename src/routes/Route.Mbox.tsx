@@ -2,6 +2,7 @@ import ChatModule from "components/ChatModule";
 import useModal from "hooks/useModal";
 import { useEffect } from "react";
 import { ModalStore } from "state/modal";
+import { SettingsStore } from "state/settings-store";
 
 let loadedOnce = false;
 
@@ -10,6 +11,9 @@ export default function MBoxRoute() {
   const { active, MODAL, setModal } = useModal();
 
   useEffect(() => {
+    if (SettingsStore.getState().owner) {
+      return void (loadedOnce = true);
+    }
     if (!loadedOnce && active !== MODAL.WELCOME_USER)
       setModal(MODAL.WELCOME_USER);
 

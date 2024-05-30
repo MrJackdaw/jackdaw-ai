@@ -11,7 +11,6 @@ export default function AppSidebar() {
     <section className="app-sidebar">
       <AppHeader />
 
-      {/* TODO projects list or similar */}
       <div className="app-sidebar__content">
         {authenticated && <UserProjectsList display="compact" />}
       </div>
