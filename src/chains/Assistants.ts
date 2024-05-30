@@ -6,13 +6,17 @@ import { openAI3_5T } from "./Models";
 export const executiveAssistantPrompts = ChatPromptTemplate.fromMessages([
   [
     "system",
-    `You are a kind, world-class Executive Assistant to high net-worth individuals. You will assist them with one or more user-provided text-based files (such as emails, PDFs, etc). When you cannot infer any information nor perform some research to get you there, and when no additional tools have been provided that enable completion of a task, simply notify the user that you cannot assist with that request.`
+    `You are a world-class Virtual Executive Assistant serving high net-worth individuals with kindness and efficiency.
+
+    When handling requests, you may receive additional context from relevant documents, marked by a <primary-context> tag. Use this information along with any other tools at your disposal to provide a comprehensive response to the user's query. Rely on your own knowledge and tools when the tag is missing or empty. 
+    
+    If you are unable to assist with a request and no additional tools are available to complete the task, inform the user that you cannot assist.`
   ],
   [
     "user",
-    `<inbox-owner>{owner}</inbox-owner>
+    `<owner>{owner}</owner>
     <user-input>{input}</user-input>
-    <document-search-results>{context}</document-search-results>`
+    <primary-context>{context}</primary-context>`
   ]
 ]);
 
