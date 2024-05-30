@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { askAssistant } from "chains";
-import { ChatStore } from "state/chat-store";
+import { ChatStore, JChatMessage } from "state/chat-store";
 import { useMboxStore } from "hooks/useMboxStore";
 import useUser from "hooks/useUser";
 import useSettings from "hooks/useSettings";
@@ -33,12 +33,14 @@ const ChatModule = () => {
   const placeholder = useMemo(() => {
     return messagesLoaded ? "Ask a question" : "( No document loaded )";
   }, [messagesLoaded]);
-  const formDisabled = useMemo(
-    () => !vectorStoreLoaded || loading,
-    [vectorStoreLoaded, loading]
-  );
   const showFilePicker = () => {
     if ($fileInputRef.current) $fileInputRef.current.click();
+  };
+  const updateAndScroll = (messages: JChatMessage[]) => {
+    const $view = document.querySelector("#message-view");
+    if ($view) $view.scrollTop = $view.scrollHeight;
+    console.log("final");
+    ChatStore.multiple({ messages, question: "", loading: false });
   };
   /** Send question to API; update messages list */
   const askQuestion = async () => {
@@ -49,6 +51,8 @@ const ChatModule = () => {
     try {
       const res = await askAssistant(question);
       if (res) next.push({ from: "Assistant", text: res, incoming: true });
+
+      return updateAndScroll(next);
     } catch (error) {
       console.log("Error generating response::", error);
       next.push({
@@ -56,14 +60,7 @@ const ChatModule = () => {
         text: "Error generating response",
         incoming: true
       });
-    } finally {
-      const $view = document.querySelector("#message-view");
-      if ($view) $view.scrollTop = $view.scrollHeight;
-      ChatStore.multiple({
-        messages: next,
-        question: "",
-        loading: false
-      });
+      return updateAndScroll(next);
     }
   };
 
@@ -120,7 +117,7 @@ const ChatModule = () => {
         placeholder={placeholder}
         onChange={ChatStore.question}
         onChangeFileContext={showFilePicker}
-        disabled={formDisabled}
+        disabled={!vectorStoreLoaded}
         handleSubmit={askQuestion}
       />
       <input

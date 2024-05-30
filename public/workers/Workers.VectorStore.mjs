@@ -86,10 +86,18 @@ export async function addToVectorStore(blurb, done = false) {
  * Search for relevant content in vector store instance. Expects a query string.
  * @param {string} q Query string (e.g. user question) */
 export async function searchVectors(q) {
+  /**
+   * Return vector store similarity results to UI, so it can be passed to an LLM or agent
+   * @param {import("@langchain/core/documents").Document[]} data Search results
+   */
+  const handleVectorResponse = (data) => {
+    self.postMessage({ status: STATUS.OK, message: RES_VECTOR_SEARCH, data });
+  };
+
   const { enableCloudStorage, selectedProject } = MboxWorkerSettings.getState();
   if (enableCloudStorage) {
     if (!selectedProject) throw new Error("Project is required");
-    return searchVectorsOnline(q, selectedProject);
+    return searchVectorsOnline(q, selectedProject).then(handleVectorResponse);
   }
 
   if (!MVectorStore) throw new Error("MVectorStore is not initialized");
@@ -98,20 +106,15 @@ export async function searchVectors(q) {
     MVectorStore.maxMarginalRelevanceSearch
       ? MVectorStore.maxMarginalRelevanceSearch(q, { k: 2 })
       : MVectorStore.asRetriever({ k: 2 }).invoke(q)
-  ).then((docs) =>
-    self.postMessage({
-      status: STATUS.OK,
-      message: RES_VECTOR_SEARCH,
-      data: docs
-    })
-  );
+  ).then(handleVectorResponse);
 }
 
 /**
  * Turns a text blurb into multiple Langchain `Document` objects with some owner metadata
  * @param {string} blurb Text blurb to be converted */
 function documentsFromTextBlurb(blurb) {
-  const { owner } = MboxWorkerSettings.getState();
+  const { owner, selectedProject: projectId } = MboxWorkerSettings.getState();
+  const project_id = !projectId || projectId < 1 ? undefined : projectId;
 
   return splitTextBlurb(pruneHTMLString(blurb)).then((parts) => {
     /** @type {string[]} Optimistically separated email fragments */
@@ -123,7 +126,7 @@ function documentsFromTextBlurb(blurb) {
     parts.forEach((pageContent) => {
       if (!pageContent) return;
 
-      const metadata = { id: emailFragments.length + 1, owner };
+      const metadata = { id: emailFragments.length + 1, owner, project_id };
       emailFragments.push(pageContent);
       documents.push(new Document({ pageContent, metadata }));
     });
@@ -152,8 +155,8 @@ const SESSION_URL = `${SERVER_URL}/session`;
 /**
  * Match user query to relevant vector documents
  * @param {string} query User Search
- * @param {number|UUID} projectId 
- * @returns 
+ * @param {number|UUID} projectId
+ * @returns
  */
 async function searchVectorsOnline(query, projectId) {
   if (!projectId || projectId <= 0)
@@ -171,9 +174,11 @@ async function searchVectorsOnline(query, projectId) {
     .then((res) => res.json())
     .then(checkSessionExpired)
     .then((v) => {
-      // refetch data (depending on whether session was/wasn't refreshed)
       if (!v) return null;
+      // refetch data (if session was refreshed)
       if (v.email) return searchVectorsOnline(query, projectId);
+      // Here, v = { message: string; data: Document[] }
+      if (Array.isArray(v.data)) return v.data;
       return v;
     });
 }

@@ -1,6 +1,6 @@
 import createState from "@jackcom/raphsducks";
 
-type ChatMessage = {
+export type JChatMessage = {
   from: string;
   text: string;
   incoming?: boolean;
@@ -8,7 +8,7 @@ type ChatMessage = {
 
 /** IN-memory store that holds chat messages */
 export const ChatStore = createState({
-  messages: [] as ChatMessage[],
+  messages: [] as JChatMessage[],
   question: "",
   loading: false
 });
