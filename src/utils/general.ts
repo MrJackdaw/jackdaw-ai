@@ -6,12 +6,13 @@ import {
   LS_ASSISTANT_APIKEY,
   LS_USE_CLOUD_STORE,
   LS_COLOR_IDENT_OVERRIDE,
-  LS_OWNER_KEY
+  LS_OWNER_KEY,
+  LS_ACTIVE_PROJECT
 } from "./strings";
 
 export const SERVER_URL = import.meta.env.VITE_SERVER_URL;
 export const SESSION_URL = `${SERVER_URL}/session`;
-export const SUPABASE_URL = `${SERVER_URL}/supabase`;
+export const SUPABASE_URL = `${SERVER_URL}/data`;
 export const AUTH_OPTS: RequestInit = {
   credentials: "include",
   method: "post"
@@ -108,10 +109,11 @@ export type LocalUserSettings = {
   embedderAPIKey: string;
   enableCloudStorage: boolean;
   owner: string;
+  selectedProject: number;
 };
 
 /** Load in LocalStorage settings as an object */
-export function getUserSettings() {
+export function getUserSettings(): LocalUserSettings {
   return {
     assistantAPIKey: localStorage.getItem(LS_ASSISTANT_APIKEY) ?? "",
     assistantLLM: localStorage.getItem(LS_ASSISTANT_KEY) ?? "huggingface",
@@ -121,7 +123,8 @@ export function getUserSettings() {
       "huggingface") as AISource,
     enableCloudStorage:
       (localStorage.getItem(LS_USE_CLOUD_STORE) ?? "0") === "1",
-    owner: localStorage.getItem(LS_OWNER_KEY) ?? ""
+    owner: localStorage.getItem(LS_OWNER_KEY) ?? "",
+    selectedProject: Number(localStorage.getItem(LS_ACTIVE_PROJECT) ?? -1)
   };
 }
 
@@ -145,6 +148,10 @@ export function updateUserSettings(d: LocalUserSettings) {
 
   // Application owner handler
   if (d.owner) localStorage.setItem(LS_OWNER_KEY, d.owner);
+
+  if (d.selectedProject && d.selectedProject > 0) {
+    localStorage.setItem(LS_ACTIVE_PROJECT, d.selectedProject.toString());
+  }
 
   // Custom UI color
   if (d.colorIdent) localStorage.setItem(LS_COLOR_IDENT_OVERRIDE, d.colorIdent);

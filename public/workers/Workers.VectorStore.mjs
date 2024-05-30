@@ -37,15 +37,13 @@ export async function addToVectorStore(blurb, done = false) {
   const { documents, emailFragments } = await documentsFromTextBlurb(blurb);
   const { enableCloudStorage } = MboxWorkerSettings.getState();
 
-  if (enableCloudStorage)
-    exportWorkerAlert(
-      `Documents are TOOOOTALLY being stored online.`,
-      "Warning"
-    );
-
   // Local embedders are slow (unless a good model replacement is found). Amount of time
   // will scale horribly with file size.
-  return MVectorStore.addDocuments(documents)
+  return (
+    enableCloudStorage
+      ? addDocumentsOnline(documents)
+      : MVectorStore.addDocuments(documents)
+  )
     .then(() => {
       docsCount = docsCount + emailFragments.length;
 
@@ -74,6 +72,25 @@ export async function addToVectorStore(blurb, done = false) {
       docsCount = 0;
       errorMessage = "";
     });
+}
+
+/**
+ * Search for relevant content in vector store instance. Expects a query string.
+ * @param {string} q Query string (e.g. user question) */
+export async function searchVectors(q) {
+  if (!MVectorStore) throw new Error("MVectorStore is not initialized");
+
+  return (
+    MVectorStore.maxMarginalRelevanceSearch
+      ? MVectorStore.maxMarginalRelevanceSearch(q, { k: 2 })
+      : MVectorStore.asRetriever({ k: 2 }).invoke(q)
+  ).then((docs) =>
+    self.postMessage({
+      status: STATUS.OK,
+      message: RES_VECTOR_SEARCH,
+      data: docs
+    })
+  );
 }
 
 /**
@@ -115,20 +132,43 @@ async function splitTextBlurb(prunedString) {
 }
 
 /**
- * Search for relevant content in vector store instance. Expects a query string.
- * @param {string} q Query string (e.g. user question) */
-export async function searchVectors(q) {
-  if (!MVectorStore) throw new Error("MVectorStore is not initialized");
+ * Save one or more `Documents` to an online vector store
+ * @param {import("@langchain/core/documents").Document[]} documents Documents to save
+ */
+async function addDocumentsOnline(documents) {
+  const SERVER_URL = import.meta.env.VITE_SERVER_URL;
+  const SUPABASE_URL = `${SERVER_URL}/data`;
 
-  return (
-    MVectorStore.maxMarginalRelevanceSearch
-      ? MVectorStore.maxMarginalRelevanceSearch(q, { k: 2 })
-      : MVectorStore.asRetriever({ k: 2 }).invoke(q)
-  ).then((docs) =>
-    self.postMessage({
-      status: STATUS.OK,
-      message: RES_VECTOR_SEARCH,
-      data: docs
+  const { selectedProject: projectId } = MboxWorkerSettings.getState();
+  if (!projectId || projectId <= 0)
+    return exportWorkerAlert(
+      "Please select a Project for online document storage!",
+      "Error"
+    );
+
+  const body = { action: "documents:upsert", data: { documents, projectId } };
+
+  return fetch(SUPABASE_URL, {
+    method: "post",
+    credentials: "include",
+    body: JSON.stringify(body)
+  })
+    .then((res) => res.json())
+    .then((res) => {
+      console.log("added docs online, got", res);
     })
-  );
+    .catch((err) => {
+      console.log("could not add docs online, because", err);
+    });
 }
+
+/* 
+
+  MORE (SERVER-)SUPPORTED DOCUMENT ACTIONS
+
+'export type DataAction =
+  | "documents:delete"
+  | "documents:list"
+  | "vector-search";
+
+*/

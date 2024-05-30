@@ -1,5 +1,4 @@
-import { UserProject, suppressEvent } from "utils/general";
-import { ProjectsStore } from "state/user-projects";
+import { UserProject, suppressEvent, updateUserSettings } from "utils/general";
 import { SettingsStore } from "state/settings-store";
 import useSubmenuHandler from "hooks/useSubmenuHandler";
 import { MouseEventHandler, useMemo } from "react";
@@ -13,6 +12,8 @@ import "./ListItem.UserProjects.scss";
 
 type ListItemProps = {
   active?: boolean;
+  /** Default = 'full' */
+  display?: "full" | "compact";
   project: UserProject;
   onProjectChange?: { (P: UserProject): any };
   onProjectDelete?: { (P: UserProject): any };
@@ -50,47 +51,57 @@ export default function UserProjectListItem(props: ListItemProps) {
     notifyProjectChanged(next, "description");
   };
   const handleSelectOrSync: MouseEventHandler<HTMLElement> = (e) => {
+    if (props.display !== "compact") return;
     suppressEvent(e);
-    if (project.id) return ProjectsStore.selectedProject(project);
+    if (project.id) {
+      SettingsStore.selectedProject(project.id);
+      updateUserSettings(SettingsStore.getState());
+    }
     onProjectChange?.(project);
   };
 
-  const className = ["list-item--projects", "compact"];
+  const className = ["list-item--projects"];
   if (props.active) className.push("active");
+  if (props.display) className.push(props.display);
 
   return (
     <ListViewItem
       className={className.join(" ").trim()}
-      onClick={suppressEvent}
+      onClick={handleSelectOrSync}
     >
       {/* Icon */}
-      <span className="list-item__icon-column" data-tooltip={tooltip}>
-        <button
-          type="button"
-          className="button--round"
-          onClick={handleSelectOrSync}
-          disabled={!enableCloudStorage}
-        >
-          <span className={iconClass.join(" ").trim()}>{iconValue}</span>
-        </button>
-      </span>
+      {props.display !== "compact" && (
+        <span className="list-item__icon-column" data-tooltip={tooltip}>
+          <button
+            type="button"
+            className="button--round"
+            onClick={handleSelectOrSync}
+            disabled={!enableCloudStorage}
+          >
+            <span className={iconClass.join(" ").trim()}>{iconValue}</span>
+          </button>
+        </span>
+      )}
 
       {/* Title + Description */}
       <ListViewItemContent>
         <ListViewItemTitle>
-          <ContentEditable notifyTextChanged={handleTitleChange}>
+          <ContentEditable
+            aria-disabled={props.display === "compact"}
+            notifyTextChanged={handleTitleChange}
+          >
             {project.project_name}
           </ContentEditable>
         </ListViewItemTitle>
 
-        <span>
+        {props.display !== "compact" && (
           <ContentEditable
-            className="hint"
+            className="description hint"
             notifyTextChanged={handleDescrChange}
           >
             {project.description ?? "(No description)"}
           </ContentEditable>
-        </span>
+        )}
       </ListViewItemContent>
 
       {/* Delete button */}

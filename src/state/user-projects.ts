@@ -4,7 +4,6 @@ import { UserProject } from "utils/general";
 export const ProjectsStore = createState({
   fetchingProjects: false,
   projects: [] as UserProject[],
-  selectedProject: null as UserProject | null,
   editingProject: null as UserProject | null
 });
 

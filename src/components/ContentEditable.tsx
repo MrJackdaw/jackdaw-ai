@@ -27,7 +27,7 @@ export default function ContentEditable(props: Props) {
 
   return (
     <span
-      contentEditable
+      contentEditable={!props["aria-disabled"]}
       className={classes}
       suppressContentEditableWarning
       onKeyDown={handleTextChange}

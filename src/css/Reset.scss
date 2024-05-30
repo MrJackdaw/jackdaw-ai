@@ -34,15 +34,15 @@ body {
   /* Smooth scrolling haxx -- need this for Glory™ on iOS devices */
   -webkit-overflow-scrolling: touch;
 
-  [data-mini] {
+  [data-mini="true"] {
     max-width: 300px;
   }
 
-  [data-small] {
+  [data-small="true"] {
     max-width: 480px;
   }
 
-  [data-medium] {
+  [data-medium="true"] {
     max-width: 600px;
   }
 }

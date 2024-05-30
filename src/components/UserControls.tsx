@@ -1,4 +1,5 @@
 import { version } from "../../package.json";
+import { ComponentPropsWithRef } from "react";
 import { Link } from "react-router-dom";
 import { suppressEvent } from "utils/general";
 import { MODAL, ModalStore, clearModal, setModal } from "state/modal";
@@ -10,7 +11,7 @@ import ListViewItem, { ListViewItemContent } from "./Lists/ListViewItem";
 import ItemMenu from "./ItemMenu";
 import "./UserControls.scss";
 
-export default function UserControls() {
+export default function UserControls(props: ComponentPropsWithRef<"div">) {
   const { enableCloudStorage } = useSettings(["enableCloudStorage"]);
   const { avatar, authenticated } = useUser(["avatar", "authenticated"]);
   const { close, openSubmenu, submenuIsVisible, target } = useSubmenuHandler();
@@ -20,10 +21,12 @@ export default function UserControls() {
     if (active === MODAL.SETTINGS_GLOBAL) return clearModal();
     setModal(MODAL.SETTINGS_GLOBAL);
   };
+  const classes = ["user-controls"];
+  if (props.className) classes.push(props.className);
 
   return (
     <div>
-      <ListViewItem className="user-controls" onClick={openSubmenu}>
+      <ListViewItem className={classes.join(" ").trim()} onClick={openSubmenu}>
         {/* User Settings */}
         <button className="button--round transparent white" type="button">
           {authenticated && avatar ? (

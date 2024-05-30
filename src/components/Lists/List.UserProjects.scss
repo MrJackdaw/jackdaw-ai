@@ -19,3 +19,12 @@
   padding: 0;
   width: 100%;
 }
+
+.list-view--user-projects.compact {
+  grid-template-columns: 1fr;
+  padding: 0.2rem 0.4rem;
+
+  .controls--grid {
+    grid-template-columns: 1fr;
+  }
+}

@@ -16,6 +16,7 @@ export const LS_EMBEDDER_KEY = "jc-embedder";
 export const LS_EMBEDDER_APIKEY = "jc-embedder-APIKey";
 export const LS_OLLAMA_BASEURL = "jc-ollama-APIKey";
 export const LS_USE_CLOUD_STORE = "jc-cloud-vectorstore";
+export const LS_ACTIVE_PROJECT = "jc-project"
 
 // storage keys - mailbox
 export const LS_OWNER_KEY = "jc-owner";

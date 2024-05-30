@@ -10,7 +10,7 @@ import { cacheProject, deleteCachedProject } from "indexedDB";
 import UserProjectListItem from "./ListItem.UserProjects";
 import { LS_USE_CLOUD_STORE } from "utils/strings";
 import { updateAsError } from "state/notifications";
-import { loadProjects } from "data/requests.projects";
+import { loadProjects, refreshProjectsCache } from "data/requests.projects";
 import { DataAction } from "data/requests.types";
 import useSettings from "hooks/useSettings";
 import { toggleOnlineVectorStore } from "state/settings-store";
@@ -18,16 +18,23 @@ import "./List.UserProjects.scss";
 
 let init = false;
 
-export default function UserProjectsList() {
+type Props = { display?: "full" | "compact" };
+
+export default function UserProjectsList({ display }: Props) {
   type ProjectResp = { data: UserProject; error?: string };
   const startNewProject = () => setModal(MODAL.MANAGE_PROJECT);
-  const { enableCloudStorage } = useSettings(["enableCloudStorage"]);
+  const { enableCloudStorage, selectedProject } = useSettings([
+    "enableCloudStorage",
+    "selectedProject"
+  ]);
   const { authenticated, criticalError } = useUser([
     "authenticated",
     "criticalError"
   ]);
-  const { projects, selectedProject, fetchingProjects, setLoading } =
-    useProjects(["projects", "selectedProject", "fetchingProjects"]);
+  const { projects, fetchingProjects, setLoading } = useProjects([
+    "projects",
+    "fetchingProjects"
+  ]);
   const requestInFlight = useMemo(() => {
     return fetchingProjects || !authenticated;
   }, [fetchingProjects, authenticated]);
@@ -35,14 +42,9 @@ export default function UserProjectsList() {
     () => enableCloudStorage && projects.some((p) => !p.id),
     [projects, enableCloudStorage]
   );
-  const refreshCache = async () => {
-    await loadProjects();
-    return setLoading(false);
-  };
   const fetchProjects = async () => {
     if (requestInFlight || criticalError) return;
-    setLoading(true);
-    await refreshCache();
+    await loadProjects();
   };
   const syncProjects = async () => {
     setLoading(true);
@@ -63,7 +65,7 @@ export default function UserProjectsList() {
       .then(() =>
         Promise.all(updated.map((p) => deleteCachedProject(p.__cacheKey!)))
       )
-      .then(() => refreshCache());
+      .then(refreshProjectsCache);
   };
   const onProjectChanged = (
     error?: string | null,
@@ -75,7 +77,7 @@ export default function UserProjectsList() {
     }
 
     if (cacheKey) deleteCachedProject(cacheKey);
-    return void refreshCache();
+    return void refreshProjectsCache();
   };
   const optsFromProject = (project: UserProject) => ({
     id: project.id ?? undefined,
@@ -118,16 +120,17 @@ export default function UserProjectsList() {
     fetchProjects();
   }, []);
 
+  const classes = ["centered", "list-view--user-projects"];
+  if (display) classes.push(display);
+
   return (
     <ListView
-      className="centered list-view--user-projects"
-      data-medium
+      className={classes.join(" ").trim()}
+      data-medium={display !== "compact"}
       data={projects}
       dummyFirstItem={
         <>
-          <h4 className="legendary" title="All Projects">
-            All Projects
-          </h4>
+          <h4 className="legendary">All Projects</h4>
 
           <form className="enable-cloud-storage" onSubmit={suppressEvent}>
             <label className="hint" data-checkbox>
@@ -148,10 +151,8 @@ export default function UserProjectsList() {
       }
       itemText={(d) => (
         <UserProjectListItem
-          active={Boolean(
-            selectedProject?.id === d.id &&
-              selectedProject?.__cacheKey === d.__cacheKey
-          )}
+          active={selectedProject === d.id}
+          display={display}
           project={d}
           onProjectChange={handleProjectSync}
           onProjectDelete={handleProjectDelete}

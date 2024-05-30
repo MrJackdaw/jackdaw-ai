@@ -2,12 +2,6 @@
 
 //
 .list-item--projects {
-  &.active > .list-item__icon-column .button--round,
-  &.active.compact > * {
-    border: 0.1rem solid $success;
-    color: $success;
-  }
-
   .editable:hover {
     background-color: #8886;
     cursor: pointer;
@@ -19,5 +13,35 @@
 
   .list-item__content .editable {
     pointer-events: fill;
+  }
+}
+
+.list-item--projects.active {
+  > .list-item__icon-column .button--round {
+    border: 0.1rem solid $success;
+  }
+
+  > .list-item__icon-column .button--round,
+  .list-item__title {
+    color: $success;
+  }
+
+  .list-item__title {
+    font-weight: bold;
+  }
+}
+
+.list-item--projects.compact {
+  cursor: pointer;
+  grid-template-columns: 1fr max-content;
+  padding: 0.2rem 0.4rem;
+
+  .list-item__content > .description,
+  .list-item__icon-column {
+    display: none;
+  }
+
+  .list-item__title {
+    font-size: 0.8rem;
   }
 }

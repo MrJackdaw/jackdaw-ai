@@ -28,7 +28,8 @@ export const MboxWorkerSettings = createState({
   embedder: "", // "jackcom" | "huggingface" | "ollama" | "openai"
   embedderAPIKey: "",
   enableCloudStorage: false,
-  owner: ""
+  owner: "",
+  selectedProject: undefined
 });
 
 /**
