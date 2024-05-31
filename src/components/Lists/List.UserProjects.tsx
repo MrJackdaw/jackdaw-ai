@@ -197,7 +197,7 @@ export default function UserProjectsList({ display }: Props) {
               className="button--grid"
               onClick={startNewProject}
             >
-              <span className="material-symbols-outlined">add</span>
+              <span className="material-symbols-outlined">create_new_folder</span>
               <span>New Project</span>
             </button>
           </div>

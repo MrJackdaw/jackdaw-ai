@@ -42,24 +42,6 @@ export default function UserControls(props: ComponentPropsWithRef<"div">) {
 
       {submenuIsVisible && (
         <ItemMenu target={target} onClose={close} placement="top">
-          <Link
-            className="item-menu__item user-control__item"
-            to={JRoutes.AssistantSettings}
-            onClick={close}
-          >
-            <span>Assistant settings</span>
-            <span className="material-symbols-outlined">psychology</span>
-          </Link>
-
-          <Link
-            className="item-menu__item user-control__item"
-            to={JRoutes.GeneralSettings}
-            onClick={close}
-          >
-            <span>General Settings</span>
-            <span className="material-symbols-outlined">settings</span>
-          </Link>
-
           {authenticated ? (
             <Link
               className="item-menu__item user-control__item"
@@ -67,7 +49,7 @@ export default function UserControls(props: ComponentPropsWithRef<"div">) {
               onClick={close}
             >
               <span>My Projects</span>
-              <span className="material-symbols-outlined">security</span>
+              <span className="material-symbols-outlined">folder_open</span>
             </Link>
           ) : (
             <Link
@@ -79,6 +61,24 @@ export default function UserControls(props: ComponentPropsWithRef<"div">) {
               <span className="material-symbols-outlined">lock</span>
             </Link>
           )}
+
+          <Link
+            className="item-menu__item user-control__item"
+            to={JRoutes.GeneralSettings}
+            onClick={close}
+          >
+            <span>General Settings</span>
+            <span className="material-symbols-outlined">settings</span>
+          </Link>
+
+          <Link
+            className="item-menu__item user-control__item"
+            to={JRoutes.AssistantSettings}
+            onClick={close}
+          >
+            <span>Assistant settings</span>
+            <span className="material-symbols-outlined">psychology</span>
+          </Link>
 
           <form
             className="enable-cloud-storage"
