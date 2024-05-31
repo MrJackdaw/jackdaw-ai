@@ -1,4 +1,4 @@
-import { AISource } from "utils/general";
+import { AISource, updateUserSettings } from "utils/general";
 import { useEffect, useState } from "react";
 import { SettingsStoreInstance, SettingsStore } from "state/settings-store";
 
@@ -23,6 +23,7 @@ export default function DataEmbeddingFields() {
     }
 
     SettingsStore.multiple(updates);
+    updateUserSettings(SettingsStore.getState());
   };
 
   useEffect(
@@ -54,13 +55,13 @@ export default function DataEmbeddingFields() {
         <summary>
           <span className="material-symbols-outlined">help</span>
           <span>
-            What are <b className="gold">Embeddings</b>?
+            What are <span className="gold">Embeddings</span>?
           </span>
         </summary>
 
         <div className="hint">
           <p>
-            <b className="gold">Embeddings</b> help to give your{" "}
+            <span className="gold">Embeddings</span> help to give your{" "}
             <span className="gold">Assistant</span> additional targeted context
             based on your query. Select{" "}
             <span className="gold">huggingface</span>
@@ -69,8 +70,8 @@ export default function DataEmbeddingFields() {
           </p>
           <p>
             <b>Note that</b> Embeddings are linked to your{" "}
-            <b className="gold">Assistant</b>: changing this value will affect
-            the other.
+            <span className="gold">Assistant</span>: changing this value will
+            affect the other.
           </p>
         </div>
       </details>

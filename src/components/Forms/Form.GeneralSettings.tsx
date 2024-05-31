@@ -15,7 +15,6 @@ import { logoutUser } from "data/requests";
 import { updateNotification } from "state/notifications";
 import { SettingsStore } from "state/settings-store";
 import useSettings from "hooks/useSettings";
-import ManageVectorStorageFields from "components/Fieldsets/Fields.ManageVectorStorage";
 import "./Form.GeneralSettings.scss";
 import useUser from "hooks/useUser";
 import { ChatStore } from "state/chat-store";
@@ -48,8 +47,8 @@ export default function GeneralSettingsForm() {
     setTimeout(() => navigate("/"));
   };
   const clearOwnerIdent = () => {
-    changeMboxOwner();
     setNewOwner("");
+    changeMboxOwner("");
   };
   const changeOwnerIdent = () => {
     setEditingOwner(false);
@@ -111,7 +110,9 @@ export default function GeneralSettingsForm() {
         <details>
           <summary>
             <span className="material-symbols-outlined">help</span>
-            <span>Clear Callsign</span>
+            <span>
+              What is my <span className="gold">Callsign</span>?
+            </span>
           </summary>
           <div className="hint">
             <span className="gold">Your Callsign </span>(display name){" "}
@@ -133,15 +134,13 @@ export default function GeneralSettingsForm() {
         </button>
       </fieldset>
 
-      <ManageVectorStorageFields saveImmediately />
-
       <fieldset>
         <legend>Active Conversation</legend>
 
         <details>
           <summary>
             <span className="material-symbols-outlined">help</span>
-            <span>Clear memory</span>
+            <span>What is this?</span>
           </summary>
 
           <p className="hint">
@@ -166,14 +165,18 @@ export default function GeneralSettingsForm() {
         <details>
           <summary>
             <span className="material-symbols-outlined">help</span>
-            <span>Clear Model cache</span>
+            <span>
+              What is a <span className="gold">cached model</span>?
+            </span>
           </summary>
 
           <p className="hint">
             <span className="gold">
-              Clear any models you have previously downloaded for offline work.
+              A cached model is any model you previously downloaded for offline
+              work.
             </span>{" "}
-            This will not log you out, or affect your other settings.
+            You can clear this without logging out or deleting your account, if
+            you have one. This will not affect your other settings.
           </p>
         </details>
 
@@ -193,18 +196,22 @@ export default function GeneralSettingsForm() {
         <details>
           <summary>
             <span className="material-symbols-outlined">help</span>
-            <span>Clear Browser</span>
+            <span>
+              What is the <span className="gold">Extreme™ Log Out</span>?
+            </span>
           </summary>
 
           <div className="hint">
             <p>
-              <span className="gold">Log outs, then clears:</span>
+              <span className="gold">This will log you out, then clear:</span>
             </p>
             <ul>
               <li>Your cached display name</li>
               <li>Any API keys you stored in the browser for this app</li>
               <li>All downloaded models and anything you stashed in memory</li>
-              <li>Anything else you put in the browser with this app</li>
+              <li className="gold">
+                Anything else you put in the browser with this app!
+              </li>
             </ul>
             <p>
               <span className="gold">

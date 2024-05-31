@@ -17,7 +17,7 @@ export const AUTH_OPTS: RequestInit = {
   credentials: "include",
   method: "post"
 };
-export type AISource = "jackcom" | "huggingface" | "ollama" | "openai";
+export type AISource = "@jackcom/openai" | "huggingface" | "ollama" | "openai";
 export type User = {
   anonymous: boolean;
   authenticated: boolean;
@@ -130,9 +130,9 @@ export function getUserSettings(): LocalUserSettings {
 
 /** Write user settings from state to device/localStorage */
 export function updateUserSettings(d: LocalUserSettings) {
-  const willRefresh =
-    localStorage.getItem(LS_ASSISTANT_KEY) !== d.assistantLLM ||
-    localStorage.getItem(LS_EMBEDDER_KEY) !== d.embedder;
+  // const willRefresh =
+  //   localStorage.getItem(LS_ASSISTANT_KEY) !== d.assistantLLM ||
+  //   localStorage.getItem(LS_EMBEDDER_KEY) !== d.embedder;
 
   // Change chat LLM
   localStorage.setItem(LS_ASSISTANT_KEY, d.assistantLLM);
@@ -147,16 +147,18 @@ export function updateUserSettings(d: LocalUserSettings) {
   else localStorage.removeItem(LS_USE_CLOUD_STORE);
 
   // Application owner handler
-  if (d.owner) localStorage.setItem(LS_OWNER_KEY, d.owner);
+  localStorage.setItem(LS_OWNER_KEY, d.owner);
+  // if (d.owner) localStorage.setItem(LS_OWNER_KEY, d.owner);
+  // else localStorage.removeItem(LS_OWNER_KEY);
 
   if (d.selectedProject && d.selectedProject > 0) {
     localStorage.setItem(LS_ACTIVE_PROJECT, d.selectedProject.toString());
-  }
+  } else localStorage.removeItem(LS_ACTIVE_PROJECT);
 
   // Custom UI color
   if (d.colorIdent) localStorage.setItem(LS_COLOR_IDENT_OVERRIDE, d.colorIdent);
   else if (d.owner)
     localStorage.setItem(LS_COLOR_IDENT_OVERRIDE, stringToColor(d.owner));
 
-  if (willRefresh) window.location.reload();
+  // if (willRefresh) window.location.reload();
 }

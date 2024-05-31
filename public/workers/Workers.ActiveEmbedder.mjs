@@ -8,12 +8,12 @@ let activeEmbedder = null;
  * huggingface (local), personal open-ai, or proxy-openai (jackcom))
  * @returns {Promise<AsyncSingleton>} */
 export async function getEmbedder() {
-  return activeEmbedder || setActiveEmbedder("jackcom");
+  return activeEmbedder || setActiveEmbedder("huggingface");
 }
 
 /**
  * Override active embedder class (user can conditionally override)
- * @param {"jackcom"|"huggingface"|"openai"} e New Embedder target
+ * @param {"@jackcom/openai"|"huggingface"|"openai"} e New Embedder target
  * @param {string?} apiKey  */
 
 export async function setActiveEmbedder(e, apiKey = "") {
@@ -21,7 +21,7 @@ export async function setActiveEmbedder(e, apiKey = "") {
   MboxWorkerSettings.multiple({ embedder: e, embedderAPIKey: apiKey });
 
   switch (e) {
-    case "jackcom": {
+    case "@jackcom/openai": {
       activeEmbedder = await JackComEmbedder.getInstance();
       break;
     }

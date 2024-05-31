@@ -9,6 +9,12 @@ import Markdown from "react-markdown";
 import { sendFilesToParser } from "mbox/Mbox";
 import "./ChatModule.scss";
 
+const ERROR_MSG = {
+  from: "Application",
+  text: "[Error generating response]",
+  incoming: true
+};
+
 /** Chat message list and input */
 const ChatModule = () => {
   const $fileInputRef = useRef<HTMLInputElement>(null);
@@ -53,7 +59,7 @@ const ChatModule = () => {
     if (!question || loading) return;
     const next = [...messages, { from: owner, text: question }];
     ChatStore.multiple({ loading: true, messages: next });
-    setStreamResponse("( Thinking... )")
+    setStreamResponse("( Thinking... )");
     scrollMessagesView();
 
     try {
@@ -67,17 +73,15 @@ const ChatModule = () => {
         scrollMessagesView();
       }
 
-      if (!text) return;
-      next.push({ from: "Assistant", text, incoming: true });
-      return updateAndScroll(next);
+      if (!text) console.log({ text, res });
+
+      next.push(text ? { from: "Assistant", text, incoming: true } : ERROR_MSG);
+      // return updateAndScroll(next);
     } catch (error) {
       console.log("Error generating response::", error);
-      next.push({
-        from: "Application",
-        text: "Error generating response",
-        incoming: true
-      });
-      return updateAndScroll(next);
+      next.push(ERROR_MSG);
+    } finally {
+      updateAndScroll(next);
     }
   };
 
@@ -107,7 +111,7 @@ const ChatModule = () => {
               <div className={`message--${incoming ? "incoming" : "outgoing"}`}>
                 <div className="message__text">
                   <b
-                    className="message__source"
+                    className={`message__source ${from}`}
                     style={incoming ? undefined : { color: colorIdent }}
                   >
                     {from}

@@ -1,11 +1,12 @@
 @import "../css/Mixins.scss";
+@import "../css/Colors.scss";
 
 .module--chat-messages {
   display: grid;
   grid-template-columns: 1fr;
   grid-template-rows: 1fr auto;
   height: 100%;
-  padding: 0.6rem 0.6rem 0;
+  padding: 1.2rem 0.6rem 0;
 }
 
 .list--chat-messages {
@@ -33,13 +34,23 @@
   margin-bottom: 1rem;
   padding: 0.6rem 0.6rem 2rem;
   text-align: left;
-  width: fit-content;
+  word-break: break-word;
+  width: 100%;
 }
 
 .message--incoming {
   background-color: #000;
+  border: 1px solid #6668;
   border-top-left-radius: 0;
   margin-right: 2.5rem;
+
+  .message__source.Assistant {
+    color: $purple;
+  }
+
+  .message__source.Application {
+    color: $error;
+  }
 }
 
 .message--outgoing {
@@ -71,6 +82,7 @@
 
 .module--chat-messages__list-container {
   @include hide-scrollbar();
+  background-color: #181818;
   border-radius: 8px;
   transition: border 500ms ease-in;
   overflow-y: auto;
@@ -80,7 +92,7 @@
   }
 
   &[data-loaded="true"] {
-    border: 1px solid #8c65ae;
+    border: 1px solid $purple;
   }
 
   &[data-error="true"]::after {

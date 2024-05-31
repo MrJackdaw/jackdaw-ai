@@ -14,9 +14,6 @@ const MBoxRoute = lazy(() => import("routes/Route.Mbox"));
 const Settings = lazy(() => import("routes/Route.Settings"));
 
 // DIALOGS
-const AssistantSettingsDialog = lazy(
-  () => import("components/Dialogs/Dialog.AssistantSettings")
-);
 const WelcomeUserDialog = lazy(
   () => import("components/Dialogs/Dialog.WelcomeUser")
 );
@@ -48,7 +45,6 @@ function App() {
 
       <Suspense fallback={<FullscreenLoader msg="Loading modal..." />}>
         {active === MODAL.WELCOME_USER && <WelcomeUserDialog />}
-        {active === MODAL.SETTINGS_GLOBAL && <AssistantSettingsDialog open />}
         {active === MODAL.MANAGE_PROJECT && <ProjectDetailsDialog open />}
       </Suspense>
 

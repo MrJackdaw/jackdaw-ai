@@ -15,8 +15,11 @@ export default function ManageVectorStorageFields(props: MVSFProps) {
   const [sliderHint, addendum] = useMemo(() => {
     return enableCloudStorage
       ? [
-          "projects in a cloud database",
-          "Access is restricted to you and anyone you allow."
+          "your active Project in a cloud database",
+          [
+            "Access is restricted to you and anyone you allow.",
+            "You also have access to more hosted Language Models through our API."
+          ].join(" ")
         ]
       : [
           "your device memory",
@@ -59,13 +62,27 @@ export default function ManageVectorStorageFields(props: MVSFProps) {
         <div className="hint">
           <p>
             <span className="gold">
-              This determines where your generated Embeddings will go.
+              This determines what online features you can access.
             </span>{" "}
-            You currently{" "}
-            <span className="gold">save them to {sliderHint}</span>. {addendum}
+            Currently, when you upload a document,{" "}
+            <span className="gold">
+              it is broken up and saved to {sliderHint}
+            </span>
+            . {addendum}
+          </p>
+          <p>
+            <b>Note:</b>{" "}
+            <span className="gold">
+              you can still chat with online providers like OpenAI using your
+              private API key.
+            </span>
           </p>
           {!authenticated && (
-            <p>(Please create an account to access cloud features.)</p>
+            <p>
+              <em className="grey">
+                (Create an account to access cloud features.)
+              </em>
+            </p>
           )}
         </div>
       </details>

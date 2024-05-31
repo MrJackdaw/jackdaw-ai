@@ -37,6 +37,10 @@
   }
 }
 
+a {
+  color: $purple;
+}
+
 h1,
 .h1 {
   @include h1();

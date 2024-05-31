@@ -2,7 +2,6 @@ import { version } from "../../package.json";
 import { ComponentPropsWithRef } from "react";
 import { Link } from "react-router-dom";
 import { suppressEvent } from "utils/general";
-import { MODAL, ModalStore, clearModal, setModal } from "state/modal";
 import { toggleOnlineVectorStore } from "state/settings-store";
 import useUser from "hooks/useUser";
 import useSubmenuHandler from "hooks/useSubmenuHandler";
@@ -15,12 +14,6 @@ export default function UserControls(props: ComponentPropsWithRef<"div">) {
   const { enableCloudStorage } = useSettings(["enableCloudStorage"]);
   const { avatar, authenticated } = useUser(["avatar", "authenticated"]);
   const { close, openSubmenu, submenuIsVisible, target } = useSubmenuHandler();
-  const toggleSettings = () => {
-    close();
-    const { active } = ModalStore.getState();
-    if (active === MODAL.SETTINGS_GLOBAL) return clearModal();
-    setModal(MODAL.SETTINGS_GLOBAL);
-  };
   const classes = ["user-controls"];
   if (props.className) classes.push(props.className);
 
@@ -44,14 +37,14 @@ export default function UserControls(props: ComponentPropsWithRef<"div">) {
 
       {submenuIsVisible && (
         <ItemMenu target={target} onClose={close} placement="top">
-          <div
-            role="menu-item"
+          <Link
             className="item-menu__item user-control__item"
-            onClick={toggleSettings}
+            to="/settings/assistant-settings"
+            onClick={close}
           >
             <span>Assistant settings</span>
             <span className="material-symbols-outlined">psychology</span>
-          </div>
+          </Link>
 
           <Link
             className="item-menu__item user-control__item"

@@ -1,6 +1,7 @@
 import { llmsForAISource } from "chains/Models";
 import { useEffect, useState } from "react";
 import { SettingsStore, SettingsStoreInstance } from "state/settings-store";
+import { updateUserSettings } from "utils/general";
 
 /** @FormComponent Child component of `AssistantSettingsModal` form */
 export default function AssistantLLMFields() {
@@ -25,6 +26,7 @@ export default function AssistantLLMFields() {
     }
 
     SettingsStore.multiple(updates);
+    updateUserSettings(SettingsStore.getState());
   };
 
   useEffect(
@@ -60,7 +62,7 @@ export default function AssistantLLMFields() {
         <summary>
           <span className="material-symbols-outlined">help</span>
           <span>
-            What is the <b className="grey">Assistant LLM</b>?
+            What is the <span className="gold">Assistant LLM</span>?
           </span>
         </summary>
         <p className="hint">

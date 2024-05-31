@@ -14,29 +14,34 @@ export async function askAssistant(input: string) {
   if (!input || loading) return "";
   else loading = true;
 
-  // const llm = openAI4o();
-  const { owner } = SettingsStore.getState();
-  const [context, chain] = await Promise.all([
-    // Search the vector database for snippets that match the user's query. This
-    // will be passed along to the documents chain.
-    findRelevantVectors(input),
+  try {
+    // const llm = openAI4o();
+    const { owner } = SettingsStore.getState();
+    const [context, chain] = await Promise.all([
+      // Search the vector database for snippets that match the user's query. This
+      // will be passed along to the documents chain.
+      findRelevantVectors(input),
 
-    // Create a "Chain" that can ingest LangChain's `Document` objects for context.
-    localStorage.getItem(LS_ASSISTANT_KEY) === "huggingface"
-      ? // Cheating: allow user to query in-memory vector store when offline
-        huggingfaceChain()
-      : // Create a standard chain
-        createStuffDocumentsChain({
-          llm: getActiveLLM(),
-          prompt: executiveAssistantPrompts,
-          outputParser: new StringOutputParser()
-        })
-  ]);
+      // Create a "Chain" that can ingest LangChain's `Document` objects for context.
+      localStorage.getItem(LS_ASSISTANT_KEY) === "huggingface"
+        ? // Cheating: allow user to query in-memory vector store when offline
+          huggingfaceChain()
+        : // Create a standard chain
+          createStuffDocumentsChain({
+            llm: getActiveLLM(),
+            prompt: executiveAssistantPrompts,
+            outputParser: new StringOutputParser()
+          })
+    ]);
 
-  const invokeParams = { input, context, owner };
-  const stream = await chain.stream(invokeParams);
-  loading = false;
-  return stream;
+    loading = false;
+    const invokeParams = { input, context, owner };
+    const stream = await chain.stream(invokeParams);
+    return stream;
+  } catch (error) {
+    loading = false;
+    return "";
+  }
 }
 
 /** Allow user to query their vector embeddings when offline or just using hf */

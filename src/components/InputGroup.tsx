@@ -1,7 +1,8 @@
 import { ChangeEventHandler, KeyboardEventHandler, useState } from "react";
 import "./InputGroup.scss";
-import ItemMenu from "./ItemMenu";
+import ItemMenu, { MenuItem } from "./ItemMenu";
 import useSubmenuHandler from "hooks/useSubmenuHandler";
+import useSettings from "hooks/useSettings";
 
 type InputGroupOpts = {
   disabled?: boolean;
@@ -19,6 +20,7 @@ type InputGroupOpts = {
 export default function InputGroup(opts: InputGroupOpts) {
   const { disabled } = opts;
   const [text, setText] = useState("");
+  const { selectedProject } = useSettings(["selectedProject"]);
   const { submenuIsVisible, openSubmenu, target, close } = useSubmenuHandler();
   const onChange: ChangeEventHandler<HTMLInputElement> = (e) => {
     e.preventDefault();
@@ -34,10 +36,6 @@ export default function InputGroup(opts: InputGroupOpts) {
   const handleAddNewFile = () => {
     close();
     if (opts.onAddNewFile) opts.onAddNewFile?.();
-  };
-  const handleChangeFileContext = () => {
-    close();
-    opts.onChangeFileContext?.();
   };
   const attachTriggerClass = ["material-symbols-outlined"];
   if (opts.highlightAttachmentsCtrl) attachTriggerClass.push("pulse infinite");
@@ -70,25 +68,17 @@ export default function InputGroup(opts: InputGroupOpts) {
 
       {submenuIsVisible && (
         <ItemMenu target={target} onClose={close} placement="top">
-          <span
-            aria-disabled
-            data-tooltip="Coming soon"
-            className="item-menu__item"
-            onClick={handleAddNewFile}
-            role="menuitem"
-          >
-            <span>Add file to chat</span>
-            <span className="material-symbols-outlined">attach_file_add</span>
-          </span>
-
-          <span
-            className="item-menu__item"
-            onClick={handleChangeFileContext}
-            role="menuitem"
-          >
-            <span>Load new Document</span>
-            <span className="material-symbols-outlined">attach_file</span>
-          </span>
+          {selectedProject ? (
+            <MenuItem data-tooltip="Coming soon" onClick={handleAddNewFile}>
+              <span>Add file to Project</span>
+              <span className="material-symbols-outlined">attach_file_add</span>
+            </MenuItem>
+          ) : (
+            <MenuItem onClick={handleAddNewFile}>
+              <span>Load new Document</span>
+              <span className="material-symbols-outlined">file_upload</span>
+            </MenuItem>
+          )}
         </ItemMenu>
       )}
     </label>

@@ -3,13 +3,15 @@ import { useNavigate, useParams } from "react-router-dom";
 import TabbedInterface from "components/TabbedInterface";
 import GeneralSettingsForm from "components/Forms/Form.GeneralSettings";
 import useUser from "hooks/useUser";
-import { toSnakeCase } from "utils/general";
+import { suppressEvent, toSnakeCase } from "utils/general";
 import { clearModal } from "state/modal";
 import UserProjectsList from "components/Lists/List.UserProjects";
 import LoginView from "components/View.Login";
 import FullscreenLoader from "components/FullscreenLoader";
 import usePreserveRouteHistory from "hooks/usePreserveRouteHistory";
 import "./Route.Settings.scss";
+import AssistantSettingsForm from "components/Forms/Form.AssistantSettings";
+import ManageVectorStorageFields from "components/Fieldsets/Fields.ManageVectorStorage";
 
 /** User Settings Route */
 const SettingsRoute = () => {
@@ -21,6 +23,8 @@ const SettingsRoute = () => {
   const tabs = useMemo(() => {
     return [
       { label: "General Settings", icon: "security" },
+      { label: "Assistant Settings", icon: "psychology" },
+      {label: 'Online Settings', icon: 'wifi'},
       {
         label: "My Projects",
         icon: "encrypted",
@@ -49,7 +53,7 @@ const SettingsRoute = () => {
   return (
     <section className="route route--settings">
       <header>
-        <h1 className="h2 legendary">Settings</h1>
+        <h1 className="h2 legendary">User Settings</h1>
       </header>
 
       {initialized ? (
@@ -60,6 +64,12 @@ const SettingsRoute = () => {
           tabs={tabs}
         >
           <GeneralSettingsForm />
+
+          <AssistantSettingsForm />
+
+          <form onSubmit={suppressEvent}>
+            <ManageVectorStorageFields saveImmediately />
+          </form>
 
           {authenticated ? <UserProjectsList /> : <LoginView />}
         </TabbedInterface>

@@ -63,6 +63,7 @@ export const MenuItem = (props: MenuItemProps) => {
   return (
     <span
       {...props}
+      role="menuitem"
       className={classes.join(" ")}
       onClick={(e) => {
         suppressEvent(e);
