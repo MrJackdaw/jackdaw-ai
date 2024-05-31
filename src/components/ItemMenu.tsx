@@ -1,7 +1,8 @@
-import { useMemo, useRef } from "react";
+import { ComponentPropsWithRef, useMemo, useRef } from "react";
 import { createPortal } from "react-dom";
 import { clearModal } from "state/modal";
 import useClickAwayListener from "hooks/useClickAwayListener";
+import { suppressEvent } from "utils/general";
 import "./ItemMenu.scss";
 
 type Placement = "left" | "right" | "top" | "bottom";
@@ -50,6 +51,27 @@ const ItemMenu = (props: TooltipProps) => {
 };
 
 export default ItemMenu;
+
+type MenuItemProps = Omit<ComponentPropsWithRef<"span">, "onClick"> & {
+  onClick?: { (): void };
+};
+
+export const MenuItem = (props: MenuItemProps) => {
+  const { className = "", onClick } = props;
+  const classes = ["item-menu__item", className];
+
+  return (
+    <span
+      {...props}
+      className={classes.join(" ")}
+      onClick={(e) => {
+        suppressEvent(e);
+        if (props["aria-disabled"]) return;
+        onClick?.();
+      }}
+    />
+  );
+};
 
 /**
  * Position tooltip near a target element (i.e. what was clicked to show the tooltip)

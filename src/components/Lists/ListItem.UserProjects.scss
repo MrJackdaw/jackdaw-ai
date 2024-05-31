@@ -1,3 +1,4 @@
+@import "./../../css/Mixins.scss";
 @import "./../../css/Colors.scss";
 
 //
@@ -18,12 +19,12 @@
 
 .list-item--projects.active {
   > .list-item__icon-column .button--round {
-    border: 0.1rem solid $success;
+    border: 0.1rem solid $gold;
   }
 
   > .list-item__icon-column .button--round,
   .list-item__title {
-    color: $success;
+    color: $gold;
   }
 
   .list-item__title {
@@ -42,6 +43,11 @@
   }
 
   .list-item__title {
+    @include ellipsis;
     font-size: 0.8rem;
+
+    .editable {
+      font-style: normal;
+    }
   }
 }

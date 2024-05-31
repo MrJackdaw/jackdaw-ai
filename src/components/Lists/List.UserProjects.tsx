@@ -15,6 +15,7 @@ import { DataAction } from "data/requests.types";
 import useSettings from "hooks/useSettings";
 import { toggleOnlineVectorStore } from "state/settings-store";
 import "./List.UserProjects.scss";
+import { Link } from "react-router-dom";
 
 let init = false;
 
@@ -68,31 +69,26 @@ export default function UserProjectsList({ display }: Props) {
       .then(refreshProjectsCache);
   };
   const onProjectChanged = (error?: string | null) => {
-    if (error) {
-      setLoading(false);
-      return void updateAsError(error);
-    }
-
-    return void refreshProjectsCache();
+    setLoading(false);
+    return void (error ? updateAsError(error) : refreshProjectsCache());
   };
   const optsFromProject = (project: UserProject) => ({
     id: project.id ?? undefined,
     name: project.project_name,
     description: project.description
   });
-  const handleProjectSync = async (project: UserProject) => {
-    const cacheKey = (project.__cacheKey || project.id?.toString()) ?? null;
-    if (cacheKey) cacheProject(cacheKey, project);
-    if (!localStorage.getItem(LS_USE_CLOUD_STORE)) return;
-    const opts = optsFromProject(project);
+  const handleProjectSync = async (pj: UserProject) => {
+    const cacheKey = (pj.__cacheKey || pj.id?.toString()) ?? null;
+    if (cacheKey) cacheProject(cacheKey, pj);
+    if (!localStorage.getItem(LS_USE_CLOUD_STORE)) return onProjectChanged();
+    const opts = optsFromProject(pj);
     setLoading(true);
-    const action: DataAction = project.id
+    const action: DataAction = pj.id
       ? "user-projects:update"
       : "user-projects:insert";
-    cloudDataFetch<ProjectResp>(action, opts).then((res) => {
-      if (cacheKey) deleteCachedProject(cacheKey);
-      onProjectChanged(res?.error);
-    });
+    const res = await cloudDataFetch<ProjectResp>(action, opts);
+    if (cacheKey) deleteCachedProject(cacheKey);
+    onProjectChanged(res?.error);
   };
   const handleProjectDelete = async (project: UserProject) => {
     const cacheKey = (project.__cacheKey || project.id?.toString()) ?? null;
@@ -129,6 +125,27 @@ export default function UserProjectsList({ display }: Props) {
         <>
           <h4 className="legendary">All Projects</h4>
 
+          {display !== "compact" && (
+            <details>
+              <summary>
+                <span className="material-symbols-outlined">info</span>
+                <span>
+                  What are <span className="gold">Projects</span>?
+                </span>
+              </summary>
+
+              <p className="hint">
+                <span className="gold">
+                  A project is a collection of (your) documents.
+                </span>
+                &nbsp; They help to organize your data. They can also provide
+                additional context: when you ask a question with a project
+                selected, your virtual assistant can use information from that
+                project to assist you.
+              </p>
+            </details>
+          )}
+
           <form className="enable-cloud-storage" onSubmit={suppressEvent}>
             <label className="hint" data-checkbox>
               <input
@@ -156,27 +173,38 @@ export default function UserProjectsList({ display }: Props) {
         />
       )}
       dummyLastItem={
-        <div className="controls--grid">
-          <button
-            type="button"
-            className="button--grid transparent"
-            disabled={fetchingProjects || !canSyncProjects}
-            onClick={syncProjects}
+        display === "compact" ? (
+          <Link
+            to="/settings/my-projects"
+            className="button button--grid"
+            style={{ gridTemplateColumns: "repeat(2, max-content)" }}
           >
-            <span className="material-symbols-outlined">sync</span>
-            <span>Sync Projects</span>
-          </button>
+            <span>Manage Projects</span>
+            <span className="material-symbols-outlined">arrow_forward_ios</span>
+          </Link>
+        ) : (
+          <div className="controls--grid">
+            <button
+              type="button"
+              className="button--grid transparent"
+              disabled={fetchingProjects || !canSyncProjects}
+              onClick={syncProjects}
+            >
+              <span className="material-symbols-outlined">sync</span>
+              <span>Sync Projects</span>
+            </button>
 
-          <button
-            type="button"
-            disabled={fetchingProjects}
-            className="button--grid"
-            onClick={startNewProject}
-          >
-            <span className="material-symbols-outlined">add</span>
-            <span>New Project</span>
-          </button>
-        </div>
+            <button
+              type="button"
+              disabled={fetchingProjects}
+              className="button--grid"
+              onClick={startNewProject}
+            >
+              <span className="material-symbols-outlined">add</span>
+              <span>New Project</span>
+            </button>
+          </div>
+        )
       }
     />
   );

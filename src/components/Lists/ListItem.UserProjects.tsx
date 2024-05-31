@@ -2,13 +2,14 @@ import { UserProject, suppressEvent, updateUserSettings } from "utils/general";
 import { SettingsStore } from "state/settings-store";
 import useSubmenuHandler from "hooks/useSubmenuHandler";
 import { MouseEventHandler, useMemo } from "react";
-import ItemMenu from "components/ItemMenu";
+import ItemMenu, { MenuItem } from "components/ItemMenu";
 import ContentEditable from "components/ContentEditable";
 import ListViewItem, {
   ListViewItemContent,
   ListViewItemTitle
 } from "./ListViewItem";
 import "./ListItem.UserProjects.scss";
+import useSettings from "hooks/useSettings";
 
 type ListItemProps = {
   active?: boolean;
@@ -22,22 +23,22 @@ type ListItemProps = {
 /** @ListItemComponent */
 export default function UserProjectListItem(props: ListItemProps) {
   const { target, openSubmenu, close, submenuIsVisible } = useSubmenuHandler();
-  const { enableCloudStorage } = SettingsStore.getState();
-  const { project, onProjectChange, onProjectDelete } = props;
+  const { enableCloudStorage } = useSettings(["enableCloudStorage"]);
+  const { project, onProjectChange, onProjectDelete, display = "full" } = props;
   const notifyProjectChanged = (
     value: string,
     key: keyof UserProject,
     $elem?: HTMLElement
   ) => {
     if ($elem) $elem.blur();
-    if (project[key] === name) return;
+    if (project[key] === value) return;
     onProjectChange?.({ ...project, [key]: value });
   };
   const tooltip = useMemo(() => {
     const onlineTip = "Your embeddings will be linked to this Project.";
     if (props.active) return onlineTip;
     return enableCloudStorage ? "Sync to Cloud" : "Offline";
-  }, []);
+  }, [props]);
   const iconClass = ["material-symbols-outlined"];
   if (!project.id) iconClass.push("error");
   const iconValue = useMemo(() => {
@@ -48,18 +49,23 @@ export default function UserProjectListItem(props: ListItemProps) {
     notifyProjectChanged(next, "project_name");
   };
   const handleDescrChange = (next: string) => {
+    console.log("heheh");
     notifyProjectChanged(next, "description");
   };
+  const handleSelect = () => {
+    if (!project.id) return;
+    SettingsStore.selectedProject(project.id);
+    updateUserSettings(SettingsStore.getState());
+  };
   const handleSelectOrSync: MouseEventHandler<HTMLElement> = (e) => {
-    if (props.display !== "compact") return;
     suppressEvent(e);
-    if (project.id) {
-      SettingsStore.selectedProject(project.id);
-      updateUserSettings(SettingsStore.getState());
-    }
+    handleSelect();
+    if (props.display !== "compact") return;
     onProjectChange?.(project);
   };
 
+  const materialButton = "button--round material-symbols-outlined transparent";
+  const activeColor = props.active ? "gold" : "white";
   const className = ["list-item--projects"];
   if (props.active) className.push("active");
   if (props.display) className.push(props.display);
@@ -86,51 +92,95 @@ export default function UserProjectListItem(props: ListItemProps) {
       {/* Title + Description */}
       <ListViewItemContent>
         <ListViewItemTitle>
-          {props.display === "compact" ? (
-            <span className="description hint">
-              {project.description ?? "(No description)"}
-            </span>
-          ) : (
-            <ContentEditable notifyTextChanged={handleTitleChange}>
-              {project.project_name}
-            </ContentEditable>
-          )}
+          <ContentEditable
+            notifyTextChanged={handleTitleChange}
+            aria-disabled={display === "compact"}
+          >
+            {project.project_name}
+          </ContentEditable>
         </ListViewItemTitle>
 
-        <ContentEditable
-          className="description hint"
-          notifyTextChanged={handleDescrChange}
-        >
-          {project.description ?? "(No description)"}
-        </ContentEditable>
+        {display === "full" && (
+          <ContentEditable
+            className="description hint"
+            notifyTextChanged={handleDescrChange}
+          >
+            {project.description ?? "(No description)"}
+          </ContentEditable>
+        )}
       </ListViewItemContent>
 
-      {/* Delete button */}
+      {/* "Show submenu" button */}
       <button
-        className="button--round transparent white"
+        className={`${materialButton} white`}
         type="button"
         onClick={openSubmenu}
       >
-        <span className="material-symbols-outlined">more_vert</span>
+        more_vert
       </button>
 
       {submenuIsVisible && (
         <ItemMenu target={target} onClose={close}>
-          <span
-            className="item-menu__item"
-            onClick={(e) => {
-              e.preventDefault();
-              e.stopPropagation();
+          {project.id ? (
+            <MenuItem
+              aria-disabled={props.active}
+              onClick={() => {
+                close();
+                handleSelect();
+              }}
+            >
+              <span>
+                {props.active ? "(Active Project)" : "Select Project"}
+              </span>
+              <button
+                disabled={props.active}
+                className={`${materialButton} ${activeColor}`}
+                type="button"
+              >
+                {props.active ? "check" : "square"}
+              </button>
+            </MenuItem>
+          ) : (
+            <MenuItem
+              aria-disabled={!enableCloudStorage}
+              onClick={() => {
+                close();
+                onProjectChange?.(project);
+              }}
+            >
+              <span>Sync{!enableCloudStorage && " (app offline)"}</span>
+              <button
+                disabled={props.active}
+                className={`${materialButton} ${activeColor}`}
+                type="button"
+              >
+                refresh
+              </button>
+            </MenuItem>
+          )}
+
+          <MenuItem
+            onClick={() => {
               close();
               onProjectDelete?.(project);
             }}
           >
             <span>Delete Project</span>
-
-            <button className="button--round transparent" type="button">
-              <span className="material-symbols-outlined error">delete</span>
+            <button className={`${materialButton} error`} type="button">
+              delete
             </button>
-          </span>
+          </MenuItem>
+
+          {/* Offline project warning */}
+          {!project.id && (
+            <MenuItem>
+              <span className="hint grey">
+                <b>Offline Project:</b> Please sync this project in order to use
+                it with an assistant.
+              </span>
+              <span className="material-symbols-outlined grey">warning</span>
+            </MenuItem>
+          )}
         </ItemMenu>
       )}
     </ListViewItem>

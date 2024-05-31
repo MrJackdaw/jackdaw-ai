@@ -54,7 +54,7 @@ export default function DataEmbeddingFields() {
         <summary>
           <span className="material-symbols-outlined">help</span>
           <span>
-            What are <b className="grey">Embeddings</b>?
+            What are <b className="gold">Embeddings</b>?
           </span>
         </summary>
 
@@ -69,7 +69,7 @@ export default function DataEmbeddingFields() {
           </p>
           <p>
             <b>Note that</b> Embeddings are linked to your{" "}
-            <b className="grey">Assistant</b>: changing this value will affect
+            <b className="gold">Assistant</b>: changing this value will affect
             the other.
           </p>
         </div>

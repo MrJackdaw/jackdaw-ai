@@ -53,6 +53,7 @@ const ChatModule = () => {
     if (!question || loading) return;
     const next = [...messages, { from: owner, text: question }];
     ChatStore.multiple({ loading: true, messages: next });
+    setStreamResponse("( Thinking... )")
     scrollMessagesView();
 
     try {
