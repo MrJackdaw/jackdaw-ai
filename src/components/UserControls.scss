@@ -1,7 +1,22 @@
-$avatarSize: 40px;
+$avatarSize: 32px;
 
-.user-controls.list-item--grid,
-.user-controls.list-item--grid:last-of-type {
+.user-controls {
+  overflow: hidden;
+}
+
+.user-controls > .list-item--grid {
+  background-color: #3336;
+  grid-template-columns: max-content 1fr;
+
+  .list-item__content {
+    align-items: center;
+    display: grid;
+    grid-template-columns: auto max-content;
+  }
+}
+
+.user-controls .list-item--grid,
+.user-controls .list-item--grid:last-of-type {
   cursor: pointer;
   margin-bottom: 0;
 }

@@ -1,6 +1,6 @@
 import { SettingsStore } from "state/settings-store";
 import {
-  CHANNELS,
+  WORKER_CHANNEL,
   updateAsError,
   updateAsWarning,
   updateNotification
@@ -61,9 +61,9 @@ function onWorkerUpdate(e: MessageEvent<WorkerUpdate>) {
 
   if (e.data.message.startsWith("Mbox.Alert::")) {
     const { msg, error, warning } = e.data.data;
-    if (error) return updateAsError(msg, CHANNELS.ERROR);
-    if (warning) return updateAsWarning(msg, CHANNELS.WARNING);
-    return updateNotification(msg);
+    if (error) return updateAsError(msg, WORKER_CHANNEL);
+    if (warning) return updateAsWarning(msg, WORKER_CHANNEL);
+    return updateNotification(msg, WORKER_CHANNEL);
   }
 
   // This is now an edge-case
@@ -94,7 +94,7 @@ export function sendFilesToParser(
   try {
     const { owner, enableCloudStorage } = SettingsStore.getState();
     const fileName = uploadedFile.name;
-    updateNotification(`Loading ${fileName}...`, undefined, true);
+    updateNotification(`Loading ${fileName}...`, WORKER_CHANNEL, true);
     sendParserMessage("Mbox.parseFile", {
       file: uploadedFile,
       owner,

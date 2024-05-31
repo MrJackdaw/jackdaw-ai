@@ -1,3 +1,4 @@
+import { Link } from "react-router-dom";
 import { useEffect, useMemo } from "react";
 import ListView from "./ListView";
 import FullscreenLoader from "components/FullscreenLoader";
@@ -15,7 +16,7 @@ import { DataAction } from "data/requests.types";
 import useSettings from "hooks/useSettings";
 import { toggleOnlineVectorStore } from "state/settings-store";
 import "./List.UserProjects.scss";
-import { Link } from "react-router-dom";
+import { JRoutes } from "routes";
 
 let init = false;
 
@@ -174,11 +175,7 @@ export default function UserProjectsList({ display }: Props) {
       )}
       dummyLastItem={
         display === "compact" ? (
-          <Link
-            to="/settings/my-projects"
-            className="button button--grid"
-            style={{ gridTemplateColumns: "repeat(2, max-content)" }}
-          >
+          <Link to={JRoutes.Projects} className="button button--grid">
             <span>Manage Projects</span>
             <span className="material-symbols-outlined">arrow_forward_ios</span>
           </Link>

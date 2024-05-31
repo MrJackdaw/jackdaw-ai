@@ -58,7 +58,7 @@ export async function addToVectorStore(blurb, done = false) {
       return true;
     })
     .catch((error) => {
-      errorMessage = error || "Error adding document to vector store";
+      errorMessage = error?.message || "Error adding document to vector store";
       return false;
     })
     .finally(() => {

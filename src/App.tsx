@@ -1,5 +1,5 @@
 import { Suspense, lazy } from "react";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import useModal from "hooks/useModal";
 import useUser from "hooks/useUser";
 import LoginRoute from "routes/Route.Login";
@@ -10,8 +10,9 @@ import AppSidebar from "components/AppSidebar";
 import "./App.scss";
 
 // ROUTES
-const MBoxRoute = lazy(() => import("routes/Route.Mbox"));
+const MBoxRoute = lazy(() => import("routes/Route.Chat"));
 const Settings = lazy(() => import("routes/Route.Settings"));
+const Projects = lazy(() => import("routes/Route.Projects"));
 
 // DIALOGS
 const WelcomeUserDialog = lazy(
@@ -34,7 +35,9 @@ function App() {
           <Routes>
             <Route index element={<MBoxRoute />} />
             <Route path="/login" element={<LoginRoute />} />
-            <Route path="/inbox" element={<MBoxRoute />} />
+            <Route path="/inbox" element={<Navigate to="/chat" />} />
+            <Route path="/chat" element={<MBoxRoute />} />
+            <Route path="/projects" element={<Projects />} />
             <Route path="/settings" element={<Settings />} />
             <Route path="/settings/:settingsView" element={<Settings />} />
           </Routes>

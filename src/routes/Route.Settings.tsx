@@ -5,13 +5,11 @@ import GeneralSettingsForm from "components/Forms/Form.GeneralSettings";
 import useUser from "hooks/useUser";
 import { suppressEvent, toSnakeCase } from "utils/general";
 import { clearModal } from "state/modal";
-import UserProjectsList from "components/Lists/List.UserProjects";
-import LoginView from "components/View.Login";
 import FullscreenLoader from "components/FullscreenLoader";
 import usePreserveRouteHistory from "hooks/usePreserveRouteHistory";
-import "./Route.Settings.scss";
 import AssistantSettingsForm from "components/Forms/Form.AssistantSettings";
 import ManageVectorStorageFields from "components/Fieldsets/Fields.ManageVectorStorage";
+import "./Route.Settings.scss";
 
 /** User Settings Route */
 const SettingsRoute = () => {
@@ -24,12 +22,7 @@ const SettingsRoute = () => {
     return [
       { label: "General Settings", icon: "security" },
       { label: "Assistant Settings", icon: "psychology" },
-      {label: 'Online Settings', icon: 'wifi'},
-      {
-        label: "My Projects",
-        icon: "encrypted",
-        iconClass: authenticated ? "success" : "error"
-      }
+      { label: "Online Settings", icon: "wifi" }
     ];
   }, [authenticated]);
   const activeTab = useMemo(() => {
@@ -53,7 +46,7 @@ const SettingsRoute = () => {
   return (
     <section className="route route--settings">
       <header>
-        <h1 className="h2 legendary">User Settings</h1>
+        <h1 className="h4">My Settings</h1>
       </header>
 
       {initialized ? (
@@ -70,8 +63,6 @@ const SettingsRoute = () => {
           <form onSubmit={suppressEvent}>
             <ManageVectorStorageFields saveImmediately />
           </form>
-
-          {authenticated ? <UserProjectsList /> : <LoginView />}
         </TabbedInterface>
       ) : (
         <FullscreenLoader msg="Just a moment..." />

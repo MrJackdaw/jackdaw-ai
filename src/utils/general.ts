@@ -130,10 +130,6 @@ export function getUserSettings(): LocalUserSettings {
 
 /** Write user settings from state to device/localStorage */
 export function updateUserSettings(d: LocalUserSettings) {
-  // const willRefresh =
-  //   localStorage.getItem(LS_ASSISTANT_KEY) !== d.assistantLLM ||
-  //   localStorage.getItem(LS_EMBEDDER_KEY) !== d.embedder;
-
   // Change chat LLM
   localStorage.setItem(LS_ASSISTANT_KEY, d.assistantLLM);
   localStorage.setItem(LS_ASSISTANT_APIKEY, d.assistantAPIKey);
@@ -148,8 +144,6 @@ export function updateUserSettings(d: LocalUserSettings) {
 
   // Application owner handler
   localStorage.setItem(LS_OWNER_KEY, d.owner);
-  // if (d.owner) localStorage.setItem(LS_OWNER_KEY, d.owner);
-  // else localStorage.removeItem(LS_OWNER_KEY);
 
   if (d.selectedProject && d.selectedProject > 0) {
     localStorage.setItem(LS_ACTIVE_PROJECT, d.selectedProject.toString());
@@ -159,6 +153,24 @@ export function updateUserSettings(d: LocalUserSettings) {
   if (d.colorIdent) localStorage.setItem(LS_COLOR_IDENT_OVERRIDE, d.colorIdent);
   else if (d.owner)
     localStorage.setItem(LS_COLOR_IDENT_OVERRIDE, stringToColor(d.owner));
+}
 
-  // if (willRefresh) window.location.reload();
+/** Shortens string to `XXXX...XXXX`; padding determined by optional `minLength` parameter */
+export function truncateMidString(str?: string | null, minLength = 6): string {
+  if (!str) return "";
+  if (str.length <= minLength) return str;
+  const { length } = str;
+  const start = str.substring(0, minLength);
+  const truncd = `${start}...${str.substring(length - minLength, length)}`;
+  return truncd.length > length ? str : truncd;
+}
+
+/** Shortens string to `XXXX...`; returns string of minimum length `minLength` */
+export function truncateEndString(str?: string | null, minLength = 6): string {
+  if (!str) return "";
+  if (str.length <= minLength) return str;
+  const { length } = str;
+  const start = str.substring(0, minLength);
+  const truncd = `${start}...`;
+  return truncd.length > length ? str : truncd;
 }

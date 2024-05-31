@@ -1,25 +1,29 @@
 import { version } from "../../package.json";
 import { ComponentPropsWithRef } from "react";
 import { Link } from "react-router-dom";
-import { suppressEvent } from "utils/general";
+import { suppressEvent, truncateMidString } from "utils/general";
 import { toggleOnlineVectorStore } from "state/settings-store";
 import useUser from "hooks/useUser";
 import useSubmenuHandler from "hooks/useSubmenuHandler";
 import useSettings from "hooks/useSettings";
 import ListViewItem, { ListViewItemContent } from "./Lists/ListViewItem";
 import ItemMenu from "./ItemMenu";
+import { JRoutes } from "routes";
 import "./UserControls.scss";
 
 export default function UserControls(props: ComponentPropsWithRef<"div">) {
-  const { enableCloudStorage } = useSettings(["enableCloudStorage"]);
+  const { enableCloudStorage, owner } = useSettings([
+    "enableCloudStorage",
+    "owner"
+  ]);
   const { avatar, authenticated } = useUser(["avatar", "authenticated"]);
   const { close, openSubmenu, submenuIsVisible, target } = useSubmenuHandler();
   const classes = ["user-controls"];
   if (props.className) classes.push(props.className);
 
   return (
-    <div>
-      <ListViewItem className={classes.join(" ").trim()} onClick={openSubmenu}>
+    <aside className={classes.join(" ").trim()}>
+      <ListViewItem onClick={openSubmenu}>
         {/* User Settings */}
         <button className="button--round transparent white" type="button">
           {authenticated && avatar ? (
@@ -30,16 +34,17 @@ export default function UserControls(props: ComponentPropsWithRef<"div">) {
           )}
         </button>
 
-        <ListViewItemContent>Settings</ListViewItemContent>
-
-        <span className="material-symbols-outlined">arrow_forward_ios</span>
+        <ListViewItemContent>
+          <span className="ellipsis">{truncateMidString(owner)}</span>
+          <span className="material-symbols-outlined">arrow_forward_ios</span>
+        </ListViewItemContent>
       </ListViewItem>
 
       {submenuIsVisible && (
         <ItemMenu target={target} onClose={close} placement="top">
           <Link
             className="item-menu__item user-control__item"
-            to="/settings/assistant-settings"
+            to={JRoutes.AssistantSettings}
             onClick={close}
           >
             <span>Assistant settings</span>
@@ -48,7 +53,7 @@ export default function UserControls(props: ComponentPropsWithRef<"div">) {
 
           <Link
             className="item-menu__item user-control__item"
-            to="/settings/general-settings"
+            to={JRoutes.GeneralSettings}
             onClick={close}
           >
             <span>General Settings</span>
@@ -58,7 +63,7 @@ export default function UserControls(props: ComponentPropsWithRef<"div">) {
           {authenticated ? (
             <Link
               className="item-menu__item user-control__item"
-              to="/settings/my-projects"
+              to={JRoutes.Projects}
               onClick={close}
             >
               <span>My Projects</span>
@@ -67,7 +72,7 @@ export default function UserControls(props: ComponentPropsWithRef<"div">) {
           ) : (
             <Link
               className="item-menu__item user-control__item"
-              to="/login"
+              to={JRoutes.Login}
               onClick={close}
             >
               <span>Log in</span>
@@ -97,6 +102,6 @@ export default function UserControls(props: ComponentPropsWithRef<"div">) {
           </p>
         </ItemMenu>
       )}
-    </div>
+    </aside>
   );
 }

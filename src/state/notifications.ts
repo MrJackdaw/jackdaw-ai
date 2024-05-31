@@ -1,4 +1,5 @@
 import createState from "@jackcom/raphsducks";
+import { notificationChannel } from "utils/general";
 
 const SETTINGS_NOTIFICATIONS = "global.notifications";
 
@@ -25,6 +26,9 @@ export enum CHANNELS {
   WARNING = 20,
   ERROR = 30
 }
+/** Single dedicated notification channel for ALL worker notifications */
+export const WORKER_CHANNEL =
+  notificationChannel("Mbox.Worker") + CHANNELS.MAIN;
 
 /** Check if alerts (UI only) are globally enabled */
 export function notificationsActive() {

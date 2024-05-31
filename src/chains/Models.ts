@@ -1,7 +1,6 @@
 import { Document } from "@langchain/core/documents";
 import { ChatOpenAI, OpenAIEmbeddings } from "@langchain/openai";
-import { ChatOllama } from "@langchain/community/chat_models/ollama";
-import { LS_OLLAMA_BASEURL, LS_ASSISTANT_KEY } from "utils/strings";
+import { LS_ASSISTANT_KEY } from "utils/strings";
 import { AISource } from "utils/general";
 import { SettingsStore } from "state/settings-store";
 
@@ -31,7 +30,7 @@ export const openAI4T = () => openAIInstance(OPENAI_4T);
 /** @Model `ChatOpenAI` instance with `gpt-4o` (newest) */
 export const openAI4o = () => openAIInstance(OPENAI_4o);
 
-/** @Model `ChatOllama` instance (expects url to `llama` LLM) */
+/** @Model `ChatOllama` instance (expects url to `llama` LLM)
 export const ollama = () => {
   // TODO: TEST this when possible
   const model = new ChatOllama({
@@ -39,7 +38,7 @@ export const ollama = () => {
     baseUrl: localStorage.getItem(LS_OLLAMA_BASEURL) ?? undefined
   });
   return model;
-};
+}; */
 
 export type AssistantInvokeParams = {
   input: string;
@@ -57,18 +56,15 @@ export const openAIEmbedder = () => {
   return model;
 };
 
-const LLMs = { openAI3_5T, openAI4T, openAI4o, ollama };
+const LLMs = { openAI3_5T, openAI4T, openAI4o };
 const allModels = Object.keys(LLMs);
 
 export const llmsForAISource = (src?: AISource) => {
-  switch (src) {
-    case "huggingface":
-      return ["ollama", "huggingface"];
-    case "openai":
-      return allModels.filter((v) => v !== "ollama");
-    default:
-      return [...allModels, "huggingface"];
-  }
+  if (src === "huggingface") return ["huggingface"];
+  const all = [...allModels, "huggingface"];
+  const { enableCloudStorage } = SettingsStore.getState();
+  if (enableCloudStorage) all.push("@jackcom/openai");
+  return all;
 };
 
 export function getActiveLLM() {

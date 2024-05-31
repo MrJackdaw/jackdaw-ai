@@ -6,18 +6,18 @@ import {
   SettingsStore
 } from "state/settings-store";
 
-const updateStateObject = (K: SettingsStoreKey[]) => {
-  type State = HookState<typeof K, SettingsStoreInstance>;
-  const initial = SettingsStore.getState();
-  return K.reduce((agg, k) => ({ ...agg, [k]: initial[k] }), {} as State);
+const getState = <T extends SettingsStoreKey[]>(K: T) => {
+  const global = SettingsStore.getState();
+  const target = {} as HookState<typeof K, SettingsStoreInstance>;
+  const init = K.reduce((agg, k) => ({ ...agg, [k]: global[k] }), target);
+  return init;
 };
 
 /** Attach a component to pending/recent changes to user settings (localStorage) */
-export default function useSettings(K: SettingsStoreKey[] = []) {
-  type State = HookState<typeof K, SettingsStoreInstance>;
-  const [state, setState] = useState<State>(updateStateObject(K));
-  const onStateUpdate = () => setState(updateStateObject(K));
+export default function useSettings<T extends SettingsStoreKey[]>(K: T) {
+  const [state, setState] = useState(getState(K));
+  const onStateUpdate = () => setState(getState(K));
   useEffect(() => SettingsStore.subscribeToKeys(onStateUpdate, K), []);
 
-  return { ...state } as State;
+  return Object.assign({}, state);
 }

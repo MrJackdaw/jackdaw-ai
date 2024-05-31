@@ -55,6 +55,7 @@ export function exportWorkerState(state = null, status = STATUS.OK, error) {
  * @param {"Info"|"Error"|"Warning"} type Type of Alert
  */
 export function exportWorkerAlert(msg, type = "Info") {
+  console.trace(msg);
   self.postMessage({
     message: `Mbox.Alert::${type}`,
     data: { msg, error: type === "Error", warning: type === "Warning" },
