@@ -34,7 +34,7 @@ const ChatModule = () => {
   const emptyMessage = useMemo(() => {
     if (criticalError) return "⚠️ Jackdaw Server is offline";
     if (loading) return "Please wait...";
-    if (!messagesLoaded) return "Upload a file";
+    if (!messagesLoaded) return "Load a file";
     if (!messages.length) return "Ask a question";
     return "";
   }, [messagesLoaded]);
@@ -149,8 +149,8 @@ const ChatModule = () => {
         allowAttachments
         highlightAttachmentsCtrl={!messagesLoaded}
         placeholder={placeholder}
+        onAddNewFile={showFilePicker}
         onChange={ChatStore.question}
-        onChangeFileContext={showFilePicker}
         disabled={!vectorStoreLoaded}
         handleSubmit={askQuestion}
       />

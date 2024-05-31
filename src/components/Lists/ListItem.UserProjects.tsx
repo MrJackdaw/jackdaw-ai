@@ -1,7 +1,8 @@
-import { UserProject, suppressEvent, updateUserSettings } from "utils/general";
-import { SettingsStore } from "state/settings-store";
-import useSubmenuHandler from "hooks/useSubmenuHandler";
 import { MouseEventHandler, useMemo } from "react";
+import { UserProject, suppressEvent, updateUserSettings } from "utils/general";
+import useSettings from "hooks/useSettings";
+import useSubmenuHandler from "hooks/useSubmenuHandler";
+import { SettingsStore } from "state/settings-store";
 import ItemMenu, { MenuItem } from "components/ItemMenu";
 import ContentEditable from "components/ContentEditable";
 import ListViewItem, {
@@ -9,7 +10,6 @@ import ListViewItem, {
   ListViewItemTitle
 } from "./ListViewItem";
 import "./ListItem.UserProjects.scss";
-import useSettings from "hooks/useSettings";
 
 type ListItemProps = {
   active?: boolean;
@@ -36,15 +36,23 @@ export default function UserProjectListItem(props: ListItemProps) {
   };
   const tooltip = useMemo(() => {
     const onlineTip = "Your embeddings will be linked to this Project.";
-    if (props.active) return onlineTip;
-    return enableCloudStorage ? "Sync to Cloud" : "Offline";
-  }, [props]);
+    if (props.active)
+      return enableCloudStorage
+        ? onlineTip
+        : "Disabled because you are offline";
+    return enableCloudStorage
+      ? "Sync to Cloud"
+      : "Offline Project: sync to use.";
+  }, [props.active, enableCloudStorage]);
   const iconClass = ["material-symbols-outlined"];
   if (!project.id) iconClass.push("error");
-  const iconValue = useMemo(() => {
-    if (project.id) return props.active ? "check" : "cloud_upload";
-    return "sync";
-  }, [props.active]);
+  const [iconValue, activeColor] = useMemo(() => {
+    if (project.id)
+      return props.active
+        ? ["check", enableCloudStorage ? "gold" : "grey"]
+        : ["cloud_upload", "white"];
+    return ["sync", "white"];
+  }, [props.active, enableCloudStorage]);
   const handleTitleChange = (next: string) => {
     notifyProjectChanged(next, "project_name");
   };
@@ -53,7 +61,7 @@ export default function UserProjectListItem(props: ListItemProps) {
     notifyProjectChanged(next, "description");
   };
   const handleSelect = () => {
-    if (!project.id) return;
+    if (!project.id || !enableCloudStorage) return;
     SettingsStore.selectedProject(project.id);
     updateUserSettings(SettingsStore.getState());
   };
@@ -65,7 +73,6 @@ export default function UserProjectListItem(props: ListItemProps) {
   };
 
   const materialButton = "button--round material-symbols-outlined transparent";
-  const activeColor = props.active ? "gold" : "white";
   const className = ["list-item--projects"];
   if (props.active) className.push("active");
   if (props.display) className.push(props.display);
@@ -77,7 +84,7 @@ export default function UserProjectListItem(props: ListItemProps) {
     >
       {/* Icon */}
       {props.display !== "compact" && (
-        <span className="list-item__icon-column" data-tooltip={tooltip}>
+        <span className="list-item__icon-column">
           <button
             type="button"
             className="button--round"
@@ -91,7 +98,7 @@ export default function UserProjectListItem(props: ListItemProps) {
 
       {/* Title + Description */}
       <ListViewItemContent>
-        <ListViewItemTitle>
+        <ListViewItemTitle className={activeColor}>
           <ContentEditable
             notifyTextChanged={handleTitleChange}
             aria-disabled={display === "compact"}
@@ -123,7 +130,7 @@ export default function UserProjectListItem(props: ListItemProps) {
         <ItemMenu target={target} onClose={close}>
           {project.id ? (
             <MenuItem
-              aria-disabled={props.active}
+              aria-disabled={props.active || !enableCloudStorage}
               onClick={() => {
                 close();
                 handleSelect();
@@ -165,10 +172,15 @@ export default function UserProjectListItem(props: ListItemProps) {
               onProjectDelete?.(project);
             }}
           >
-            <span>Delete Project</span>
+            <span>Delete {enableCloudStorage ? "Project" : "from cache"}</span>
             <button className={`${materialButton} error`} type="button">
               delete
             </button>
+          </MenuItem>
+
+          <MenuItem>
+            <span className="hint grey">{tooltip}</span>
+            <span className="material-symbols-outlined grey">info</span>
           </MenuItem>
 
           {/* Offline project warning */}
