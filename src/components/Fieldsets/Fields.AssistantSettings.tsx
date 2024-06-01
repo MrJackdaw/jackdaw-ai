@@ -2,11 +2,10 @@ import { useMemo } from "react";
 import { llmsForAISource } from "chains/Models";
 import { SettingsStore, SettingsStoreInstance } from "state/settings-store";
 import useSettings from "hooks/useSettings";
-import { updateUserSettings } from "utils/general";
+import { isJackCOMStr, isOpenAIStr, updateUserSettings } from "utils/general";
 
 /** @FormComponent Child component of `AssistantSettingsModal` form */
 export default function AssistantLLMFields() {
-  const isOpenAI = /openai/gi;
   const { assistantLLM, enableCloudStorage } = useSettings([
     "assistantLLM",
     "enableCloudStorage"
@@ -14,12 +13,11 @@ export default function AssistantLLMFields() {
   const LLMs = useMemo(() => llmsForAISource(), [enableCloudStorage]);
   const onAssistantLLM = (newLLM = "ollama") => {
     const { embedderAPIKey, assistantAPIKey } = SettingsStore.getState();
-    const openAILLM = isOpenAI.test(newLLM);
     const updates: Partial<SettingsStoreInstance> = { assistantLLM: newLLM };
 
-    if (openAILLM) {
+    if (isOpenAIStr(newLLM)) {
       // change match embedder
-      updates.embedder = "openai";
+      updates.embedder = isJackCOMStr(newLLM) ? "@jackcom/openai" : "openai";
       updates.embedderAPIKey = updates.assistantAPIKey =
         embedderAPIKey ?? assistantAPIKey;
     } else {
@@ -39,7 +37,6 @@ export default function AssistantLLMFields() {
         <span className="label">Language Model:</span>
 
         <select
-          // onChange={({ target }) => props.onAssistantLLM?.(target.value)}
           onChange={({ target }) => onAssistantLLM(target.value)}
           value={assistantLLM}
         >

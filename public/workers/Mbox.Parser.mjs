@@ -131,7 +131,7 @@ function onFileStream({ done, value }, reader) {
  */
 export async function initializeMboxWorker(opts) {
   const { embedder, apiKey } = opts;
-  if (embedder) setActiveEmbedder(embedder, apiKey);
+  if (embedder) await setActiveEmbedder(embedder, apiKey);
 
   startTimer("initializeVectorStore");
   await initializeVectorStore();

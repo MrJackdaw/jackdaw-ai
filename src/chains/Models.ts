@@ -1,8 +1,10 @@
 import { Document } from "@langchain/core/documents";
-import { ChatOpenAI, OpenAIEmbeddings } from "@langchain/openai";
+import { ChatOpenAI } from "@langchain/openai";
 import { LS_ASSISTANT_KEY } from "utils/strings";
 import { AISource } from "utils/general";
 import { SettingsStore } from "state/settings-store";
+import { UserStore } from "state/user";
+import ChatJackCOM, { ChatJackCOMArgs } from "./Models.JackCom";
 
 const OPENAI_4T = "gpt-4-turbo-2024-04-09";
 const OPENAI_4o = "gpt-4o";
@@ -21,53 +23,36 @@ const openAIInstance = (model: string, verbose = false) => {
   return new ChatOpenAI({ apiKey, model, verbose });
 };
 
-/** @Model `ChatOpenAI` instance with `gpt-3.5-turbo` */
-export const openAI3_5T = () => openAIInstance(OPENAI_3_5T);
-
-/** @Model `ChatOpenAI` instance with `gpt-4o` (newest) */
-export const openAI4T = () => openAIInstance(OPENAI_4T);
-
-/** @Model `ChatOpenAI` instance with `gpt-4o` (newest) */
-export const openAI4o = () => openAIInstance(OPENAI_4o);
-
-/** @Model `ChatOllama` instance (expects url to `llama` LLM)
-export const ollama = () => {
-  // TODO: TEST this when possible
-  const model = new ChatOllama({
-    verbose: import.meta.env.DEV,
-    baseUrl: localStorage.getItem(LS_OLLAMA_BASEURL) ?? undefined
-  });
-  return model;
-}; */
-
-export type AssistantInvokeParams = {
+export type JInvokeAssistantParams = {
   input: string;
   context: Document[];
   owner: string;
 };
 
-export const openAIEmbedder = () => {
-  const { embedderAPIKey: apiKey } = SettingsStore.getState();
-  const model = new OpenAIEmbeddings({
-    apiKey,
-    model: OPENAI_EMB_AI,
-    verbose: import.meta.env.DEV
-  });
-  return model;
-};
+export const jackComOpenAI = (
+  model: ChatJackCOMArgs["model"] = "@jackcom/openai"
+) => new ChatJackCOM({ model });
 
-const LLMs = { openAI3_5T, openAI4T, openAI4o };
-const allModels = Object.keys(LLMs);
+const openAI3_5T = () => openAIInstance(OPENAI_3_5T);
+const openAI4T = () => openAIInstance(OPENAI_4T);
+const openAI4o = () => openAIInstance(OPENAI_4o);
+const LLMs = {
+  openAI3_5T,
+  openAI4T,
+  openAI4o,
+  "@jackcom/openai": () => jackComOpenAI("@jackcom/openai"),
+  "@jackcom/togetherai": () => jackComOpenAI("@jackcom/togetherai")
+};
 
 export const llmsForAISource = (src?: AISource) => {
   if (src === "huggingface") return ["huggingface"];
-  const all = [...allModels, "huggingface"];
-  const { enableCloudStorage } = SettingsStore.getState();
-  if (enableCloudStorage) all.push("@jackcom/openai");
+  const all = [...Object.keys(LLMs), "huggingface"];
+  const { authenticated } = UserStore.getState();
+  if (authenticated) all.push("@jackcom/openai");
   return all;
 };
 
-export function getActiveLLM() {
+export function getActiveChatLLM() {
   const assistant = localStorage.getItem(LS_ASSISTANT_KEY);
   return LLMs[assistant as keyof typeof LLMs]();
 }

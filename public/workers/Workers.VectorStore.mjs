@@ -47,14 +47,13 @@ export async function addToVectorStore(blurb, docName = "My Note") {
   documentName = docName;
   exportWorkerAlert(`Generating Embeddings for ${docName}...`, "Warning");
 
+  console.log({ enableCloudStorage, memStore: Boolean(MVectorStore) });
+  if (enableCloudStorage)
+    return addDocumentsOnline(documents).then(finishedAddingToVectorStore);
+
   // Local embedders are slow (unless a good model replacement is found). Amount of time
   // will scale horribly with file size.
-
-  return Promise.resolve(
-    enableCloudStorage
-      ? addDocumentsOnline(documents)
-      : MVectorStore.addDocuments(documents)
-  )
+  return MVectorStore.addDocuments(documents)
     .then(() => {
       docsCount = docsCount + fragments;
       return true;
@@ -63,25 +62,28 @@ export async function addToVectorStore(blurb, docName = "My Note") {
       errorMessage = error?.message || "Error adding document to vector store";
       return false;
     })
-    .finally(() => {
-      const status = errorMessage ? STATUS.ERROR : STATUS.OK;
-      const alert =
-        errorMessage || `Document ${enableCloudStorage ? "saved" : "loaded"}`;
+    .finally(finishedAddingToVectorStore);
+}
 
-      exportWorkerAlert(alert, errorMessage ? "Error" : "Info");
-      exportWorkerState(
-        {
-          docsCount,
-          loading: false,
-          vectorStoreLoaded: true,
-          messagesLoaded: docsCount > 0
-        },
-        status
-      );
+function finishedAddingToVectorStore() {
+  const { enableCloudStorage } = MboxWorkerSettings.getState();
+  const status = errorMessage ? STATUS.ERROR : STATUS.OK;
+  const alert =
+    errorMessage || `Document ${enableCloudStorage ? "saved" : "loaded"}`;
 
-      docsCount = 0;
-      errorMessage = "";
-    });
+  exportWorkerAlert(alert, errorMessage ? "Error" : "Info");
+  exportWorkerState(
+    {
+      docsCount,
+      loading: false,
+      vectorStoreLoaded: true,
+      messagesLoaded: docsCount > 0
+    },
+    status
+  );
+
+  docsCount = 0;
+  errorMessage = "";
 }
 
 /**
@@ -198,11 +200,13 @@ async function searchVectorsOnline(query, projectId) {
  */
 async function addDocumentsOnline(documents) {
   const { selectedProject: projectId } = MboxWorkerSettings.getState();
-  if (!projectId || projectId <= 0)
-    return exportWorkerAlert(
+  if (!projectId || projectId <= 0) {
+    exportWorkerAlert(
       "Please select a Project for online document storage!",
       "Error"
     );
+    return Promise.resolve(null);
+  }
 
   const body = { action: "documents:upsert", data: { documents, projectId } };
   return fetch(SUPABASE_URL, {
@@ -220,9 +224,11 @@ async function addDocumentsOnline(documents) {
     })
     .then((res) => {
       console.log("added docs online, got", res);
+      return true;
     })
     .catch((err) => {
       console.log("could not add docs online, because", err);
+      return false;
     });
 }
 

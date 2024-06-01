@@ -5,6 +5,10 @@ export type SessionAction =
   | "session:logout"
   | "session:refresh";
 
+export type AssistantAction =
+  | "assistant:generate-text"
+  | "assistant:generate-image";
+
 export type DataAction =
   | "documents:upsert"
   | "documents:delete"

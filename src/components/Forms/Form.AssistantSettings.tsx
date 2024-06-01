@@ -10,6 +10,8 @@ import "./Form.AssistantSettings.scss";
 
 /** @Modal Settings for Virtual Assistant */
 export default function AssistantSettingsForm() {
+  const isJackCOM = /^(@jackcom\/)/;
+  const isOpenAI = /(openai)/;
   const { embedder, embedderAPIKey, assistantLLM } = useSettings([
     "assistantAPIKey",
     "assistantLLM",
@@ -17,7 +19,7 @@ export default function AssistantSettingsForm() {
     "embedder"
   ]);
   const requireAPIKey = useMemo(
-    () => embedder === "openai" && !assistantLLM.startsWith("@jackcom"),
+    () => isOpenAI.test(embedder) && !isJackCOM.test(embedder),
     [embedder, assistantLLM]
   );
   const confirmUpdateSettings = () => {

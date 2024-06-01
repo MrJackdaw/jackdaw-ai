@@ -174,3 +174,11 @@ export function truncateEndString(str?: string | null, minLength = 6): string {
   const truncd = `${start}...`;
   return truncd.length > length ? str : truncd;
 }
+
+export function isJackCOMStr(s: string) {
+  return /^(@jackcom\/)/gi.test(s);
+}
+
+export function isOpenAIStr(s: string) {
+  return /openai/gi.test(s);
+}

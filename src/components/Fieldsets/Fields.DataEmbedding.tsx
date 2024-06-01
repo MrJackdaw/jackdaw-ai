@@ -1,21 +1,8 @@
-import { AISource } from "utils/general";
-import { useEffect, useState } from "react";
-import { SettingsStore } from "state/settings-store";
+import useSettings from "hooks/useSettings";
 
 /** @FormComponent Fields for User's Data Embedding settings */
 export default function DataEmbeddingFields() {
-  const [embedder, setEmbedder] = useState<AISource>(
-    SettingsStore.getState().embedder ?? "huggingface"
-  );
-
-  useEffect(
-    () =>
-      SettingsStore.subscribeToKeys(
-        (x) => setEmbedder(x.embedder),
-        ["embedder"]
-      ),
-    []
-  );
+  const { embedder } = useSettings(["embedder"]);
 
   return (
     <fieldset className="fields--data-embedding">
@@ -23,11 +10,7 @@ export default function DataEmbeddingFields() {
 
       <label>
         <span className="label">Embedding Model:</span>
-
-        <select aria-readonly value={embedder} disabled>
-          <option value="huggingface">huggingface</option>
-          <option value="openai">openai</option>
-        </select>
+        <input aria-readonly readOnly value={embedder} disabled />
       </label>
 
       <details className="button--details">
@@ -45,8 +28,9 @@ export default function DataEmbeddingFields() {
             </span>{" "}
             They give your <span className="gold">Assistant</span> additional
             targeted context when you ask a question.{" "}
-            <span className="gold">They are linked to your LLM because</span>{" "}
-            each might have a unique way of generating those relationships.
+            <span className="gold">This value is tied to your LLM because</span>{" "}
+            each is unique: one LLM might not understand the content generated
+            by another.
           </p>
         </div>
       </details>

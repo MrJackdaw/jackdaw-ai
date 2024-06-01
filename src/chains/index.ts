@@ -1,7 +1,7 @@
-import { executiveAssistantPrompts } from "./Assistants";
+import { executiveAssistantPrompts } from "./AssistantPrompts";
 import { StringOutputParser } from "@langchain/core/output_parsers";
 import { createStuffDocumentsChain } from "langchain/chains/combine_documents";
-import { AssistantInvokeParams, getActiveLLM } from "./Models";
+import { JInvokeAssistantParams, getActiveChatLLM } from "./Models";
 import { findRelevantVectors } from "mbox/Mbox.VectorStore";
 import { LS_ASSISTANT_KEY } from "utils/strings";
 import { RunnableLambda } from "@langchain/core/runnables";
@@ -28,7 +28,7 @@ export async function askAssistant(input: string) {
           huggingfaceChain()
         : // Create a standard chain
           createStuffDocumentsChain({
-            llm: getActiveLLM(),
+            llm: getActiveChatLLM(),
             prompt: executiveAssistantPrompts,
             outputParser: new StringOutputParser()
           })
@@ -46,7 +46,7 @@ export async function askAssistant(input: string) {
 
 /** Allow user to query their vector embeddings when offline or just using hf */
 function huggingfaceChain() {
-  const wrappedSearch = async ({ context, input }: AssistantInvokeParams) => {
+  const wrappedSearch = async ({ context, input }: JInvokeAssistantParams) => {
     const contextStr = context.map((c) => c.pageContent).join("\n\n");
     return pipeline("question-answering", "iagovar/roberta-base-bne-sqac-onnx")
       .then((ask) => ask(input, contextStr))

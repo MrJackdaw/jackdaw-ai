@@ -22,7 +22,7 @@ export async function setActiveEmbedder(e, apiKey = "") {
 
   switch (e) {
     case "@jackcom/openai": {
-      activeEmbedder = await JOpenAIEmbedder.getInstance();
+      activeEmbedder = await JOpenAIEmbedder.getInstance(e);
       break;
     }
     case "huggingface": {

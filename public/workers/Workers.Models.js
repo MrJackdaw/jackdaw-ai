@@ -114,20 +114,39 @@ export class OpenAIEmbedder extends AsyncSingleton {
 export class JOpenAIEmbedder extends AsyncSingleton {
   static task = "feature-extraction";
 
+  /** @type {"@jackcom/openai"|"@jackcom/togetherai"} */
+  static llmTarget = "@jackcom/openai";
+
   /** @type {JOpenAIEmbeddings} */
   static instance = null;
 
-  static async getInstance() {
-    if (!this.instance) this.instance = new JOpenAIEmbeddings();
+  static async getInstance(llmTarget = "@jackcom/openai") {
+    if (!this.instance) {
+      this.llmTarget = llmTarget;
+      this.instance = new JOpenAIEmbeddings({});
+    }
+
     return Promise.resolve(this.instance);
   }
 }
 
-/** JACKCOM proxy: generates the actual embeddings via the JackCom server */
+/** 
+ * JACKCOM proxy: generates the actual embeddings via the JackCom server. Designed
+ * to handle OpenAI and TogetherAI (hopefully provide users with more model options) */
 class JOpenAIEmbeddings extends Embeddings {
   /** Server URL for making requests */
-  url = `${import.meta.env.VITE_SERVER_URL}/embeddings`;
   timeout = 1500;
+  _llmTarget = "@jackcom/openai";
+
+  constructor(args) {
+    super(args);
+    if (args.llmTarget) this._llmTarget = args.llmTarget;
+  }
+
+  get url() {
+    const assistantTarget = this._llmTarget.replace("@jackcom/", "");
+    return `${import.meta.env.VITE_SERVER_URL}/${assistantTarget}`;
+  }
 
   /**
    * @param {{ action: string; data: string| string[]}} data Data to send
@@ -160,7 +179,7 @@ class JOpenAIEmbeddings extends Embeddings {
    */
   async embedDocuments(texts) {
     if (!texts || !texts.length) return Promise.resolve([]);
-    return this.request({ action: "embed-docs", data: texts });
+    return this.request({ action: "assistant:embed-docs", data: { texts } });
   }
   /**
    * Method to generate an embedding for a single document. Calls the
@@ -171,6 +190,6 @@ class JOpenAIEmbeddings extends Embeddings {
   async embedQuery(text) {
     if (!text) return Promise.resolve([]);
 
-    return this.request({ action: "embed-query", data: text });
+    return this.request({ action: "assistant:embed-query", data: { text } });
   }
 }

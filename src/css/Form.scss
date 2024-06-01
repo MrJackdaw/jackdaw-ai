@@ -171,6 +171,7 @@ input[type="radio"] {
   &,
   * {
     cursor: not-allowed;
+    pointer-events: none;
     font-style: italic;
     opacity: 0.8;
   }
