@@ -37,9 +37,11 @@ export async function setActiveEmbedder(e, apiKey = "") {
       break;
     }
 
-    default:
-      console.error("Invalid embedder");
-      break;
+    default: {
+      let err = `${e} is an unsupported Embedding Model!`;
+      err = `${err} Please select a different model in your "Assistant Settings."`;
+      return exportWorkerAlert(err, "Error");
+    }
   }
 
   return activeEmbedder;

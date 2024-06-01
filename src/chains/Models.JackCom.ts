@@ -4,11 +4,13 @@ import { BaseChatModel } from "@langchain/core/language_models/chat_models";
 import { AIMessage, BaseMessage } from "@langchain/core/messages";
 import { ChatResult } from "@langchain/core/outputs";
 import { assistantActionFetch } from "data/requests.shared";
+import { updateAsError } from "state/notifications";
 
 export type ChatJackCOMArgs = BaseLanguageModelParams & {
   model: "@jackcom/openai" | "@jackcom/togetherai";
 };
 
+/** Custom Chat LLM for proxying calls to OpenAI */
 export default class ChatJackCOM extends BaseChatModel {
   private _llmTarget: "@jackcom/openai" | "@jackcom/togetherai";
 
@@ -61,7 +63,7 @@ export default class ChatJackCOM extends BaseChatModel {
       };
     } catch (error) {
       // Log any errors encountered during the process
-      console.error("Error during server call:", error);
+      updateAsError("Error generating respnse:" + error);
       throw new Error("Failed to generate chat result from server");
     }
   }
