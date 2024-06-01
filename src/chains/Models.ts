@@ -48,8 +48,7 @@ export const llmsForAISource = (src?: AISource) => {
   if (src === "huggingface") return ["huggingface"];
   const all = [...Object.keys(LLMs), "huggingface"];
   const { authenticated } = UserStore.getState();
-  if (authenticated) all.push("@jackcom/openai");
-  return all;
+  return authenticated ? all : all.filter((k) => !k.startsWith("@jackcom"));
 };
 
 export function getActiveChatLLM() {

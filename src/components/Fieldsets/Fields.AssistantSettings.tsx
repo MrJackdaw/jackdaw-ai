@@ -2,7 +2,12 @@ import { useMemo } from "react";
 import { llmsForAISource } from "chains/Models";
 import { SettingsStore, SettingsStoreInstance } from "state/settings-store";
 import useSettings from "hooks/useSettings";
-import { isJackCOMStr, isOpenAIStr, updateUserSettings } from "utils/general";
+import {
+  AISource,
+  isJackCOMStr,
+  isOpenAIStr,
+  updateUserSettings
+} from "utils/general";
 
 /** @FormComponent Child component of `AssistantSettingsModal` form */
 export default function AssistantLLMFields() {
@@ -22,7 +27,7 @@ export default function AssistantLLMFields() {
         embedderAPIKey ?? assistantAPIKey;
     } else {
       updates.embedderAPIKey = updates.assistantAPIKey = "";
-      if (newLLM === "huggingface") updates.embedder = "huggingface";
+      updates.embedder = newLLM as AISource;
     }
 
     SettingsStore.multiple(updates);
