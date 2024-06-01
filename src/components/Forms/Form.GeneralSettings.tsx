@@ -115,12 +115,12 @@ export default function GeneralSettingsForm() {
             </span>
           </summary>
           <div className="hint">
-            <span className="gold">Your Callsign </span>(display name){" "}
+            <span className="gold">Your Callsign (or </span>"display name"{" "}
             <span className="gold">
-              is how the AI identifies you in conversations
+              ) is how the AI identifies you in conversations.&nbsp;
             </span>
-            .&nbsp;You can safely clear it without logging out (for logged-in
-            account owners).
+            You can change it to anything you like. If you are logged in,
+            clearing this will revert to your account email.
           </div>
         </details>
 
