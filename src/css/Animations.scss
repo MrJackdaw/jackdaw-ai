@@ -91,12 +91,12 @@
 
 @keyframes pulse {
   0% {
-    box-shadow: 0 0 0.7rem #a5cfed;
+    filter: drop-shadow(0 0 0.7rem #a5cfed);
     color: gold;
   }
 
   100% {
-    box-shadow: 0 0 4px #3c99dc00;
+    filter: drop-shadow(0 0 4px #3c99dc00);
     color: inherit;
   }
 }

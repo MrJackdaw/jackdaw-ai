@@ -1,13 +1,13 @@
-import { ChangeEventHandler, KeyboardEventHandler, useState } from "react";
+import { useState } from "react";
 import "./InputGroup.scss";
+import ContentEditable from "./ContentEditable";
 
 type InputGroupOpts = {
   disabled?: boolean;
   allowAttachments?: boolean;
   highlightAttachmentsCtrl?: boolean;
   placeholder?: string;
-  label?: string;
-  handleSubmit?: { (): any | Promise<any> };
+  handleSubmit?: { (v: string): any | Promise<any> };
   onChange?: { (v: string): void };
   onAddNewFile?: { (): void };
 };
@@ -17,45 +17,37 @@ export default function InputGroup(opts: InputGroupOpts) {
   const { disabled } = opts;
   const [text, setText] = useState("");
   const handleAddNewFile = () => opts.onAddNewFile?.();
-  const onChange: ChangeEventHandler<HTMLInputElement> = (e) => {
-    e.preventDefault();
-    setText(e.target.value);
-    opts.onChange?.(e.target.value);
-  };
-  const onSubmit: KeyboardEventHandler = (e) => {
-    if (e.key !== "Enter") return;
-    e.preventDefault();
-    opts.handleSubmit?.();
+  const handleTextChange = (value: string) => {
+    opts.onChange?.(value);
+    opts.handleSubmit?.(value);
     setText("");
   };
-  const attachTriggerClass = ["material-symbols-outlined"];
-  if (opts.highlightAttachmentsCtrl) attachTriggerClass.push("pulse infinite");
+  const btnClass = ["button--attach", "material-symbols-outlined"];
+  if (opts.highlightAttachmentsCtrl) btnClass.push("pulse infinite");
 
   return (
-    <label className="input-group">
-      {opts.label && <span className="input-group__label">{opts.label}</span>}
-
-      <input
-        className="input-group__input"
-        disabled={disabled}
-        placeholder={opts.placeholder}
-        value={text}
-        onChange={onChange}
-        onKeyDown={onSubmit}
-      />
-
+    <section className="input-group">
       <button
         onClick={handleAddNewFile}
         disabled={!opts.allowAttachments}
-        className="button--attach button--round button--transparent button--grid button--float left"
+        className={btnClass.join(" ")}
         type="button"
       >
-        <span className={attachTriggerClass.join(" ")}>attach_file</span>
+        attach_file
       </button>
+
+      <ContentEditable
+        aria-disabled={disabled}
+        className="input-group__input"
+        clearOnSubmit
+        notifyTextChanged={handleTextChange}
+      >
+        {text}
+      </ContentEditable>
 
       <button className="button--send" disabled={disabled} type="button">
         <span className="material-symbols-outlined">send</span>
       </button>
-    </label>
+    </section>
   );
 }

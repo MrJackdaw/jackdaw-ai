@@ -15,6 +15,12 @@ const ERROR_MSG = {
   incoming: true
 };
 
+enum STREAM {
+  IDLE,
+  START,
+  ACTIVE
+}
+
 /** Chat message list and input */
 const ChatModule = () => {
   const $fileInputRef = useRef<HTMLInputElement>(null);
@@ -23,6 +29,7 @@ const ChatModule = () => {
   const { criticalError } = useUser(["criticalError"]);
   const [streamResponse, setStreamResponse] = useState("");
   const [state, setState] = useState(ChatStore.getState());
+  const [streamState, setStreamState] = useState(STREAM.IDLE);
   const { question, messages, loading } = useMemo(
     () => state,
     [state.loading, state.messages, state.question]
@@ -38,6 +45,11 @@ const ChatModule = () => {
     if (!messages.length) return "Ask a question";
     return "";
   }, [messagesLoaded]);
+  const responseClassname = useMemo(() => {
+    if (streamState === STREAM.ACTIVE) return "spinner--after";
+    if (streamState === STREAM.START) return "spinner--before";
+    return undefined;
+  }, [streamState]);
   const placeholder = useMemo(() => {
     return messagesLoaded ? "Ask a question" : "( No document loaded )";
   }, [messagesLoaded]);
@@ -50,30 +62,32 @@ const ChatModule = () => {
     $view.scrollTop = $view.scrollHeight;
   };
   const updateAndScroll = (messages: JChatMessage[]) => {
+    setStreamState(STREAM.IDLE);
     setStreamResponse("");
     ChatStore.multiple({ messages, question: "", loading: false });
     scrollMessagesView();
   };
   /** Send question to API; update messages list */
-  const askQuestion = async () => {
-    if (!question || loading) return;
-    const next = [...messages, { from: owner, text: question }];
+  const askQuestion = async (q?: string) => {
+    const query = q || question;
+    if (!query || loading) return;
+    const next = [...messages, { from: owner, text: query }];
     ChatStore.multiple({ loading: true, messages: next });
+    setStreamState(STREAM.START);
     setStreamResponse("( Thinking... )");
     scrollMessagesView();
 
     try {
-      const res = await askAssistant(question);
+      const res = await askAssistant(query);
       let text = "";
       const chunks: string[] = [];
+      setStreamState(STREAM.ACTIVE);
       for await (const chunk of res) {
         chunks.push(chunk);
         text = chunks.join("");
         setStreamResponse(text);
         scrollMessagesView();
       }
-
-      if (!text) console.log({ text, res });
 
       next.push(text ? { from: "Assistant", text, incoming: true } : ERROR_MSG);
       // return updateAndScroll(next);
@@ -124,12 +138,15 @@ const ChatModule = () => {
           ))}
 
           {streamResponse && (
-            <div className={`message assistant`}>
+            // Streams the assistant's response until the message stream is complete
+            <div className={`message`}>
               <div className={`message--incoming`}>
                 <div className="message__text">
-                  <b className="message__source">Assistant</b>
+                  <b className="message__source pulse">Assistant</b>
 
-                  <Markdown>{streamResponse}</Markdown>
+                  <Markdown className={responseClassname}>
+                    {streamResponse}
+                  </Markdown>
                 </div>
               </div>
             </div>

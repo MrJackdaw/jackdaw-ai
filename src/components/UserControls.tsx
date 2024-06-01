@@ -6,7 +6,7 @@ import { toggleOnlineVectorStore } from "state/settings-store";
 import useUser from "hooks/useUser";
 import useSubmenuHandler from "hooks/useSubmenuHandler";
 import useSettings from "hooks/useSettings";
-import ListViewItem, { ListViewItemContent } from "./Lists/ListViewItem";
+import { ListViewItemContent } from "./Lists/ListViewItem";
 import ItemMenu from "./ItemMenu";
 import { JRoutes } from "routes";
 import "./UserControls.scss";
@@ -23,22 +23,26 @@ export default function UserControls(props: ComponentPropsWithRef<"div">) {
 
   return (
     <aside className={classes.join(" ").trim()}>
-      <ListViewItem onClick={openSubmenu}>
+      <button
+        className="button--grid slide-in-right"
+        type="button"
+        onClick={openSubmenu}
+      >
         {/* User Settings */}
-        <button className="button--round transparent white" type="button">
+        <span className="button--round transparent white">
           {authenticated && avatar ? (
             <img src={avatar} height={39} width="auto" className="avatar" />
           ) : (
             /* User Avatar / Login / Logout */
             <span className="material-symbols-outlined">settings</span>
           )}
-        </button>
+        </span>
 
         <ListViewItemContent>
           <span className="ellipsis">{truncateMidString(owner)}</span>
           <span className="material-symbols-outlined">arrow_forward_ios</span>
         </ListViewItemContent>
-      </ListViewItem>
+      </button>
 
       {submenuIsVisible && (
         <ItemMenu target={target} onClose={close} placement="top">

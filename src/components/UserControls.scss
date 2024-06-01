@@ -1,12 +1,13 @@
+@import "../css/Animations.scss";
+@import "../css/Colors.scss";
+
 $avatarSize: 32px;
 
-.user-controls {
-  overflow: hidden;
-}
-
-.user-controls > .list-item--grid {
-  background-color: #3336;
+.user-controls > .button--grid {
+  border-bottom-right-radius: 10rem;
+  border-top-right-radius: 10rem;
   grid-template-columns: max-content 1fr;
+  padding-left: 0.4rem;
 
   .list-item__content {
     align-items: center;
@@ -15,8 +16,8 @@ $avatarSize: 32px;
   }
 }
 
-.user-controls .list-item--grid,
-.user-controls .list-item--grid:last-of-type {
+.user-controls .button--grid,
+.user-controls .button--grid:last-of-type {
   cursor: pointer;
   margin-bottom: 0;
 }
