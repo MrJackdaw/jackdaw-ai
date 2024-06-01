@@ -13,6 +13,10 @@ import {
   initializeVectorStore
 } from "./Workers.VectorStore.mjs";
 
+let pctOfFileRead = 0;
+let fileSize = 0;
+let fileName = "";
+
 /**
  * @Action Read Inbox file and initialize VectorStore (async)
  * @param {File} file .mbox file to be read
@@ -21,9 +25,11 @@ export async function parseFile(file) {
   if (!file) return workerError(ERR_NO_FILE);
 
   exportWorkerState(STATE__LOADING);
+  fileName = file.name;
+  fileSize = file.size;
+  pctOfFileRead = 0;
 
   // MBOX (plain text mailbox file with no file type) and normal plain-text files
-  const fileName = file.name;
   if (/mbox$/.test(fileName) || file.type === "text/plain")
     return void parsePlainTextFile(file);
 
@@ -31,6 +37,10 @@ export async function parseFile(file) {
 
   // Everything else gets filtered
   switch (file.type) {
+    // JSON
+    case "application/json": {
+      return void readTextFile__Other(file);
+    }
     // PDFs
     case "application/pdf": {
       return void parsePdfFile(file);
@@ -38,11 +48,8 @@ export async function parseFile(file) {
 
     default: {
       if (import.meta.env.DEV) console.log(file);
-      return exportWorkerState(
-        undefined,
-        STATUS.ERROR,
-        `${fileName} has an unsupported file type`
-      );
+      const err = `${fileName} is an unsupported file`;
+      return exportWorkerState(undefined, STATUS.ERROR, err);
     }
   }
 }
@@ -102,8 +109,17 @@ export async function readFileStream(file) {
  */
 function onFileStream({ done, value }, reader) {
   if (done) return;
-  const decoder = new TextDecoder();
-  if (value) addToVectorStore(decoder.decode(value, { stream: true }));
+
+  // Report file opening progress
+  pctOfFileRead = pctOfFileRead + value.length;
+  const progress = Math.ceil((pctOfFileRead / fileSize) * 100);
+  exportWorkerAlert(`Reading file: (${progress}%)`, "Warning");
+
+  if (value) {
+    const decoder = new TextDecoder();
+    addToVectorStore(decoder.decode(value, { stream: true }), fileName);
+  }
+
   return reader.read().then((x) => onFileStream(x, reader));
 }
 

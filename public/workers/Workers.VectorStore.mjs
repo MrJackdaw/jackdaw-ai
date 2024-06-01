@@ -17,6 +17,9 @@ let MVectorStore;
 
 /** @LifeCycle Initialize vector store (if not already done) */
 export async function initializeVectorStore() {
+  if (import.meta.env.DEV) console.log("\t ::initializeVectorStore");
+
+  const embedder = await getEmbedder();
   // Exit immediately if using remote db for embedding and vector storage
   const { enableCloudStorage } = MboxWorkerSettings.getState();
   if (enableCloudStorage)
@@ -25,36 +28,35 @@ export async function initializeVectorStore() {
       STATUS.OK
     );
 
-  if (import.meta.env.DEV) console.log("\t ::initializeVectorStore");
-
-  return getEmbedder()
-    .then((embedder) => MemoryVectorStore.fromDocuments([], embedder))
-    .then((mvstoreInstance) => void (MVectorStore = mvstoreInstance));
+  MVectorStore = await MemoryVectorStore.fromDocuments([], embedder);
 }
 
 let docsCount = 0;
 let errorMessage = "";
+let documentName = "";
 
 /**
  * Initialize a `MemoryVectorStore` instance for `MailboxReader` from a single text blurb
  * @param {string|undefined} blurb
- * @param {boolean} [done=false] When true, just notify the UI that work is completed */
-export async function addToVectorStore(blurb, done = false) {
-  if (done) return;
-
-  const { documents, emailFragments } = await documentsFromTextBlurb(blurb);
+ * @param {string} [docName="My Note"] Progress percent (amount of file read so far) for UI alert */
+export async function addToVectorStore(blurb, docName = "My Note") {
+  const { documents, fragments } = await documentsFromTextBlurb(blurb);
   const { enableCloudStorage } = MboxWorkerSettings.getState();
+
+  // Track current document name for metadata insertion
+  documentName = docName;
+  exportWorkerAlert(`Generating Embeddings for ${docName}...`, "Warning");
 
   // Local embedders are slow (unless a good model replacement is found). Amount of time
   // will scale horribly with file size.
-  return (
+
+  return Promise.resolve(
     enableCloudStorage
       ? addDocumentsOnline(documents)
       : MVectorStore.addDocuments(documents)
   )
     .then(() => {
-      docsCount = docsCount + emailFragments.length;
-
+      docsCount = docsCount + fragments;
       return true;
     })
     .catch((error) => {
@@ -117,21 +119,28 @@ function documentsFromTextBlurb(blurb) {
   const project_id = !projectId || projectId < 1 ? undefined : projectId;
 
   return splitTextBlurb(pruneHTMLString(blurb)).then((parts) => {
-    /** @type {string[]} Optimistically separated email fragments */
-    const emailFragments = [];
     /** @type {Document[]} Langchain `Documents` from email fragments */
     const documents = [];
+    const fragments = 0;
 
     // Generate `Document` objects and send it aaaalllll back
     parts.forEach((pageContent) => {
       if (!pageContent) return;
 
-      const metadata = { id: emailFragments.length + 1, owner, project_id };
-      emailFragments.push(pageContent);
-      documents.push(new Document({ pageContent, metadata }));
+      documents.push(
+        new Document({
+          pageContent,
+          metadata: {
+            id: documents.length + 1,
+            owner,
+            project_id,
+            documentName
+          }
+        })
+      );
     });
 
-    return { documents, emailFragments };
+    return { documents, fragments };
   });
 }
 

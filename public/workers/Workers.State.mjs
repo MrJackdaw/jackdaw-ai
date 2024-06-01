@@ -40,6 +40,7 @@ export const MboxWorkerSettings = createState({
  */
 export function exportWorkerState(state = null, status = STATUS.OK, error) {
   if (state) MboxWorkerStore.multiple(state);
+  if (error) exportWorkerAlert(error, "Error");
 
   self.postMessage({
     state: MboxWorkerStore.getState(),

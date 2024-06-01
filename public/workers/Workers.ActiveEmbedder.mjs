@@ -1,5 +1,5 @@
-import { HFEmbedder, JackComEmbedder, OpenAIEmbedder } from "./Workers.Models";
-import { MboxWorkerSettings } from "./Workers.State.mjs";
+import { HFEmbedder, JOpenAIEmbedder, OpenAIEmbedder } from "./Workers.Models";
+import { MboxWorkerSettings, exportWorkerAlert } from "./Workers.State.mjs";
 
 /** @type {AsyncSingleton} Active embedding (user can conditionally override) */
 let activeEmbedder = null;
@@ -22,7 +22,7 @@ export async function setActiveEmbedder(e, apiKey = "") {
 
   switch (e) {
     case "@jackcom/openai": {
-      activeEmbedder = await JackComEmbedder.getInstance();
+      activeEmbedder = await JOpenAIEmbedder.getInstance();
       break;
     }
     case "huggingface": {
@@ -31,7 +31,8 @@ export async function setActiveEmbedder(e, apiKey = "") {
     }
     case "openai": {
       // requires user to provide their own API key
-      if (!apiKey) return console.error("API key required");
+      if (!apiKey)
+        return exportWorkerAlert("Please set your OpenAI API key!", "Error");
       activeEmbedder = await OpenAIEmbedder.getInstance(apiKey);
       break;
     }

@@ -111,20 +111,20 @@ export class OpenAIEmbedder extends AsyncSingleton {
 }
 
 /** Wrapper for OpenAI proxy */
-export class JackComEmbedder extends AsyncSingleton {
+export class JOpenAIEmbedder extends AsyncSingleton {
   static task = "feature-extraction";
 
-  /** @type {JackComEmbeddings} */
+  /** @type {JOpenAIEmbeddings} */
   static instance = null;
 
   static async getInstance() {
-    if (!this.instance) this.instance = new JackComEmbeddings();
+    if (!this.instance) this.instance = new JOpenAIEmbeddings();
     return Promise.resolve(this.instance);
   }
 }
 
-/** JACKCOM OpenAI proxy: generates the actual vectors from OpenAI */
-class JackComEmbeddings extends Embeddings {
+/** JACKCOM proxy: generates the actual embeddings via the JackCom server */
+class JOpenAIEmbeddings extends Embeddings {
   /** Server URL for making requests */
   url = `${import.meta.env.VITE_SERVER_URL}/embeddings`;
   timeout = 1500;
@@ -160,7 +160,6 @@ class JackComEmbeddings extends Embeddings {
    */
   async embedDocuments(texts) {
     if (!texts || !texts.length) return Promise.resolve([]);
-
     return this.request({ action: "embed-docs", data: texts });
   }
   /**

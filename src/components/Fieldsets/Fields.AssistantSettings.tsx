@@ -1,15 +1,17 @@
+import { useMemo } from "react";
 import { llmsForAISource } from "chains/Models";
-import { useEffect, useState } from "react";
 import { SettingsStore, SettingsStoreInstance } from "state/settings-store";
+import useSettings from "hooks/useSettings";
 import { updateUserSettings } from "utils/general";
 
 /** @FormComponent Child component of `AssistantSettingsModal` form */
 export default function AssistantLLMFields() {
-  const isOpenAI = /^(openai)/gi;
-  const [assistantLLM, setAssistantLLM] = useState(
-    SettingsStore.getState().assistantLLM
-  );
-  const LLMs = llmsForAISource();
+  const isOpenAI = /openai/gi;
+  const { assistantLLM, enableCloudStorage } = useSettings([
+    "assistantLLM",
+    "enableCloudStorage"
+  ]);
+  const LLMs = useMemo(() => llmsForAISource(), [enableCloudStorage]);
   const onAssistantLLM = (newLLM = "ollama") => {
     const { embedderAPIKey, assistantAPIKey } = SettingsStore.getState();
     const openAILLM = isOpenAI.test(newLLM);
@@ -28,15 +30,6 @@ export default function AssistantLLMFields() {
     SettingsStore.multiple(updates);
     updateUserSettings(SettingsStore.getState());
   };
-
-  useEffect(
-    () =>
-      SettingsStore.subscribeToKeys(
-        (x) => setAssistantLLM(x.assistantLLM),
-        ["assistantLLM"]
-      ),
-    []
-  );
 
   return (
     <fieldset className="fields--assistant-settings">

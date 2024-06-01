@@ -139,8 +139,8 @@ const ChatModule = () => {
 
           {streamResponse && (
             // Streams the assistant's response until the message stream is complete
-            <div className={`message`}>
-              <div className={`message--incoming`}>
+            <div className="message">
+              <div className="message--incoming">
                 <div className="message__text">
                   <b className="message__source pulse">Assistant</b>
 

@@ -1,16 +1,25 @@
-import { FormEventHandler, useEffect, useState } from "react";
+import { FormEventHandler, useEffect, useMemo } from "react";
 import { updateUserSettings } from "utils/general";
 import { clearModal } from "state/modal";
 import { SettingsStore, refreshSettingsFromCache } from "state/settings-store";
 import { updateNotification } from "state/notifications";
+import useSettings from "hooks/useSettings";
 import AssistantLLMFields from "components/Fieldsets/Fields.AssistantSettings";
 import DataEmbeddingFields from "components/Fieldsets/Fields.DataEmbedding";
 import "./Form.AssistantSettings.scss";
 
 /** @Modal Settings for Virtual Assistant */
 export default function AssistantSettingsForm() {
-  const [local, setLocal] = useState(SettingsStore.getState());
-  const [activeTab] = useState(0);
+  const { embedder, embedderAPIKey, assistantLLM } = useSettings([
+    "assistantAPIKey",
+    "assistantLLM",
+    "embedderAPIKey",
+    "embedder"
+  ]);
+  const requireAPIKey = useMemo(
+    () => embedder === "openai" && !assistantLLM.startsWith("@jackcom"),
+    [embedder, assistantLLM]
+  );
   const confirmUpdateSettings = () => {
     updateUserSettings(SettingsStore.getState());
     clearModal();
@@ -22,15 +31,7 @@ export default function AssistantSettingsForm() {
   };
 
   useEffect(() => {
-    const unsubscribe = SettingsStore.subscribe(() => {
-      setLocal(SettingsStore.getState());
-    });
-
-    // Unsubscribe AND wipe the shared store
-    return () => {
-      unsubscribe();
-      refreshSettingsFromCache();
-    };
+    return refreshSettingsFromCache;
   }, []);
 
   return (
@@ -41,9 +42,9 @@ export default function AssistantSettingsForm() {
 
       <hr />
 
-      {local.embedder === "openai" && activeTab <= 1 && (
+      {requireAPIKey && (
         <fieldset>
-          <legend className={local.embedderAPIKey ? undefined : "error"}>
+          <legend className={embedderAPIKey ? undefined : "error"}>
             <span className="label required">API Key</span>
           </legend>
 
@@ -51,7 +52,7 @@ export default function AssistantSettingsForm() {
             <input
               type="password"
               placeholder="Enter API Key (required)"
-              value={local.embedderAPIKey}
+              value={embedderAPIKey}
               onChange={(e) =>
                 SettingsStore.multiple({
                   embedderAPIKey: e.target.value,
