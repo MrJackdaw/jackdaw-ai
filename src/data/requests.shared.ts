@@ -40,16 +40,19 @@ export async function cloudDataFetch<T>(
     .then(returnOrRefetch(() => cloudDataFetch(action, data)));
 }
 
+type LLMResponse = {
+  data: { content: string; llmOutput?: Record<string, any> };
+};
+
 /** Standardized request for AI-related requests */
 export async function assistantActionFetch(
   action: AssistantAction,
   data?: any
-) {
+): Promise<LLMResponse> {
   const { assistantLLM } = SettingsStore.getState();
   const AI_TARGET_URL = assistantLLM.replace("@jackcom", SERVER_URL);
   const body = JSON.stringify({ action, data, assistantLLM });
-  // console.log({ action, data, url });
-  // return Promise.resolve({ message: "huehuehue" });
+
   return fetch(AI_TARGET_URL, { ...AUTH_OPTS, body })
     .then((d) => d.json())
     .then(checkSessionExpired)

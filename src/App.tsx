@@ -37,6 +37,7 @@ function App() {
             <Route path="/login" element={<LoginRoute />} />
             <Route path="/inbox" element={<Navigate to="/chat" />} />
             <Route path="/chat" element={<MBoxRoute />} />
+            <Route path="/oauth" element={<OAuthRoute />} />
             <Route path="/projects" element={<Projects />} />
             <Route path="/settings" element={<Settings />} />
             <Route path="/settings/:settingsView" element={<Settings />} />

@@ -1,6 +1,6 @@
 import { useState } from "react";
-import "./InputGroup.scss";
 import ContentEditable from "./ContentEditable";
+import "./InputGroup.scss";
 
 type InputGroupOpts = {
   disabled?: boolean;

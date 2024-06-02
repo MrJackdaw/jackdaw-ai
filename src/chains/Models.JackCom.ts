@@ -56,10 +56,11 @@ export default class ChatJackCOM extends BaseChatModel {
         "assistant:generate-text",
         payload
       );
-      const text = response.data?.kwargs?.content;
+      const text = response.data.content;
+
       return {
         generations: [{ message: new AIMessage({ content: text }), text }],
-        llmOutput: {}
+        llmOutput: response.data.llmOutput
       };
     } catch (error) {
       // Log any errors encountered during the process

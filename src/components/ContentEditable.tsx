@@ -7,37 +7,51 @@ import { suppressEvent } from "utils/general";
 
 type Props = ComponentPropsWithRef<"span"> & {
   clearOnSubmit?: boolean;
+  submitOnBlur?: boolean;
   notifyTextChanged?: { (text: string): any };
 };
 
-/** Content-Editable HTML element */
+/** Content-Editable HTML element. Styleable replacement for `<input />` or `<textarea />` */
 export default function ContentEditable(props: Props) {
   const {
     notifyTextChanged,
     clearOnSubmit,
     className = "",
     children,
+    submitOnBlur,
     ...rest
   } = props;
   const classes = ["editable", className].join(" ").trim();
 
-  // Handle user input into element. Forward to blur on submit
+  /** Forward element contents to parent when "submit" event is verified */
+  const handleSubmit = ($elem: HTMLElement) => {
+    const next = $elem.innerText.replace("\n", "");
+    notifyTextChanged?.(next);
+    if (clearOnSubmit) $elem.innerHTML = "";
+  };
+
+  /** Handle user input into element. Forward to blur on submit */
   const handleTextChange: KeyboardEventHandler<HTMLSpanElement> = (e) => {
     if (e.key !== "Enter") return;
     e.preventDefault();
-    e.currentTarget.blur(); // forward event to blur handler
+    // forward event to blur handler if "submit-on-blur" is enabled
+    if (submitOnBlur) return e.currentTarget.blur();
+
+    // submit on "Enter" key-press
+    handleSubmit(e.currentTarget);
   };
 
-  // Handle when element loses focus
-  const handleMaybeSubmit: KeyboardEventHandler<HTMLSpanElement> = (e) => {
-    if (e.key === "Enter") suppressEvent(e);
+  /** Prevent line-break on "Enter" key-down event unless shift key is enabled.
+   * The actual "submission" event is captured by the "onKeyUp" handler  */
+  const preventLinebreakOnEnter: KeyboardEventHandler<HTMLSpanElement> = (
+    e
+  ) => {
+    if (e.key === "Enter" && !e.shiftKey) suppressEvent(e);
   };
 
-  // Handle when element loses focus
+  /** Maybe submit content when element loses focus */
   const handleTextBlur: FocusEventHandler<HTMLSpanElement> = (e) => {
-    const next = e.target.innerText.replace("\n", "");
-    notifyTextChanged?.(next);
-    if (clearOnSubmit) e.target.innerHTML = "";
+    if (submitOnBlur) handleSubmit(e.target);
   };
 
   return (
@@ -45,7 +59,7 @@ export default function ContentEditable(props: Props) {
       contentEditable={!props["aria-disabled"]}
       className={classes}
       suppressContentEditableWarning
-      onKeyDown={handleMaybeSubmit}
+      onKeyDown={preventLinebreakOnEnter}
       onKeyUp={handleTextChange}
       onBlur={handleTextBlur}
       children={children}
