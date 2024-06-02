@@ -77,14 +77,12 @@ export async function completeOAuthFlow(hash: string) {
 
 /** Logout */
 export async function logoutUser() {
-  return Promise.all([
-    sessionFetch("session:logout"),
-    deleteCachedSetting(SETTING__USER_KEY)
-  ]).then(() => {
-    UserStore.reset();
-    localStorage.clear();
-    window.location.reload();
-  });
+  await sessionFetch("session:logout");
+  deleteCachedSetting(SETTING__USER_KEY);
+
+  UserStore.reset();
+  localStorage.removeItem(LS_OWNER_KEY);
+  window.location.reload();
 }
 
 /**

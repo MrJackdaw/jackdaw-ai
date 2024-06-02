@@ -10,6 +10,7 @@ import { ListViewItemContent } from "./Lists/ListViewItem";
 import ItemMenu from "./ItemMenu";
 import { JRoutes } from "routes";
 import "./UserControls.scss";
+import { logoutUser } from "data/requests";
 
 export default function UserControls(props: ComponentPropsWithRef<"div">) {
   const { enableCloudStorage, owner } = useSettings([
@@ -77,14 +78,15 @@ export default function UserControls(props: ComponentPropsWithRef<"div">) {
 
           {authenticated ? (
             <>
-            <Link
-              className="item-menu__item user-control__item"
-              to={JRoutes.Login}
-              onClick={close}
-            >
-              <span>Log out</span>
-              <span className="material-symbols-outlined">lock</span>
-            </Link>
+              <Link
+                className="item-menu__item user-control__item"
+                role="button"
+                to={JRoutes.Login}
+                onClick={logoutUser}
+              >
+                <span>Log out</span>
+                <span className="material-symbols-outlined">lock</span>
+              </Link>
 
               <form
                 className="enable-cloud-storage"
