@@ -19,7 +19,6 @@ import "./List.UserProjects.scss";
 import { JRoutes } from "routes";
 
 let init = false;
-
 type Props = { display?: "full" | "compact" };
 
 export default function UserProjectsList({ display }: Props) {
@@ -40,28 +39,27 @@ export default function UserProjectsList({ display }: Props) {
   const requestInFlight = useMemo(() => {
     return fetchingProjects || !authenticated;
   }, [fetchingProjects, authenticated]);
-  const canSyncProjects = useMemo(
-    () => enableCloudStorage && projects.some((p) => !p.id),
-    [projects, enableCloudStorage]
-  );
   const fetchProjects = async () => {
     if (requestInFlight || criticalError) return;
     await loadProjects();
   };
+  // Save local projects to cloud, and fetch projects
   const syncProjects = async () => {
     setLoading(true);
     const updated: UserProject[] = [];
     const batch: Promise<UserProject>[] = [];
-    projects.forEach((p) => {
-      if (p.id) return;
-      updated.push(p);
-      batch.push(
-        cloudDataFetch<UserProject>("user-projects:insert", {
-          name: p.project_name,
-          description: p.description
-        })
-      );
-    });
+    if (enableCloudStorage) {
+      projects.forEach((p) => {
+        if (p.id) return;
+        updated.push(p);
+        batch.push(
+          cloudDataFetch<UserProject>("user-projects:insert", {
+            name: p.project_name,
+            description: p.description
+          })
+        );
+      });
+    }
 
     await Promise.all(batch)
       .then(() =>
@@ -180,27 +178,31 @@ export default function UserProjectsList({ display }: Props) {
             <span className="material-symbols-outlined">arrow_forward_ios</span>
           </Link>
         ) : (
-          <div className="controls--grid">
-            <button
-              type="button"
-              className="button--grid transparent"
-              disabled={fetchingProjects || !canSyncProjects}
-              onClick={syncProjects}
-            >
-              <span className="material-symbols-outlined">sync</span>
-              <span>Sync Projects</span>
-            </button>
+          authenticated && (
+            <div className="controls--grid">
+              <button
+                type="button"
+                className="button--grid transparent"
+                disabled={fetchingProjects}
+                onClick={syncProjects}
+              >
+                <span className="material-symbols-outlined">sync</span>
+                <span>Sync Projects</span>
+              </button>
 
-            <button
-              type="button"
-              disabled={fetchingProjects}
-              className="button--grid"
-              onClick={startNewProject}
-            >
-              <span className="material-symbols-outlined">create_new_folder</span>
-              <span>New Project</span>
-            </button>
-          </div>
+              <button
+                type="button"
+                disabled={fetchingProjects}
+                className="button--grid"
+                onClick={startNewProject}
+              >
+                <span className="material-symbols-outlined">
+                  create_new_folder
+                </span>
+                <span>New Project</span>
+              </button>
+            </div>
+          )
         )
       }
     />

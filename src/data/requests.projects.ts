@@ -7,13 +7,13 @@ import {
 import { ProjectsStore } from "state/user-projects";
 import { UserProject } from "utils/general";
 import { cloudDataFetch } from "./requests.shared";
-import { SETTING__PROJECT_SYNC, LS_USE_CLOUD_STORE } from "utils/strings";
+import { SETTING__PROJECT_SYNC } from "utils/strings";
 import { DateTime } from "luxon";
 
 export async function refreshProjectsCache() {
-  const fetchRemote = localStorage.getItem(LS_USE_CLOUD_STORE)
-    ? cloudDataFetch<{ data: UserProject[] }>("user-projects:list")
-    : Promise.resolve({ data: [] });
+  const fetchRemote = cloudDataFetch<{ data: UserProject[] }>(
+    "user-projects:list"
+  );
 
   // Fetch remote projects if cloud storage is enabled
   return (
@@ -45,7 +45,9 @@ export async function loadProjects() {
     getCachedSetting(SETTING__PROJECT_SYNC),
     listCachedProjects()
   ]);
-  const staleCache = !nextSync || DateTime.fromISO(nextSync) < DateTime.now();
+  const staleCache =
+    !nextSync ||
+    DateTime.fromISO(nextSync).toMillis() < DateTime.now().toMillis();
   if (staleCache) return refreshProjectsCache();
 
   ProjectsStore.multiple({ projects: cachedProjects, fetchingProjects: false });

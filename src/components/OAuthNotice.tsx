@@ -3,12 +3,12 @@ import { useLocation, useNavigate } from "react-router-dom";
 import { LS_NEXT_PATH } from "utils/strings";
 import { completeOAuthFlow, initializeUserState } from "data/requests";
 import { initializeMboxModule } from "mbox/Mbox";
-import "./OAuthNotice.scss";
 import useUser from "hooks/useUser";
+import "./OAuthNotice.scss";
 
 let init = false;
 
-export default function OAuthRoute() {
+export default function OAuthNotice() {
   const { authenticated } = useUser(["authenticated"]);
   const { hash } = useLocation();
   const redirectTo = useMemo(() => localStorage.getItem(LS_NEXT_PATH), [hash]);

@@ -172,7 +172,7 @@ export default function UserProjectListItem(props: ListItemProps) {
               onProjectDelete?.(project);
             }}
           >
-            <span>Delete {enableCloudStorage ? "Project" : "from cache"}</span>
+            <span>Delete Project</span>
             <button className={`${materialButton} error`} type="button">
               delete
             </button>

@@ -78,7 +78,11 @@ export async function logoutUser() {
   return Promise.all([
     sessionFetch("session:logout"),
     deleteCachedSetting(SETTING__USER_KEY)
-  ]).then(() => UserStore.reset());
+  ]).then(() => {
+    UserStore.reset();
+    localStorage.clear();
+    window.location.reload();
+  });
 }
 
 /**

@@ -5,7 +5,6 @@ import {
   stringToColor,
   updateUserSettings
 } from "utils/general";
-import CookieStore from "utils/cookie-store";
 import {
   sendParserMessage,
   changeMboxOwner,
@@ -57,13 +56,9 @@ export default function GeneralSettingsForm() {
     changeMboxOwner(newOwner);
     updateNotification("Handle changed", CHANNEL);
   };
-  const clearAllData = async () => {
-    await logoutUser().finally(() => {
-      clearParserModelCache();
-      CookieStore.reset();
-      localStorage.clear();
-      window.location.reload();
-    });
+  const hardLogOut = async () => {
+    clearParserModelCache();
+    logoutUser();
   };
 
   return (
@@ -227,7 +222,7 @@ export default function GeneralSettingsForm() {
           className={`button--grid ${
             authenticated ? "bg--error dark" : ""
           }`.trim()}
-          onClick={clearAllData}
+          onClick={hardLogOut}
         >
           <span className="material-symbols-outlined">
             {authenticated ? "power_settings_new" : "close"}
