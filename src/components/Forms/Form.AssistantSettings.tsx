@@ -27,6 +27,10 @@ export default function AssistantSettingsForm() {
     clearModal();
     setTimeout(() => updateNotification("Settings updated"));
   };
+  const handleChangeKey = (e: string) => {
+    SettingsStore.multiple({ embedderAPIKey: e, assistantAPIKey: e });
+    confirmUpdateSettings();
+  };
   const handleSaveForm: FormEventHandler = (e) => {
     e.preventDefault();
     confirmUpdateSettings();
@@ -55,12 +59,7 @@ export default function AssistantSettingsForm() {
               type="password"
               placeholder="Enter API Key (required)"
               value={embedderAPIKey}
-              onChange={(e) =>
-                SettingsStore.multiple({
-                  embedderAPIKey: e.target.value,
-                  assistantAPIKey: e.target.value
-                })
-              }
+              onChange={(e) => handleChangeKey(e.target.value)}
             />
           </label>
           <span className="hint">
