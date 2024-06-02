@@ -23,8 +23,10 @@ export async function isUserAuthenticated() {
     const expires = DateTime.fromISO(cached.lastSeen).plus({ minutes: 30 });
     const stillAuthed = expires.toMillis() >= DateTime.now().toMillis();
     if (stillAuthed) return cached; // exit with cached user
-    deleteCachedSetting(SETTING__USER_KEY);
   }
+
+  deleteCachedSetting(SETTING__USER_KEY);
+  localStorage.removeItem(LS_OWNER_KEY);
 
   return sessionFetch<{ user: User }>("get-user")
     .then(({ user }) => {

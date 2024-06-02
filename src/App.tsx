@@ -5,7 +5,6 @@ import useUser from "hooks/useUser";
 import LoginRoute from "routes/Route.Login";
 import NotificationsList from "components/Lists/List.Notifications";
 import FullscreenLoader from "components/FullscreenLoader";
-import OAuthRoute from "components/OAuthNotice";
 import AppSidebar from "components/AppSidebar";
 import "./App.scss";
 
@@ -13,6 +12,7 @@ import "./App.scss";
 const MBoxRoute = lazy(() => import("routes/Route.Chat"));
 const Settings = lazy(() => import("routes/Route.Settings"));
 const Projects = lazy(() => import("routes/Route.Projects"));
+const OAuthRoute = lazy(() => import("routes/Route.OAuth"));
 
 // DIALOGS
 const WelcomeUserDialog = lazy(
@@ -31,7 +31,9 @@ function App() {
       <AppSidebar />
 
       {loaded ? (
-        <Suspense fallback={<FullscreenLoader fullscreen />}>
+        <Suspense
+          fallback={<FullscreenLoader fullscreen msg="Starting app.." />}
+        >
           <Routes>
             <Route index element={<MBoxRoute />} />
             <Route path="/login" element={<LoginRoute />} />
