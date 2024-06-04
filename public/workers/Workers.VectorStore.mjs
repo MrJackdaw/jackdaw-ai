@@ -40,14 +40,12 @@ let documentName = "";
  * @param {string|undefined} blurb
  * @param {string} [docName="My Note"] Progress percent (amount of file read so far) for UI alert */
 export async function addToVectorStore(blurb, docName = "My Note") {
-  const { documents, fragments } = await documentsFromTextBlurb(blurb);
-  const { enableCloudStorage } = MboxWorkerSettings.getState();
-
+  exportWorkerAlert(`Generating Embeddings for ${docName}...`, "Warning");
   // Track current document name for metadata insertion
   documentName = docName;
-  exportWorkerAlert(`Generating Embeddings for ${docName}...`, "Warning");
+  const { enableCloudStorage } = MboxWorkerSettings.getState();
+  const { documents, fragments } = await documentsFromTextBlurb(blurb);
 
-  console.log({ enableCloudStorage, memStore: Boolean(MVectorStore) });
   if (enableCloudStorage)
     return addDocumentsOnline(documents).then(finishedAddingToVectorStore);
 
