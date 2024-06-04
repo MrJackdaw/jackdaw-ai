@@ -22,8 +22,8 @@ export default function ProjectDetailsDialog(props: ModalProps) {
       data-medium
       className={classes}
       onClose={onClose}
-      title="New Cloud Project"
-      materialIcon="cloud_upload"
+      title="Create New Project"
+      materialIcon="create_new_folder"
       {...rest}
     >
       <ProjectDetailsForm />

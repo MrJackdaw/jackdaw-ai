@@ -35,22 +35,21 @@ export default function UserProjectListItem(props: ListItemProps) {
     onProjectChange?.({ ...project, [key]: value });
   };
   const tooltip = useMemo(() => {
-    const onlineTip = "Your embeddings will be linked to this Project.";
+    const onlineTip = "Your documents will be linked to this Project.";
     if (props.active)
       return enableCloudStorage
         ? onlineTip
-        : "Disabled because you are offline";
-    return enableCloudStorage
-      ? "Sync to Cloud"
-      : "Offline Project: sync to use.";
+        : "Offline: documents saved to your computer";
+    if (!project.id && enableCloudStorage) return "Sync to Cloud";
+    return "";
   }, [props.active, enableCloudStorage]);
   const iconClass = ["material-symbols-outlined"];
   if (!project.id) iconClass.push("error");
   const [iconValue, activeColor] = useMemo(() => {
     if (project.id)
       return props.active
-        ? ["check", enableCloudStorage ? "gold" : "grey"]
-        : ["cloud_upload", "white"];
+        ? ["folder_open", enableCloudStorage ? "gold" : "grey"]
+        : ["folder", "white"];
     return ["sync", "white"];
   }, [props.active, enableCloudStorage]);
   const handleTitleChange = (next: string) => {
@@ -69,7 +68,6 @@ export default function UserProjectListItem(props: ListItemProps) {
     suppressEvent(e);
     handleSelect();
     if (props.display !== "compact") return;
-    onProjectChange?.(project);
   };
 
   const materialButton = "button--round material-symbols-outlined transparent";
@@ -178,21 +176,28 @@ export default function UserProjectListItem(props: ListItemProps) {
             </button>
           </MenuItem>
 
-          <MenuItem>
-            <span className="hint grey">{tooltip}</span>
-            <span className="material-symbols-outlined grey">info</span>
-          </MenuItem>
-
-          {/* Offline project warning */}
-          {!project.id && (
+          {tooltip && (
             <MenuItem>
-              <span className="hint grey">
-                <b>Offline Project:</b> Please sync this project in order to use
-                it with an assistant.
-              </span>
-              <span className="material-symbols-outlined grey">warning</span>
+              <span className="hint grey">{tooltip}</span>
+              <span className="material-symbols-outlined grey">info</span>
             </MenuItem>
           )}
+
+          <MenuItem>
+            <span className="hint grey">
+              {!project.id ? (
+                /* Local project warning */
+                <>
+                  <b>Offline Project:</b> Please sync this project in order to
+                  use it with an assistant.
+                </>
+              ) : (
+                /* Offline warning */
+                !enableCloudStorage && <b>Cloud storage is disabled.</b>
+              )}
+            </span>
+            <span className="material-symbols-outlined grey">warning</span>
+          </MenuItem>
         </ItemMenu>
       )}
     </ListViewItem>

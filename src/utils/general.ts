@@ -41,6 +41,9 @@ export function validateEmailString(email: string): boolean {
   return new RegExp(/^\w{3,}@\w+\.\w+$/).test(email);
 }
 
+export const MEGABYTE = 1024 * 1024;
+export const MAX_FILE_SIZE_BYTES = 4 * MEGABYTE;
+
 export const noOp = () => {};
 
 export const suppressEvent: FormEventHandler = (e) => {

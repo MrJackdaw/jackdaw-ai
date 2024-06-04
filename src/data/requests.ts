@@ -78,9 +78,8 @@ export async function completeOAuthFlow(hash: string) {
 export async function logoutUser() {
   await sessionFetch("session:logout");
   deleteCachedSetting(SETTING__USER_KEY);
-
-  UserStore.reset();
   localStorage.removeItem(LS_OWNER_KEY);
+  UserStore.reset();
   window.location.reload();
 }
 

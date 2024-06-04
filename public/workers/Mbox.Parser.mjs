@@ -16,6 +16,7 @@ import {
 let pctOfFileRead = 0;
 let fileSize = 0;
 let fileName = "";
+const plainTextToBlob = (s) => new Blob([s], { type: "text/plain" });
 
 /**
  * @Action Read Inbox file and initialize VectorStore (async)
@@ -30,20 +31,21 @@ export async function parseFile(file) {
   pctOfFileRead = 0;
 
   // MBOX (plain text mailbox file with no file type) and normal plain-text files
-  if (/mbox$/.test(fileName) || file.type === "text/plain")
-    return void parsePlainTextFile(file);
-
-  if (file.type.startsWith("text/")) return void readTextFile__Other(file);
+  const canParseAsText = ["text/plain", "text/rtf", "application/json"];
+  const readAsText =
+    /mbox$/.test(fileName) || canParseAsText.includes(file.type);
+  if (readAsText) return void parsePlainTextFile(file);
 
   // Everything else gets filtered
   switch (file.type) {
-    // JSON
-    case "application/json": {
-      return void readTextFile__Other(file);
-    }
-    // PDFs
+    // Office file-types get sent to a Lambda. Might funnel to Textract if it makes sense.
+    case `application/vnd.openxmlformats-officedocument.wordprocessingml.document`: // (DOCX)
+    case `application/vnd.ms-excel`: // (XLS)
+    case `application/vnd.openxmlformats-officedocument.spreadsheetml.sheet`: // (XLSX)
+    case `application/vnd.openxmlformats-officedocument.presentationml.presentation`: // (PPTX)
+    case `text/csv`: // (CSV)
     case "application/pdf": {
-      return void parsePdfFile(file);
+      return void extractFileTextAWS(file);
     }
 
     default: {
@@ -55,13 +57,49 @@ export async function parseFile(file) {
 }
 
 /**
+ * Send a file to the server for text extraction (no embedding or preserving)
+ * @param {File} file
+ */
+function extractFileTextAWS(file) {
+  const MEGABYTE = 1024 * 1024;
+  const MAX_FILE_SIZE_BYTES = 4 * MEGABYTE;
+
+  // Warn user if file is too large (anything over 4-ish MB will cause AWS to shit.)
+  if (file.size >= MAX_FILE_SIZE_BYTES) {
+    exportWorkerAlert(
+      "File is too large! (4MB+ must be uploaded first).",
+      "Error"
+    );
+    return exportWorkerState({ loading: false });
+  }
+
+  let url = import.meta.env.VITE_SERVER_URL;
+  url = `${url}/extract-text`;
+
+  const formData = new FormData();
+  formData.append("file", file);
+
+  // Send file to server for text-extraction
+  fetch(url, {
+    method: "post",
+    credentials: "include",
+    body: formData
+  })
+    .then((d) => d.json())
+    .then(({ data }) => readFileStream(plainTextToBlob(data.text)))
+    .catch((e) => {
+      console.log({ e });
+      workerError("Error opening file " + fileName);
+    });
+}
+
+/**
  * Read a file and assume it is a utf-8-encoded text file. Throw a fit if it isn't.
  * @param {File} file (Hopefully text) File to read
  */
-function readTextFile__Other(file) {
+function parsePlainTextFile(file) {
   const reader = new FileReader();
-  reader.onload = () =>
-    readFileStream(new Blob([reader.result], { type: "text/plain" }));
+  reader.onload = () => readFileStream(plainTextToBlob(reader.result));
   reader.onerror = () => {
     throw new Error(`${file.name} is unsupported`);
   };
@@ -70,57 +108,40 @@ function readTextFile__Other(file) {
 }
 
 /**
- * @Action Read PDF file and initialize VectorStore (async)
- * @param {File} pdf .mbox file to be read */
-export async function parsePdfFile(_pdf) {
-  const err = "PDF files will be supported soon";
-  exportWorkerAlert(err, "Error");
-  exportWorkerState({ loading: false });
-}
-
-/**
- * @Action Read Inbox file and initialize VectorStore (async)
- * @param {File} file .mbox file to be read */
-export async function parsePlainTextFile(file) {
-  startTimer("readFileStream");
-  await readFileStream(file);
-  stopTimer("readFileStream");
-}
-
-/**
  * @Action Read Inbox file and initialize VectorStore (async)
  * @param {File} file .mbox file to be read */
 export async function readFileStream(file) {
+  startTimer("readFileStream");
   const reader = file.stream().getReader();
 
   return reader
     .read()
     .catch(() => workerError("Error opening file"))
     .then((x) => onFileStream(x, reader));
-}
 
-/**
- * File stream handler: adds `Documents` to the Vector store for each stream result
- * @param {ReadableStreamReadResult<Uint8Array>} streamResult
- * @param {boolean} streamResult.done
- * @param {Uint8Array|undefined} streamResult.value
- * @param {ReadableStreamDefaultReader<Uint8Array>} reader
- * @returns
- */
-function onFileStream({ done, value }, reader) {
-  if (done) return;
+  /**
+   * File stream handler: adds `Documents` to the Vector store for each stream result
+   * @param {ReadableStreamReadResult<Uint8Array>} streamResult
+   * @param {boolean} streamResult.done
+   * @param {Uint8Array|undefined} streamResult.value
+   * @param {ReadableStreamDefaultReader<Uint8Array>} reader
+   * @returns
+   */
+  function onFileStream({ done, value }, reader) {
+    if (done) return void stopTimer("readFileStream");
 
-  // Report file opening progress
-  pctOfFileRead = pctOfFileRead + value.length;
-  const progress = Math.ceil((pctOfFileRead / fileSize) * 100);
-  exportWorkerAlert(`Reading file: (${progress}%)`, "Warning");
+    // Report file opening progress
+    pctOfFileRead = pctOfFileRead + value.length;
+    const progress = Math.ceil((pctOfFileRead / fileSize) * 100);
+    exportWorkerAlert(`Reading file: (${progress}%)`, "Warning");
 
-  if (value) {
-    const decoder = new TextDecoder();
-    addToVectorStore(decoder.decode(value, { stream: true }), fileName);
+    if (value) {
+      const decoder = new TextDecoder();
+      addToVectorStore(decoder.decode(value, { stream: true }), fileName);
+    }
+
+    return reader.read().then((x) => onFileStream(x, reader));
   }
-
-  return reader.read().then((x) => onFileStream(x, reader));
 }
 
 /**

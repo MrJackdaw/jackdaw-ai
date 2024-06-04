@@ -164,7 +164,7 @@ export default function UserProjectsList({ display }: Props) {
       }
       itemText={(d) => (
         <UserProjectListItem
-          active={selectedProject === d.id}
+          active={enableCloudStorage && selectedProject === d.id}
           display={display}
           project={d}
           onProjectChange={handleProjectSync}
