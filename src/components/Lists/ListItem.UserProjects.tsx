@@ -40,7 +40,8 @@ export default function UserProjectListItem(props: ListItemProps) {
       return enableCloudStorage
         ? onlineTip
         : "Offline: documents saved to your computer";
-    if (!project.id && enableCloudStorage) return "Sync to Cloud";
+    if (!project.id && enableCloudStorage)
+      return "Sync this project in order to use it with an assistant.";
     return "";
   }, [props.active, enableCloudStorage]);
   const iconClass = ["material-symbols-outlined"];
@@ -176,27 +177,15 @@ export default function UserProjectListItem(props: ListItemProps) {
             </button>
           </MenuItem>
 
-          {tooltip && (
-            <MenuItem>
-              <span className="hint grey">{tooltip}</span>
-              <span className="material-symbols-outlined grey">info</span>
-            </MenuItem>
-          )}
-
           <MenuItem>
             <span className="hint grey">
-              {!project.id ? (
-                /* Local project warning */
-                <>
-                  <b>Offline Project:</b> Please sync this project in order to
-                  use it with an assistant.
-                </>
-              ) : (
-                /* Offline warning */
-                !enableCloudStorage && <b>Cloud storage is disabled.</b>
-              )}
+              {/* Offline warning */}
+              {!enableCloudStorage && <b>Cloud storage is disabled! </b>}
+              {tooltip}
             </span>
-            <span className="material-symbols-outlined grey">warning</span>
+            <span className="material-symbols-outlined grey center">
+              {project.id && enableCloudStorage ? "info" : "warning"}
+            </span>
           </MenuItem>
         </ItemMenu>
       )}
