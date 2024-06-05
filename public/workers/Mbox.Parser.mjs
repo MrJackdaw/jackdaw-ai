@@ -1,5 +1,11 @@
 /** @file MBox Worker State and handlers */
-import { startTimer, stopTimer, STATUS, workerError } from "./Mbox.Utils.mjs";
+import {
+  startTimer,
+  stopTimer,
+  STATUS,
+  workerError,
+  csvToJson
+} from "./Mbox.Utils.mjs";
 import { ERR_NO_FILE } from "./Mbox.Strings.mjs";
 import { setActiveEmbedder } from "./Workers.ActiveEmbedder.mjs";
 import {
@@ -38,12 +44,13 @@ export async function parseFile(file) {
 
   // Everything else gets filtered
   switch (file.type) {
+    case `text/csv`: // (CSV)
+      return batchConvertCSVToJSON(file);
     // Office file-types get sent to a Lambda. Might funnel to Textract if it makes sense.
     case `application/vnd.openxmlformats-officedocument.wordprocessingml.document`: // (DOCX)
     case `application/vnd.ms-excel`: // (XLS)
     case `application/vnd.openxmlformats-officedocument.spreadsheetml.sheet`: // (XLSX)
     case `application/vnd.openxmlformats-officedocument.presentationml.presentation`: // (PPTX)
-    case `text/csv`: // (CSV)
     case "application/pdf": {
       return void extractFileTextAWS(file);
     }
@@ -105,6 +112,37 @@ function parsePlainTextFile(file) {
   };
 
   reader.readAsText(file);
+}
+
+async function batchConvertCSVToJSON(file) {
+  const [getRows, error] = await csvToJson(file);
+  if (error) {
+    exportWorkerAlert("CSV File could not be opened", "Error");
+    return exportWorkerState({ loading: false });
+  }
+
+  exportWorkerAlert(
+    "Batch-exporting CSV rows: do not refresh the page",
+    "Warning"
+  );
+  const result = getRows(); // generator function
+  let i = result.next();
+  /* Here, we'll stringify and vectorize the CSV rows */
+  const batchEmbedCSVRows = async () => {
+    if (i.done) return;
+    else if (i.value) {
+      // i.value is an array of up to 300 rows. Adjust array length by
+      // passing a second parameter to the CSVtoJSON( file, batchSize ) fn.
+      const batch = JSON.stringify(i.value);
+      await readFileStream(plainTextToBlob(batch));
+    }
+
+    i = result.next();
+    // setTimeout(batchEmbedCSVRows, 1200);
+    batchEmbedCSVRows();
+  };
+
+  batchEmbedCSVRows();
 }
 
 /**

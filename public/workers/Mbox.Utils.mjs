@@ -80,3 +80,78 @@ export function stopTimer(stopTimerLabel) {
   if (!import.meta.env.DEV) return;
   if (stopTimerLabel) console.timeEnd(stopTimerLabel);
 }
+
+/**
+ * Get a list of column-names from CSV file, with an extra column for doc name
+ * @param {string} csvContent Parsed CSV contents in a text blurb
+ * @returns {string[]} list of column names
+ */
+function getColumnNames(csvContent) {
+  const lines = csvContent.split("\n");
+  let columnNames = lines[0].split(",");
+  // Check the second row in case the first doesn't have the actual column names
+  if (columnNames.length === 1 && lines[1].split(",").length !== 1) {
+    columnNames = lines[1].split(",");
+  }
+  columnNames.push("meta__documentName");
+  return columnNames;
+}
+
+/**
+ * Convert a CSV to JSON before sending to server (or doing anything else)
+ * @param {File} file CSV file
+ * @param {number} [batchSize=300] Number of rows to process per batch
+ * @returns {Promise<[{(): IterableIterator}|null, Error|null]>} Array with two items: 1) Generator function
+ * that yields rows from the CSV, and 2) An error if one was encountered when opening the file.
+ * One item will always be null: if there's a generator, Error will be `null` (and vice-versa)
+ */
+export async function csvToJson(file, batchSize = 300) {
+  return new Promise((resolve) => {
+    const reader = new FileReader();
+    reader.onload = () => {
+      resolve([
+        // A genererator function that yields rows until there are none left
+        function* yieldCSVRows() {
+          const csvContent = reader.result;
+          const columnNames = getColumnNames(csvContent);
+          const documentName = file.name;
+          const lines = csvContent.split("\n").slice(1); // Skip header line
+          let batch = [];
+
+          for (const line of lines) {
+            if (line.trim() === "") continue; // Skip empty lines
+            const row = line.split(",");
+            const jsonObject = {};
+
+            for (let i = 0; i < columnNames.length - 1; i++) {
+              jsonObject[columnNames[i]] = row[i];
+            }
+
+            jsonObject["meta__documentName"] = documentName;
+            batch.push(jsonObject);
+
+            if (batch.length === batchSize) {
+              yield batch;
+              batch = [];
+            }
+          }
+
+          if (batch.length > 0) {
+            yield batch;
+          }
+        },
+
+        // No error for successful response
+        null
+      ]);
+    };
+
+    reader.onerror = (error) => {
+      // Error resolves promise with no generator and an Error
+      resolve([null, error?.message ?? JSON.stringify(error)]);
+    };
+
+    // Begin reading file
+    reader.readAsText(file);
+  });
+}
