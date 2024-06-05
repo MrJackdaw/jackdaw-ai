@@ -2,6 +2,7 @@ import useUser from "hooks/useUser";
 import UserProjectsList from "components/Lists/List.UserProjects";
 import LoginView from "components/View.Login";
 import usePreserveRouteHistory from "hooks/usePreserveRouteHistory";
+import TabbedInterface from "components/TabbedInterface";
 
 /** Inbox-Reader route */
 export default function ProjectsRoute() {
@@ -15,7 +16,9 @@ export default function ProjectsRoute() {
         <h1 className="h4">My Projects</h1>
       </header>
 
-      {authenticated ? <UserProjectsList /> : <LoginView />}
+      <TabbedInterface tabs={[{ label: "All Projects", icon: "folder" }]}>
+        {authenticated ? <UserProjectsList /> : <LoginView />}
+      </TabbedInterface>
     </section>
   );
 }

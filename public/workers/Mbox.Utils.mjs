@@ -81,20 +81,42 @@ export function stopTimer(stopTimerLabel) {
   if (stopTimerLabel) console.timeEnd(stopTimerLabel);
 }
 
+const CSV_LINEBREAK = /\n\r?/;
+
 /**
  * Get a list of column-names from CSV file, with an extra column for doc name
  * @param {string} csvContent Parsed CSV contents in a text blurb
  * @returns {string[]} list of column names
  */
 function getColumnNames(csvContent) {
-  const lines = csvContent.split("\n");
+  const lines = csvContent.split(CSV_LINEBREAK);
+  let columnNameAttempts = 1;
   let columnNames = lines[0].split(",");
-  // Check the second row in case the first doesn't have the actual column names
-  if (columnNames.length === 1 && lines[1].split(",").length !== 1) {
-    columnNames = lines[1].split(",");
-  }
+  columnNames = checkRowsForColumnNames();
   columnNames.push("meta__documentName");
+  console.log({ columnNames });
   return columnNames;
+
+  /** Search up to five rows for column names in case they aren't in the first row. */
+  function checkRowsForColumnNames() {
+    const fromNextRow = lines[columnNameAttempts].split(",").filter(Boolean);
+    columnNameAttempts += 1;
+    const tryAgain =
+      !fromNextRow.length || fromNextRow.length < columnNames.length;
+
+    // Immediately try again if there are retry attempts and no results
+    if (tryAgain && columnNameAttempts < 5) return checkRowsForColumnNames();
+    // Return current results if next row returns the same length of items
+    if (fromNextRow.length === columnNames.length) return columnNames;
+    // Replace column names with this row if it has more column names.
+    // Continue retrying if there are enough attempts (to avoid red-herrings)
+    if (fromNextRow.length > columnNames.length) {
+      columnNames = fromNextRow;
+      return columnNameAttempts < 5 ? checkRowsForColumnNames() : columnNames;
+    }
+
+    if (columnNameAttempts >= 5) return columnNames;
+  }
 }
 
 /**
@@ -115,7 +137,8 @@ export async function csvToJson(file, batchSize = 300) {
           const csvContent = reader.result;
           const columnNames = getColumnNames(csvContent);
           const documentName = file.name;
-          const lines = csvContent.split("\n").slice(1); // Skip header line
+          // const lines = csvContent.split("\r\n").slice(1); // Skip header line
+          const lines = csvContent.split(CSV_LINEBREAK).slice(1); // Skip header line
           let batch = [];
 
           for (const line of lines) {

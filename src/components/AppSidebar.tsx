@@ -12,7 +12,7 @@ export default function AppSidebar() {
       <AppHeader />
 
       <div className="app-sidebar__content">
-        {authenticated && <UserProjectsList display="compact" />}
+        {authenticated && <UserProjectsList showTitle display="compact" />}
       </div>
 
       <UserControls />

@@ -114,6 +114,11 @@ function parsePlainTextFile(file) {
   reader.readAsText(file);
 }
 
+/**
+ * Takes a CSV file, breaks it up into batches of rows, then attempts to create embeddings
+ * for each set of rows.
+ * @param {File} file CSV file (type `text/csv`)
+ */
 async function batchConvertCSVToJSON(file) {
   const [getRows, error] = await csvToJson(file);
   if (error) {
@@ -130,16 +135,22 @@ async function batchConvertCSVToJSON(file) {
   /* Here, we'll stringify and vectorize the CSV rows */
   const batchEmbedCSVRows = async () => {
     if (i.done) return;
-    else if (i.value) {
+
+    if (i.value) {
       // i.value is an array of up to 300 rows. Adjust array length by
       // passing a second parameter to the CSVtoJSON( file, batchSize ) fn.
       const batch = JSON.stringify(i.value);
       await readFileStream(plainTextToBlob(batch));
     }
 
+    // Move iterable marker to next result
     i = result.next();
-    // setTimeout(batchEmbedCSVRows, 1200);
-    batchEmbedCSVRows();
+
+    // Debounce with set-timeout in development (otherwise local Lambda fails)
+    if (import.meta.env.DEV) {
+      const lambdaDelay = import.meta.env.VITE_DEBOUNCE_LAMBDA_MS ?? 1200;
+      setTimeout(batchEmbedCSVRows, lambdaDelay);
+    } else batchEmbedCSVRows();
   };
 
   batchEmbedCSVRows();

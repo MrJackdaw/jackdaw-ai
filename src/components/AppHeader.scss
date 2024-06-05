@@ -5,10 +5,10 @@
   display: grid;
   grid-template-columns: auto;
   height: $appHeaderHeight;
-  padding: 0.5rem 1rem;
+  padding: 0.6rem 0.4rem;
 
   > .logo-link {
-    @include h6;
+    @include h5;
     display: flex;
     align-items: center;
     font-weight: 300;

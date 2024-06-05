@@ -19,9 +19,9 @@ import "./List.UserProjects.scss";
 import { JRoutes } from "routes";
 
 let init = false;
-type Props = { display?: "full" | "compact" };
+type Props = { display?: "full" | "compact"; showTitle?: boolean };
 
-export default function UserProjectsList({ display }: Props) {
+export default function UserProjectsList({ display, showTitle }: Props) {
   type ProjectResp = { data: UserProject; error?: string };
   const startNewProject = () => setModal(MODAL.MANAGE_PROJECT);
   const { enableCloudStorage, selectedProject } = useSettings([
@@ -122,7 +122,7 @@ export default function UserProjectsList({ display }: Props) {
       data={projects}
       dummyFirstItem={
         <>
-          <h4 className="legendary">All Projects</h4>
+          {showTitle && <h4 className="legendary">All Projects</h4>}
 
           {display !== "compact" && (
             <details>
