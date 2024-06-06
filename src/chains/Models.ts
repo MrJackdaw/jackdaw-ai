@@ -20,7 +20,7 @@ export const MODEL_NAMES = {
 /** @Helper `ChatOpenAI` instance with variable model */
 const openAIInstance = (model: string, verbose = false) => {
   const apiKey = SettingsStore.getState().assistantAPIKey;
-  return new ChatOpenAI({ apiKey, model, verbose });
+  return new ChatOpenAI({ apiKey, model, streaming: true, verbose });
 };
 
 export type JInvokeAssistantParams = {
@@ -36,11 +36,14 @@ export const jackComOpenAI = (
 const openAI3_5T = () => openAIInstance(OPENAI_3_5T);
 const openAI4T = () => openAIInstance(OPENAI_4T);
 const openAI4o = () => openAIInstance(OPENAI_4o);
-const LLMs = {
+export const LLMs = {
   openAI3_5T,
   openAI4T,
   openAI4o,
   "@jackcom/openai": () => jackComOpenAI("@jackcom/openai"),
+  "@jackcom/openai-3": () => jackComOpenAI("@jackcom/openai-3"),
+  "@jackcom/openai-4T": () => jackComOpenAI("@jackcom/openai-4T"),
+  "@jackcom/openai-4o": () => jackComOpenAI("@jackcom/openai-4o"),
   "@jackcom/togetherai": () => jackComOpenAI("@jackcom/togetherai")
 };
 

@@ -6,13 +6,19 @@ import { ChatResult } from "@langchain/core/outputs";
 import { assistantActionFetch } from "data/requests.shared";
 import { updateAsError } from "state/notifications";
 
+export type JackComAIModels =
+  | "@jackcom/openai"
+  | "@jackcom/openai-3"
+  | "@jackcom/openai-4T"
+  | "@jackcom/openai-4o"
+  | "@jackcom/togetherai";
 export type ChatJackCOMArgs = BaseLanguageModelParams & {
-  model: "@jackcom/openai" | "@jackcom/togetherai";
+  model: JackComAIModels;
 };
 
 /** Custom Chat LLM for proxying calls to OpenAI */
 export default class ChatJackCOM extends BaseChatModel {
-  private _llmTarget: "@jackcom/openai" | "@jackcom/togetherai";
+  private _llmTarget: JackComAIModels;
 
   constructor(args: ChatJackCOMArgs) {
     super(args);

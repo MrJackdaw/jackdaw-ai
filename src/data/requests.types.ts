@@ -10,13 +10,14 @@ export type AssistantAction =
   | "assistant:generate-image";
 
 export type DataAction =
-  | "documents:upsert"
   | "documents:delete"
   | "documents:list"
+  | "documents:upsert"
   | "share-user-document"
-  | "user-projects:insert"
-  | "user-projects:update"
   | "user-projects:delete"
+  | "user-projects:insert"
   | "user-projects:list"
+  | "user-projects:reset"
   | "user-projects:share"
+  | "user-projects:update"
   | "vector-search";

@@ -6,11 +6,15 @@ import useProjects from "hooks/useProjects";
 import { MODAL, setModal } from "state/modal";
 import { cloudDataFetch } from "data/requests.shared";
 import useUser from "hooks/useUser";
-import { UserProject, suppressEvent } from "utils/general";
+import { UserProject, notificationChannel, suppressEvent } from "utils/general";
 import { cacheProject, deleteCachedProject } from "indexedDB";
 import UserProjectListItem from "./ListItem.UserProjects";
 import { LS_USE_CLOUD_STORE } from "utils/strings";
-import { updateAsError } from "state/notifications";
+import {
+  updateAsError,
+  updateAsWarning,
+  updateNotification
+} from "state/notifications";
 import { loadProjects, refreshProjectsCache } from "data/requests.projects";
 import { DataAction } from "data/requests.types";
 import useSettings from "hooks/useSettings";
@@ -19,6 +23,8 @@ import "./List.UserProjects.scss";
 import { JRoutes } from "routes";
 
 let init = false;
+const CHANNEL = notificationChannel("UserProjectsList");
+type ProjectIdResponse = { data: { projectId: number }; error?: string };
 type Props = { display?: "full" | "compact"; showTitle?: boolean };
 
 export default function UserProjectsList({ display, showTitle }: Props) {
@@ -95,10 +101,28 @@ export default function UserProjectsList({ display, showTitle }: Props) {
 
     const opts = { projectId: project.id };
     if (project.id) {
-      return cloudDataFetch<{ data: { projectId: number }; error?: string }>(
+      return cloudDataFetch<ProjectIdResponse>(
         "user-projects:delete",
         opts
       ).then((res) => onProjectChanged(res?.error));
+    }
+
+    return onProjectChanged();
+  };
+  const handleProjectReset = async (project: UserProject) => {
+    const warn = `Deleting all documents in ${project.project_name}`;
+    updateAsWarning(warn, CHANNEL, true);
+
+    const opts = { projectId: project.id };
+    if (project.id) {
+      return cloudDataFetch<ProjectIdResponse>(
+        "user-projects:reset",
+        opts
+      ).then((res) => {
+        const success = `Project "${project.project_name}" has been reset.`;
+        updateNotification(success, CHANNEL);
+        onProjectChanged(res?.error);
+      });
     }
 
     return onProjectChanged();
@@ -168,6 +192,7 @@ export default function UserProjectsList({ display, showTitle }: Props) {
           display={display}
           project={d}
           onProjectChange={handleProjectSync}
+          onProjectReset={handleProjectReset}
           onProjectDelete={handleProjectDelete}
         />
       )}

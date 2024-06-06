@@ -18,13 +18,20 @@ type ListItemProps = {
   project: UserProject;
   onProjectChange?: { (P: UserProject): any };
   onProjectDelete?: { (P: UserProject): any };
+  onProjectReset?: { (P: UserProject): any };
 };
 
 /** @ListItemComponent */
 export default function UserProjectListItem(props: ListItemProps) {
   const { target, openSubmenu, close, submenuIsVisible } = useSubmenuHandler();
   const { enableCloudStorage } = useSettings(["enableCloudStorage"]);
-  const { project, onProjectChange, onProjectDelete, display = "full" } = props;
+  const {
+    project,
+    onProjectChange,
+    onProjectDelete,
+    onProjectReset,
+    display = "full"
+  } = props;
   const notifyProjectChanged = (
     value: string,
     key: keyof UserProject,
@@ -35,11 +42,11 @@ export default function UserProjectListItem(props: ListItemProps) {
     onProjectChange?.({ ...project, [key]: value });
   };
   const tooltip = useMemo(() => {
-    const onlineTip = "Your documents will be linked to this Project.";
+    const onlineTip = "Your uploads will be added to this Project.";
     if (props.active)
       return enableCloudStorage
         ? onlineTip
-        : "Offline: documents saved to your computer";
+        : "Offline: uploads kept on your computer";
     if (!project.id && enableCloudStorage)
       return "Sync this project in order to use it with an assistant.";
     return "";
@@ -101,6 +108,7 @@ export default function UserProjectListItem(props: ListItemProps) {
           <ContentEditable
             notifyTextChanged={handleTitleChange}
             aria-disabled={display === "compact"}
+            submitOnBlur
           >
             {project.project_name}
           </ContentEditable>
@@ -110,6 +118,7 @@ export default function UserProjectListItem(props: ListItemProps) {
           <ContentEditable
             className="description hint"
             notifyTextChanged={handleDescrChange}
+            submitOnBlur
           >
             {project.description ?? "(No description)"}
           </ContentEditable>
@@ -166,27 +175,46 @@ export default function UserProjectListItem(props: ListItemProps) {
           )}
 
           <MenuItem
+            className={project.id ? "gold" : "grey"}
+            aria-disabled={!project.id}
+            onClick={() => {
+              close();
+              onProjectReset?.(project);
+            }}
+          >
+            <span>Remove all Documents</span>
+            <button
+              className={`${materialButton} ${project.id ? "gold" : "grey"}`}
+              type="button"
+            >
+              history
+            </button>
+          </MenuItem>
+
+          <MenuItem
             onClick={() => {
               close();
               onProjectDelete?.(project);
             }}
           >
-            <span>Delete Project</span>
+            <span className="error">Delete Project</span>
             <button className={`${materialButton} error`} type="button">
               delete
             </button>
           </MenuItem>
 
-          <MenuItem>
-            <span className="hint grey">
-              {/* Offline warning */}
-              {!enableCloudStorage && <b>Cloud storage is disabled! </b>}
-              {tooltip}
-            </span>
-            <span className="material-symbols-outlined grey center">
-              {project.id && enableCloudStorage ? "info" : "warning"}
-            </span>
-          </MenuItem>
+          {(tooltip || !enableCloudStorage) && (
+            <MenuItem>
+              <span className="hint grey">
+                {/* Offline warning */}
+                {!enableCloudStorage && <b>Cloud storage is disabled! </b>}
+                {tooltip}
+              </span>
+              <span className="material-symbols-outlined grey center">
+                {project.id && enableCloudStorage ? "info" : "warning"}
+              </span>
+            </MenuItem>
+          )}
         </ItemMenu>
       )}
     </ListViewItem>

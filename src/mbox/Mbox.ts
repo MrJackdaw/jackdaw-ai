@@ -62,7 +62,7 @@ function onWorkerUpdate(e: MessageEvent<WorkerUpdate>) {
   if (e.data.message.startsWith("Mbox.Alert::")) {
     const { msg, error, warning } = e.data.data;
     if (error) return updateAsError(msg, WORKER_CHANNEL);
-    if (warning) return updateAsWarning(msg, WORKER_CHANNEL);
+    if (warning) return updateAsWarning(msg, WORKER_CHANNEL, true);
     return updateNotification(msg, WORKER_CHANNEL);
   }
 

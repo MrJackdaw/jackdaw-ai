@@ -113,8 +113,7 @@ export class OpenAIEmbedder extends AsyncSingleton {
 /** Wrapper for OpenAI proxy */
 export class JOpenAIEmbedder extends AsyncSingleton {
   static task = "feature-extraction";
-
-  /** @type {"@jackcom/openai"|"@jackcom/togetherai"} */
+  /** @type {"@jackcom/openai"|"@jackcom/openai-3"|"@jackcom/openai-4T"|"@jackcom/openai-4o"|"@jackcom/togetherai"} */
   static llmTarget = "@jackcom/openai";
 
   /** @type {JOpenAIEmbeddings} */
@@ -130,7 +129,7 @@ export class JOpenAIEmbedder extends AsyncSingleton {
   }
 }
 
-/** 
+/**
  * JACKCOM proxy: generates the actual embeddings via the JackCom server. Designed
  * to handle OpenAI and TogetherAI (hopefully provide users with more model options) */
 class JOpenAIEmbeddings extends Embeddings {
@@ -144,8 +143,7 @@ class JOpenAIEmbeddings extends Embeddings {
   }
 
   get url() {
-    const assistantTarget = this._llmTarget.replace("@jackcom/", "");
-    return `${import.meta.env.VITE_SERVER_URL}/${assistantTarget}`;
+    return `${import.meta.env.VITE_SERVER_URL}/jackcom-ai`;
   }
 
   /**

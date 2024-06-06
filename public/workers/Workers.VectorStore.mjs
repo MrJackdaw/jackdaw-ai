@@ -104,10 +104,12 @@ export async function searchVectors(q) {
 
   if (!MVectorStore) throw new Error("MVectorStore is not initialized");
 
+  // Number of relevant results to return
+  const k = 4;
   return (
     MVectorStore.maxMarginalRelevanceSearch
-      ? MVectorStore.maxMarginalRelevanceSearch(q, { k: 2 })
-      : MVectorStore.asRetriever({ k: 2 }).invoke(q)
+      ? MVectorStore.maxMarginalRelevanceSearch(q, { k })
+      : MVectorStore.asRetriever({ k }).invoke(q)
   ).then(handleVectorResponse);
 }
 

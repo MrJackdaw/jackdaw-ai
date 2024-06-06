@@ -45,11 +45,6 @@ const ChatModule = () => {
     if (!messages.length) return "Ask a question";
     return "";
   }, [messagesLoaded]);
-  const responseClassname = useMemo(() => {
-    if (streamState === STREAM.ACTIVE) return "spinner--after";
-    if (streamState === STREAM.START) return "spinner--before";
-    return undefined;
-  }, [streamState]);
   const placeholder = useMemo(() => {
     return messagesLoaded ? "Ask a question" : "( No document loaded )";
   }, [messagesLoaded]);
@@ -137,16 +132,16 @@ const ChatModule = () => {
             </div>
           ))}
 
-          {streamResponse && (
+          {streamState !== STREAM.IDLE && (
             // Streams the assistant's response until the message stream is complete
             <div className="message">
               <div className="message--incoming">
                 <div className="message__text">
-                  <b className="message__source pulse">Assistant</b>
+                  <b className="message__source pulse infinite spinner--after">
+                    Assistant
+                  </b>
 
-                  <Markdown className={responseClassname}>
-                    {streamResponse}
-                  </Markdown>
+                  <Markdown>{streamResponse}</Markdown>
                 </div>
               </div>
             </div>

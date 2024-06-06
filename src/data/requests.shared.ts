@@ -3,7 +3,7 @@ import {
   SESSION_URL,
   AUTH_OPTS,
   SUPABASE_URL,
-  SERVER_URL
+  JACKCOM_AI_URL
 } from "utils/general";
 import { SessionAction, DataAction, AssistantAction } from "./requests.types";
 import { cacheUserSetting } from "indexedDB";
@@ -50,10 +50,9 @@ export async function assistantActionFetch(
   data?: any
 ): Promise<LLMResponse> {
   const { assistantLLM } = SettingsStore.getState();
-  const AI_TARGET_URL = assistantLLM.replace("@jackcom", SERVER_URL);
   const body = JSON.stringify({ action, data, assistantLLM });
 
-  return fetch(AI_TARGET_URL, { ...AUTH_OPTS, body })
+  return fetch(JACKCOM_AI_URL, { ...AUTH_OPTS, body })
     .then((d) => d.json())
     .then(checkSessionExpired)
     .then(returnOrRefetch(() => assistantActionFetch(action, data)));

@@ -22,8 +22,9 @@ export const Notification = (props: NotificationProps) => {
   }, [notification]);
   const iconClass = useMemo(() => {
     const { type } = notification;
-    if (type === "warning") return "bgColor--text";
-    return "gold--text";
+    if (type === "warning") return "gold";
+    if (type === "error") return "error";
+    return "success";
   }, [error, notification]);
   const icon = useMemo(() => {
     if (error || notification?.type === "warning")

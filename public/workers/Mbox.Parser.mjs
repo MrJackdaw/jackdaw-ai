@@ -36,6 +36,13 @@ export async function parseFile(file) {
   fileSize = file.size;
   pctOfFileRead = 0;
 
+  // Intercept proprietary MSWord docs
+  if (file.type === "application/msword") {
+    exportWorkerAlert(
+      "MS Word document detected: please convert to a .docx file first"
+    );
+  }
+
   // MBOX (plain text mailbox file with no file type) and normal plain-text files
   const canParseAsText = ["text/plain", "text/rtf", "application/json"];
   const readAsText =
