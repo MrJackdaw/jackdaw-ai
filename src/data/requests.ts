@@ -90,4 +90,6 @@ function migrateLegacyStorageKeys() {
     localStorage.setItem(LS_EMBEDDER_KEY, "huggingface");
   if (!localStorage.getItem(LS_ASSISTANT_KEY))
     localStorage.setItem(LS_ASSISTANT_KEY, "huggingface");
+  if (!localStorage.getItem(LS_OWNER_KEY))
+    localStorage.setItem(LS_OWNER_KEY, "Guest");
 }
