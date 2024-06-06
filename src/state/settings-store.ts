@@ -16,6 +16,7 @@ export function toggleOnlineVectorStore() {
   const { enableCloudStorage } = SettingsStore.getState();
   SettingsStore.enableCloudStorage(!enableCloudStorage);
   updateUserSettings(SettingsStore.getState());
+  window.location.reload()
 }
 
 /** Copy user settings from local-storage to state */

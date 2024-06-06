@@ -127,8 +127,6 @@ export default function UserProjectsList({ display, showTitle }: Props) {
 
     return onProjectChanged();
   };
-  /* updates worker*/
-  const onChangeOnlineStatus = () => toggleOnlineVectorStore();
 
   useEffect(() => {
     if (init) return;
@@ -173,7 +171,7 @@ export default function UserProjectsList({ display, showTitle }: Props) {
             <label className="hint" data-checkbox>
               <input
                 type="checkbox"
-                onChange={onChangeOnlineStatus}
+                onChange={toggleOnlineVectorStore}
                 checked={enableCloudStorage}
               />
               <span className="label">Store Documents online</span>

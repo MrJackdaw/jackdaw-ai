@@ -26,7 +26,6 @@ export default function ManageVectorStorageFields(props: MVSFProps) {
           "(Note that performance may degrade with larger files.)"
         ];
   }, [enableCloudStorage]);
-  const onSelectionChange = () => toggleOnlineVectorStore(); /* updates worker*/
   const disabled = useMemo(
     () => props.disabled || !initialized || !authenticated,
     [initialized, authenticated]
@@ -49,7 +48,7 @@ export default function ManageVectorStorageFields(props: MVSFProps) {
       <Slider
         disabled={disabled}
         checked={enableCloudStorage}
-        onChange={onSelectionChange}
+        onChange={toggleOnlineVectorStore}
         label={$label}
         hint={!authenticated && "(Create account or log in to enable)"}
       />
