@@ -21,7 +21,10 @@
     "noUnusedParameters": true,
     "noFallthroughCasesInSwitch": true,
     "downlevelIteration": true,
-    "allowJs": true
+    "allowJs": true,
+    "paths": {
+      "/*": ["./*", "./public/*"]
+    }
   },
   "include": ["src"],
   "references": [{ "path": "./tsconfig.node.json" }]

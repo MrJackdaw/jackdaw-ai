@@ -115,6 +115,15 @@ export default function UserControls(props: ComponentPropsWithRef<"div">) {
             </Link>
           )}
 
+          <Link
+            className="item-menu__item user-control__item"
+            to={import.meta.env.VITE_DOCS_SITE}
+            target="_blank"
+          >
+            <span>Help</span>
+            <span className="material-symbols-outlined">help</span>
+          </Link>
+
           <hr />
           <p className="hint" style={{ textAlign: "right" }}>
             version {version}
