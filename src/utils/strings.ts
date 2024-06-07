@@ -11,7 +11,7 @@ export const RES_STATE_UPDATE = "Mbox.State::Update";
 
 // storage keys - AI
 export const LS_ASSISTANT_KEY = "jc-assistant";
-export const LS_ASSISTANT_APIKEY = "jc-assistant-APIKey";
+export const LS_AI_PROVIDER_APIKEY = "jc-assistant-APIKey";
 export const LS_EMBEDDER_KEY = "jc-embedder";
 export const LS_EMBEDDER_APIKEY = "jc-embedder-APIKey";
 export const LS_OLLAMA_BASEURL = "jc-ollama-APIKey";

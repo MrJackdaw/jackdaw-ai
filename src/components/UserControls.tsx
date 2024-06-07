@@ -48,14 +48,32 @@ export default function UserControls(props: ComponentPropsWithRef<"div">) {
       {submenuIsVisible && (
         <ItemMenu target={target} onClose={close} placement="top">
           {authenticated && (
-            <Link
-              className="item-menu__item user-control__item"
-              to={JRoutes.Projects}
-              onClick={close}
-            >
-              <span>My Projects</span>
-              <span className="material-symbols-outlined">folder_open</span>
-            </Link>
+            <>
+              <form
+                className="enable-cloud-storage"
+                onSubmit={suppressEvent}
+                data-tooltip={authenticated ? undefined : "Log in to change"}
+              >
+                <label className="hint" data-checkbox>
+                  <input
+                    type="checkbox"
+                    disabled={!authenticated}
+                    onChange={toggleOnlineVectorStore}
+                    checked={enableCloudStorage}
+                  />
+                  <span className="label">Store Documents online</span>
+                </label>
+              </form>
+
+              <Link
+                className="item-menu__item user-control__item"
+                to={JRoutes.Projects}
+                onClick={close}
+              >
+                <span>My Projects</span>
+                <span className="material-symbols-outlined">folder_open</span>
+              </Link>
+            </>
           )}
 
           <Link
@@ -77,33 +95,14 @@ export default function UserControls(props: ComponentPropsWithRef<"div">) {
           </Link>
 
           {authenticated ? (
-            <>
-              <Link
-                className="item-menu__item user-control__item"
-                role="button"
-                to={JRoutes.Login}
-                onClick={logoutUser}
-              >
-                <span>Log out</span>
-                <span className="material-symbols-outlined">lock</span>
-              </Link>
-
-              <form
-                className="enable-cloud-storage"
-                onSubmit={suppressEvent}
-                data-tooltip={authenticated ? undefined : "Log in to change"}
-              >
-                <label className="hint" data-checkbox>
-                  <input
-                    type="checkbox"
-                    disabled={!authenticated}
-                    onChange={toggleOnlineVectorStore}
-                    checked={enableCloudStorage}
-                  />
-                  <span className="label">Store Documents online</span>
-                </label>
-              </form>
-            </>
+            <Link
+              className="item-menu__item user-control__item error"
+              to={JRoutes.Login}
+              onClick={logoutUser}
+            >
+              <span>Log out</span>
+              <span className="material-symbols-outlined">lock</span>
+            </Link>
           ) : (
             <Link
               className="item-menu__item user-control__item"
@@ -115,19 +114,18 @@ export default function UserControls(props: ComponentPropsWithRef<"div">) {
             </Link>
           )}
 
-          <Link
-            className="item-menu__item user-control__item"
-            to={import.meta.env.VITE_DOCS_SITE}
-            target="_blank"
-          >
-            <span>Help</span>
-            <span className="material-symbols-outlined">help</span>
-          </Link>
+          <div className="item-menu--footer item-menu__item">
+            <Link
+              className="flex"
+              to={import.meta.env.VITE_DOCS_SITE}
+              target="_blank"
+            >
+              <span className="material-symbols-outlined">help</span>&nbsp;
+              <span>Help Docs</span>
+            </Link>
 
-          <hr />
-          <p className="hint" style={{ textAlign: "right" }}>
-            version {version}
-          </p>
+            <span className="hint">version {version}</span>
+          </div>
         </ItemMenu>
       )}
     </aside>

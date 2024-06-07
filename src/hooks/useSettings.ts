@@ -14,7 +14,9 @@ const getState = <T extends SettingsStoreKey[]>(K: T) => {
 };
 
 /** Attach a component to pending/recent changes to user settings (localStorage) */
-export default function useSettings<T extends SettingsStoreKey[]>(K: T) {
+export default function useSettings<T extends SettingsStoreKey[]>(
+  K: T
+): Pick<SettingsStoreInstance, T[number]> {
   const [state, setState] = useState(getState(K));
   const onStateUpdate = () => setState(getState(K));
   useEffect(() => SettingsStore.subscribeToKeys(onStateUpdate, K), []);

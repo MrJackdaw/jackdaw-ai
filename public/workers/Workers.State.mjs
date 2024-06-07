@@ -22,11 +22,10 @@ export const MboxWorkerStore = createState(STATE__INIT);
 
 /** Copy of user settings from LocalStorage and IndexedDB */
 export const MboxWorkerSettings = createState({
-  assistantAPIKey: "",
+  aiProviderAPIKey: "",
   assistantLLM: "",
   colorIdent: "",
   embedder: "", // "@jackcom/openai*" | "huggingface" | "ollama" | "openai"
-  embedderAPIKey: "",
   enableCloudStorage: false,
   owner: "",
   selectedProject: undefined

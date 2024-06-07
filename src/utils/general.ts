@@ -1,9 +1,8 @@
 import { FormEventHandler } from "react";
 import {
   LS_EMBEDDER_KEY,
-  LS_EMBEDDER_APIKEY,
   LS_ASSISTANT_KEY,
-  LS_ASSISTANT_APIKEY,
+  LS_AI_PROVIDER_APIKEY,
   LS_USE_CLOUD_STORE,
   LS_COLOR_IDENT_OVERRIDE,
   LS_OWNER_KEY,
@@ -18,14 +17,18 @@ export const AUTH_OPTS: RequestInit = {
   credentials: "include",
   method: "post"
 };
-export type AISource =
+export type JackComAIModel =
   | "@jackcom/openai-3"
   | "@jackcom/openai-4T"
-  | "@jackcom/openai-4o"
-  | "@jackcom/mistral-7B"
-  | "@jackcom/llama3-8B"
-  | "@jackcom/code-llama3-7Bi"
-  | "@jackcom/striped-hyena-7B"
+  | "@jackcom/openai-4o";
+export type TogetherAIModel =
+  | "@togetherAI/mistral-7B"
+  | "@togetherAI/llama3-8B"
+  | "@togetherAI/code-llama3-7Bi"
+  | "@togetherAI/striped-hyena-7B";
+export type AISource =
+  | JackComAIModel
+  | TogetherAIModel
   | "huggingface"
   | "ollama"
   | "openai";
@@ -116,11 +119,10 @@ export function hexToRgb(hex: string) {
 }
 
 export type LocalUserSettings = {
-  assistantAPIKey: string;
-  assistantLLM: string;
+  aiProviderAPIKey: string;
+  assistantLLM: AISource;
   colorIdent: string;
   embedder: AISource;
-  embedderAPIKey: string;
   enableCloudStorage: boolean;
   owner: string;
   selectedProject: number;
@@ -129,28 +131,22 @@ export type LocalUserSettings = {
 /** Load in LocalStorage settings as an object */
 export function getUserSettings(): LocalUserSettings {
   return {
-    assistantAPIKey: localStorage.getItem(LS_ASSISTANT_APIKEY) ?? "",
+    aiProviderAPIKey: localStorage.getItem(LS_AI_PROVIDER_APIKEY) ?? "",
     assistantLLM: localStorage.getItem(LS_ASSISTANT_KEY) ?? "huggingface",
     colorIdent: localStorage.getItem(LS_COLOR_IDENT_OVERRIDE) ?? "",
-    embedderAPIKey: localStorage.getItem(LS_EMBEDDER_APIKEY) ?? "",
-    embedder: (localStorage.getItem(LS_EMBEDDER_KEY) ??
-      "huggingface") as AISource,
-    enableCloudStorage:
-      (localStorage.getItem(LS_USE_CLOUD_STORE) ?? "0") === "1",
+    embedder: localStorage.getItem(LS_EMBEDDER_KEY) ?? "huggingface",
+    enableCloudStorage: localStorage.getItem(LS_USE_CLOUD_STORE) === "1",
     owner: localStorage.getItem(LS_OWNER_KEY) ?? "",
     selectedProject: Number(localStorage.getItem(LS_ACTIVE_PROJECT) ?? -1)
-  };
+  } as LocalUserSettings;
 }
 
 /** Write user settings from state to device/localStorage */
 export function updateUserSettings(d: LocalUserSettings) {
-  // Change chat LLM
+  // Change chat LLM and Embedding model settings
+  localStorage.setItem(LS_AI_PROVIDER_APIKEY, d.aiProviderAPIKey);
   localStorage.setItem(LS_ASSISTANT_KEY, d.assistantLLM);
-  localStorage.setItem(LS_ASSISTANT_APIKEY, d.assistantAPIKey);
-
-  // Change Embedding model settings
   localStorage.setItem(LS_EMBEDDER_KEY, d.embedder);
-  localStorage.setItem(LS_EMBEDDER_APIKEY, d.embedderAPIKey);
 
   // Cloud Storage settings ("Store Documents online")
   if (d.enableCloudStorage) localStorage.setItem(LS_USE_CLOUD_STORE, "1");
@@ -193,6 +189,10 @@ export function isJackCOMStr(s: string) {
   return /^(@jackcom\/)/gi.test(s);
 }
 
+export function isTogetherAIStr(s: string) {
+  return /^(@togetherAI\/)/gi.test(s);
+}
+
 export function isOpenAIStr(s: string) {
-  return /openai/gi.test(s);
+  return /^openai/gi.test(s);
 }

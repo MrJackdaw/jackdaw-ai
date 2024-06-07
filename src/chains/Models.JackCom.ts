@@ -5,12 +5,9 @@ import { AIMessage, BaseMessage } from "@langchain/core/messages";
 import { ChatResult } from "@langchain/core/outputs";
 import { assistantActionFetch } from "data/requests.shared";
 import { updateAsError } from "state/notifications";
+import { JackComAIModel } from "/utils/general";
 
-export type JackComAIModel =
-  | "@jackcom/openai-3"
-  | "@jackcom/openai-4T"
-  | "@jackcom/openai-4o"
-  | "@jackcom/togetherai";
+
 export type ChatJackCOMArgs = BaseLanguageModelParams & {
   model: JackComAIModel;
 };

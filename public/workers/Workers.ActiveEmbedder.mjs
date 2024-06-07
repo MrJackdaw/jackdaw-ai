@@ -1,4 +1,9 @@
-import { HFEmbedder, JOpenAIEmbedder, OpenAIEmbedder } from "./Workers.Models";
+import {
+  HFEmbedder,
+  JOpenAIEmbedder,
+  JTogetherAIEmbedder,
+  OpenAIEmbedder
+} from "./Workers.Models";
 import { MboxWorkerSettings, exportWorkerAlert } from "./Workers.State.mjs";
 
 /** @type {AsyncSingleton} Active embedding (user can conditionally override) */
@@ -17,37 +22,47 @@ export async function getEmbedder() {
  * @param {string?} apiKey  Optional API key for AI service provider */
 export async function setActiveEmbedder(e, apiKey = "") {
   // Update shared worker settings state
-  MboxWorkerSettings.multiple({ embedder: e, embedderAPIKey: apiKey });
+  MboxWorkerSettings.multiple({ embedder: e, aiProviderAPIKey: apiKey });
+
+  const opts = { apiKey, llmTarget: e };
 
   switch (e) {
     case "@jackcom/openai-3":
     case "@jackcom/openai-4T":
-    case "@jackcom/openai-4o":
-    case "@jackcom/mistral-7B":
-    case "@jackcom/llama3-8B":
-    case "@jackcom/code-llama3-7Bi":
-    case "@jackcom/striped-hyena-7B": {
+    case "@jackcom/openai-4o": {
       activeEmbedder = await JOpenAIEmbedder.getInstance(e);
-      break;
+      return activeEmbedder;
     }
+
+    case "@togetherAI/mistral-7B":
+    case "@togetherAI/llama3-8B":
+    case "@togetherAI/code-llama3-7Bi":
+    case "@togetherAI/striped-hyena-7B": {
+      // requires user to provide their own API key
+      if (!apiKey)
+        return exportWorkerAlert("Please set your TogetherAI API key!", "Error");
+      activeEmbedder = await JTogetherAIEmbedder.getInstance(opts);
+      return activeEmbedder;
+    }
+
     case "huggingface": {
       activeEmbedder = await HFEmbedder.getInstance();
-      break;
+      return activeEmbedder;
     }
+
     case "openai": {
       // requires user to provide their own API key
       if (!apiKey)
         return exportWorkerAlert("Please set your OpenAI API key!", "Error");
-      activeEmbedder = await OpenAIEmbedder.getInstance(apiKey);
-      break;
+      activeEmbedder = await OpenAIEmbedder.getInstance(opts);
+      return activeEmbedder;
     }
 
     default: {
       let err = `${e} is an unsupported Embedding Model!`;
       err = `${err} Please select a different model in your "Assistant Settings."`;
-      return exportWorkerAlert(err, "Error");
+      exportWorkerAlert(err, "Error");
+      return activeEmbedder;
     }
   }
-
-  return activeEmbedder;
 }

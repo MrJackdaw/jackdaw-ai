@@ -6,8 +6,9 @@
   border: 1px solid #8883;
   box-shadow: 0 2px 4px #000;
   height: fit-content;
+  margin-bottom: 0.6rem;
   max-height: 400px;
-  padding: 0.6rem 0;
+  padding: 0.6rem 0 0;
   place-content: center;
   position: absolute;
   width: 300px;
@@ -33,5 +34,19 @@
 
   &:hover {
     background-color: lighten($color: $darkGrey, $amount: 10);
+  }
+}
+
+.item-menu--container .item-menu--footer.item-menu__item {
+  align-items: center;
+  border-top: 1px solid #8883;
+  font-size: small;
+  grid-template-columns: repeat(2, max-content);
+  justify-content: space-between;
+  pointer-events: none;
+
+  > a {
+    color: $gold;
+    pointer-events: fill;
   }
 }

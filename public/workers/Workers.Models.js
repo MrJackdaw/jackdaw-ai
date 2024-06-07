@@ -2,6 +2,7 @@ import { env, pipeline } from "@xenova/transformers";
 import { HuggingFaceTransformersEmbeddings } from "@langchain/community/embeddings/hf_transformers";
 import { OpenAIEmbeddings } from "@langchain/openai";
 import { Embeddings } from "@langchain/core/embeddings";
+import { TogetherAIEmbeddings } from "@langchain/community/embeddings/togetherai";
 
 export const dBertUncased = "Xenova/distilbert-base-uncased-distilled-squad";
 export const dBertCased = "Xenova/distilbert-base-cased-distilled-squad";
@@ -33,12 +34,6 @@ class AsyncSingleton {
   }
 }
 
-/** @WorkerClass Pipeline for document question-answering */
-export class QuestionAnswerer extends AsyncSingleton {
-  static task = "question-answering";
-  static model = robertaBaseONNX;
-}
-
 /**
  * @Embedder Text embedding (Hugging Face feacture-extraction models). Takes a blurb
  * of text and turns it into a bunch of number-lists (vectors) for similarity searching. */
@@ -61,15 +56,15 @@ export class HFEmbedder extends AsyncSingleton {
     // Load and cache the instance and Q/A models
     if (this.instance === null) {
       // Asynchronously preload the question-answerer model
-      Promise.all([
-        pipeline("question-answering", robertaBaseONNX, { quantized: true }),
-        pipeline("feature-extraction", XENOVA_MINILM_L6_v2, { quantized: true })
-      ]).then(() => {
-        if (!import.meta.env.DEV) return;
-        console.log(
-          `Local QA preloaded (${robertaBaseONNX},${XENOVA_MINILM_L6_v2})`
-        );
-      });
+      // Promise.all([
+      //   pipeline("question-answering", robertaBaseONNX, { quantized: true }),
+      //   pipeline("feature-extraction", XENOVA_MINILM_L6_v2, { quantized: true })
+      // ]).then(() => {
+      //   if (!import.meta.env.DEV) return;
+      //   console.log(
+      //     `Local QA preloaded (${robertaBaseONNX},${XENOVA_MINILM_L6_v2})`
+      //   );
+      // });
 
       const batchSize = 100;
       this.instance = new HuggingFaceTransformersEmbeddings({
@@ -94,8 +89,11 @@ export class OpenAIEmbedder extends AsyncSingleton {
   static instance = null;
   static key = "";
 
-  /** User-supplied API key is required (never stored) */
-  static async getInstance(apiKey = "") {
+  /**
+   * User-supplied API key is required (never stored)
+   * @param {Object} opts
+   * @param {string} [opts.apiKey=""] */
+  static async getInstance({ apiKey = "" }) {
     if (!this.instance || this.apiKey !== apiKey) {
       this.apiKey = apiKey;
       // re-create instance if API key changed
@@ -110,20 +108,52 @@ export class OpenAIEmbedder extends AsyncSingleton {
   }
 }
 
-/** Wrapper for OpenAI proxy */
+/**
+ * @typedef {"@togetherAI/mistral-7B"|"@togetherAI/llama3-8B"|"@togetherAI/code-llama3-7Bi"|"@togetherAI/striped-hyena-7B"} TogetherAIModel
+ * Wrapper for TogetherAI Embeddings model
+ */
+export class JTogetherAIEmbedder extends AsyncSingleton {
+  static task = "feature-extraction";
+  /** @type {TogetherAIModel} */
+  static llmTarget = "@togetherAI/openai-3";
+  static model = "togethercomputer/m2-bert-80M-32k-retrieval";
+
+  /** @type {TogetherAIEmbeddings} */
+  static instance = null;
+
+  /**
+   * @param {object} opts
+   * @param {string} opts.apiKey TogetherAI api key (required)
+   * @param {TogetherAIModel} opts.llmTarget */
+  static async getInstance({ apiKey, llmTarget = "@togetherAI/llama3-8B" }) {
+    if (!this.instance) {
+      this.llmTarget = llmTarget;
+      this.instance = new TogetherAIEmbeddings({ apiKey, model: this.model });
+    }
+
+    return Promise.resolve(this.instance);
+  }
+}
+
+/**
+ * @typedef {"@jackcom/openai-3"|"@jackcom/openai-4T"|"@jackcom/openai-4o"} JackComAIModel
+ * Wrapper for OpenAI proxy (no user api key required)
+ */
 export class JOpenAIEmbedder extends AsyncSingleton {
   static task = "feature-extraction";
-  /** @type {"@jackcom/openai-3"|"@jackcom/openai-4T"|"@jackcom/openai-4o"|"@jackcom/mistral-7B"|"@jackcom/llama3-8B"|"@jackcom/code-llama3-7Bi"|"@jackcom/striped-hyena-7B"} */
+  /** @type {JackComAIModel} */
   static llmTarget = "@jackcom/openai-3";
 
   /** @type {JOpenAIEmbeddings} */
   static instance = null;
 
-  /** @param {"@jackcom/openai-3"|"@jackcom/openai-4T"|"@jackcom/openai-4o"|"@jackcom/mistral-7B"|"@jackcom/llama3-8B"|"@jackcom/code-llama3-7Bi"|"@jackcom/striped-hyena-7B"} llmTarget */
-  static async getInstance(llmTarget = "@jackcom/openai-3") {
+  /**
+   * @param {object} opts
+   * @param {JackComAIModel} opts.llmTarget */
+  static async getInstance({ llmTarget = "@jackcom/openai-3" }) {
     if (!this.instance) {
       this.llmTarget = llmTarget;
-      this.instance = new JOpenAIEmbeddings({});
+      this.instance = new JOpenAIEmbeddings({ llmTarget });
     }
 
     return Promise.resolve(this.instance);
@@ -179,7 +209,11 @@ class JOpenAIEmbeddings extends Embeddings {
    */
   async embedDocuments(texts) {
     if (!texts || !texts.length) return Promise.resolve([]);
-    return this.request({ action: "assistant:embed-docs", data: { texts } });
+    return this.request({
+      action: "assistant:embed-docs",
+      data: { texts },
+      assistantLLM: this._llmTarget
+    });
   }
   /**
    * Method to generate an embedding for a single document. Calls the

@@ -3,6 +3,7 @@ import { UserStore } from "state/user";
 import { updateAsWarning } from "state/notifications";
 import {
   LS_ASSISTANT_KEY,
+  LS_EMBEDDER_APIKEY,
   LS_EMBEDDER_KEY,
   LS_OWNER_KEY,
   SETTING__USER_KEY
@@ -26,13 +27,17 @@ export async function isUserAuthenticated() {
     deleteCachedSetting(SETTING__USER_KEY); // clear cache if stale
   }
 
-
   return sessionFetch<{ user: User }>("get-user")
     .then(({ user }) => {
       if (user) cacheUserSetting(SETTING__USER_KEY, JSON.stringify(user));
       return user;
     })
-    .catch(() => null);
+    .catch(() => {
+      let err = `Could not connect to App server.`;
+      err = `${err} You may still be able to use your private API key directly with some AI providers`;
+      updateAsWarning(err, undefined, false);
+      return null;
+    });
 }
 
 let init = false;
@@ -86,10 +91,15 @@ export async function logoutUser() {
 /**
  * Initialize required LocalStorage keys: replace/update/remove any deprecated items */
 function migrateLegacyStorageKeys() {
+  // Add required defaults
   if (!localStorage.getItem(LS_EMBEDDER_KEY))
     localStorage.setItem(LS_EMBEDDER_KEY, "huggingface");
   if (!localStorage.getItem(LS_ASSISTANT_KEY))
     localStorage.setItem(LS_ASSISTANT_KEY, "huggingface");
   if (!localStorage.getItem(LS_OWNER_KEY))
     localStorage.setItem(LS_OWNER_KEY, "Guest");
+
+  // Remove deprecated keys
+  if (localStorage.getItem(LS_EMBEDDER_APIKEY))
+    localStorage.removeItem(LS_EMBEDDER_APIKEY);
 }

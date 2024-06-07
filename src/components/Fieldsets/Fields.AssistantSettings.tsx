@@ -6,8 +6,10 @@ import {
   AISource,
   isJackCOMStr,
   isOpenAIStr,
+  isTogetherAIStr,
   updateUserSettings
 } from "utils/general";
+import { updateNotification } from "state/notifications";
 
 /** @FormComponent Child component of `AssistantSettingsModal` form */
 export default function AssistantLLMFields() {
@@ -16,22 +18,21 @@ export default function AssistantLLMFields() {
     "enableCloudStorage"
   ]);
   const LLMs = useMemo(() => llmsForAISource(), [enableCloudStorage]);
-  const onAssistantLLM = (newLLM = "ollama") => {
-    const { embedderAPIKey, assistantAPIKey } = SettingsStore.getState();
-    const updates: Partial<SettingsStoreInstance> = { assistantLLM: newLLM };
+  const onAssistantLLM = (newLLM: AISource = "huggingface") => {
+    const { assistantLLM: prev } = SettingsStore.getState();
+    const clearAPIKey =
+      (isTogetherAIStr(prev) && !isTogetherAIStr(newLLM)) ||
+      (isJackCOMStr(prev) && !isJackCOMStr(newLLM)) ||
+      (isOpenAIStr(prev) && !isOpenAIStr(newLLM));
 
-    if (isOpenAIStr(newLLM)) {
-      // change match embedder
-      updates.embedder = isJackCOMStr(newLLM) ? "@jackcom/openai-3" : "openai";
-      updates.embedderAPIKey = updates.assistantAPIKey =
-        embedderAPIKey ?? assistantAPIKey;
-    } else {
-      updates.embedderAPIKey = updates.assistantAPIKey = "";
-      updates.embedder = newLLM as AISource;
-    }
+    // Match embedder to assistant
+    const updates: Partial<SettingsStoreInstance> = { assistantLLM: newLLM };
+    updates.embedder = isOpenAIStr(newLLM) ? "openai" : newLLM;
+    if (clearAPIKey) updates.aiProviderAPIKey = "";
 
     SettingsStore.multiple(updates);
     updateUserSettings(SettingsStore.getState());
+    updateNotification(`Changed assistant to ${newLLM}`);
   };
 
   return (
@@ -42,7 +43,7 @@ export default function AssistantLLMFields() {
         <span className="label">Language Model:</span>
 
         <select
-          onChange={({ target }) => onAssistantLLM(target.value)}
+          onChange={({ target }) => onAssistantLLM(target.value as AISource)}
           value={assistantLLM}
         >
           {LLMs.map((llm) => (

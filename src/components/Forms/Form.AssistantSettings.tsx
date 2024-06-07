@@ -10,16 +10,15 @@ import "./Form.AssistantSettings.scss";
 
 /** @Modal Settings for Virtual Assistant */
 export default function AssistantSettingsForm() {
-  const isJackCOM = /^(@jackcom\/)/;
-  const isOpenAI = /(openai)/;
-  const { embedder, embedderAPIKey, assistantLLM } = useSettings([
-    "assistantAPIKey",
+  const isTogetherAI = /^(@togetherAI\/)/;
+  const isOpenAI = /^(openai)/;
+  const { embedder, aiProviderAPIKey, assistantLLM } = useSettings([
+    "aiProviderAPIKey",
     "assistantLLM",
-    "embedderAPIKey",
     "embedder"
   ]);
   const requireAPIKey = useMemo(
-    () => isOpenAI.test(embedder) && !isJackCOM.test(embedder),
+    () => isOpenAI.test(embedder) || isTogetherAI.test(embedder),
     [embedder, assistantLLM]
   );
   const confirmUpdateSettings = () => {
@@ -28,7 +27,7 @@ export default function AssistantSettingsForm() {
     setTimeout(() => updateNotification("Settings updated"));
   };
   const handleChangeKey = (e: string) => {
-    SettingsStore.multiple({ embedderAPIKey: e, assistantAPIKey: e });
+    SettingsStore.multiple({ aiProviderAPIKey: e });
     confirmUpdateSettings();
   };
   const handleSaveForm: FormEventHandler = (e) => {
@@ -50,7 +49,7 @@ export default function AssistantSettingsForm() {
 
       {requireAPIKey && (
         <fieldset>
-          <legend className={embedderAPIKey ? undefined : "error"}>
+          <legend className={aiProviderAPIKey ? undefined : "error"}>
             <span className="label required">API Key</span>
           </legend>
 
@@ -58,7 +57,7 @@ export default function AssistantSettingsForm() {
             <input
               type="password"
               placeholder="Enter API Key (required)"
-              value={embedderAPIKey}
+              value={aiProviderAPIKey}
               onChange={(e) => handleChangeKey(e.target.value)}
             />
           </label>

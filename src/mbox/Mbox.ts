@@ -5,7 +5,7 @@ import {
   updateAsWarning,
   updateNotification
 } from "state/notifications";
-import { LS_EMBEDDER_APIKEY, LS_EMBEDDER_KEY } from "../utils/strings";
+import { LS_AI_PROVIDER_APIKEY, LS_EMBEDDER_KEY } from "../utils/strings";
 import { MBoxStoreInstance, MBoxStore } from "./mbox-store";
 import { stringToColor, updateUserSettings } from "utils/general";
 
@@ -44,7 +44,7 @@ export function initializeMboxModule() {
 
   sendParserMessage("Mbox.initialize", {
     embedder: localStorage.getItem(LS_EMBEDDER_KEY),
-    apiKey: localStorage.getItem(LS_EMBEDDER_APIKEY)
+    apiKey: localStorage.getItem(LS_AI_PROVIDER_APIKEY)
   });
 }
 
