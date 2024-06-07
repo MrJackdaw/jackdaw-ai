@@ -75,11 +75,12 @@ export const llmsForAISource = (src?: AISource) => {
 
 export function getActiveChatLLM() {
   const assistant = localStorage.getItem(LS_ASSISTANT_KEY);
-  if (!assistant) return openAI3_5T();
 
   if (assistant?.startsWith("@jackcom/"))
     return jackComAI(assistant as JackComAIModel);
 
-  if (assistant.startsWith("@togetherAI/"))
+  if (assistant?.startsWith("@togetherAI/"))
     return LLMs[assistant as keyof typeof LLMs]();
+  
+  return openAI3_5T();
 }
