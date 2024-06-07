@@ -22,7 +22,7 @@ export default function AssistantLLMFields() {
 
     if (isOpenAIStr(newLLM)) {
       // change match embedder
-      updates.embedder = isJackCOMStr(newLLM) ? "@jackcom/openai" : "openai";
+      updates.embedder = isJackCOMStr(newLLM) ? "@jackcom/openai-3" : "openai";
       updates.embedderAPIKey = updates.assistantAPIKey =
         embedderAPIKey ?? assistantAPIKey;
     } else {

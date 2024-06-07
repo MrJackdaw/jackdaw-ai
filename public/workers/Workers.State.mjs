@@ -25,7 +25,7 @@ export const MboxWorkerSettings = createState({
   assistantAPIKey: "",
   assistantLLM: "",
   colorIdent: "",
-  embedder: "", // "@jackcom/openai" | "huggingface" | "ollama" | "openai"
+  embedder: "", // "@jackcom/openai*" | "huggingface" | "ollama" | "openai"
   embedderAPIKey: "",
   enableCloudStorage: false,
   owner: "",

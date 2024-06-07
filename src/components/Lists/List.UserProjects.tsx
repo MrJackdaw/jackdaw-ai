@@ -58,8 +58,9 @@ export default function UserProjectsList({ display, showTitle }: Props) {
       projects.forEach((p) => {
         if (p.id) return;
         updated.push(p);
+        const action = "user-projects:insert";
         batch.push(
-          cloudDataFetch<UserProject>("user-projects:insert", {
+          cloudDataFetch<UserProject>(action, {
             name: p.project_name,
             description: p.description
           })
@@ -101,10 +102,10 @@ export default function UserProjectsList({ display, showTitle }: Props) {
 
     const opts = { projectId: project.id };
     if (project.id) {
-      return cloudDataFetch<ProjectIdResponse>(
-        "user-projects:delete",
-        opts
-      ).then((res) => onProjectChanged(res?.error));
+      const action = "user-projects:delete";
+      return cloudDataFetch<ProjectIdResponse>(action, opts).then((res) =>
+        onProjectChanged(res?.error)
+      );
     }
 
     return onProjectChanged();
@@ -115,10 +116,8 @@ export default function UserProjectsList({ display, showTitle }: Props) {
 
     const opts = { projectId: project.id };
     if (project.id) {
-      return cloudDataFetch<ProjectIdResponse>(
-        "user-projects:reset",
-        opts
-      ).then((res) => {
+      const action = "user-projects:reset";
+      return cloudDataFetch<ProjectIdResponse>(action, opts).then((res) => {
         const success = `Project "${project.project_name}" has been reset.`;
         updateNotification(success, CHANNEL);
         onProjectChanged(res?.error);

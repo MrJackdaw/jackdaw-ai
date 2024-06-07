@@ -13,19 +13,20 @@ export async function getEmbedder() {
 
 /**
  * Override active embedder class (user can conditionally override)
- * @param {"@jackcom/openai"|"huggingface"|"openai"} e New Embedder model target
- * @param {string?} apiKey  */
-
+ * @param {"@jackcom/openai-3"|"@jackcom/openai-4T"|"@jackcom/openai-4o"|"@jackcom/mistral-7B"|"@jackcom/llama3-8B"|"@jackcom/code-llama3-7Bi"|"@jackcom/striped-hyena-7B"|"huggingface"|"openai"} e New Embedder model target
+ * @param {string?} apiKey  Optional API key for AI service provider */
 export async function setActiveEmbedder(e, apiKey = "") {
   // Update shared worker settings state
   MboxWorkerSettings.multiple({ embedder: e, embedderAPIKey: apiKey });
 
   switch (e) {
-    case "@jackcom/openai":
     case "@jackcom/openai-3":
     case "@jackcom/openai-4T":
     case "@jackcom/openai-4o":
-    case "@jackcom/togetherai": {
+    case "@jackcom/mistral-7B":
+    case "@jackcom/llama3-8B":
+    case "@jackcom/code-llama3-7Bi":
+    case "@jackcom/striped-hyena-7B": {
       activeEmbedder = await JOpenAIEmbedder.getInstance(e);
       break;
     }

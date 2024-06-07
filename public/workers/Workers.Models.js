@@ -113,13 +113,14 @@ export class OpenAIEmbedder extends AsyncSingleton {
 /** Wrapper for OpenAI proxy */
 export class JOpenAIEmbedder extends AsyncSingleton {
   static task = "feature-extraction";
-  /** @type {"@jackcom/openai"|"@jackcom/openai-3"|"@jackcom/openai-4T"|"@jackcom/openai-4o"|"@jackcom/togetherai"} */
-  static llmTarget = "@jackcom/openai";
+  /** @type {"@jackcom/openai-3"|"@jackcom/openai-4T"|"@jackcom/openai-4o"|"@jackcom/mistral-7B"|"@jackcom/llama3-8B"|"@jackcom/code-llama3-7Bi"|"@jackcom/striped-hyena-7B"} */
+  static llmTarget = "@jackcom/openai-3";
 
   /** @type {JOpenAIEmbeddings} */
   static instance = null;
 
-  static async getInstance(llmTarget = "@jackcom/openai") {
+  /** @param {"@jackcom/openai-3"|"@jackcom/openai-4T"|"@jackcom/openai-4o"|"@jackcom/mistral-7B"|"@jackcom/llama3-8B"|"@jackcom/code-llama3-7Bi"|"@jackcom/striped-hyena-7B"} llmTarget */
+  static async getInstance(llmTarget = "@jackcom/openai-3") {
     if (!this.instance) {
       this.llmTarget = llmTarget;
       this.instance = new JOpenAIEmbeddings({});
@@ -135,7 +136,8 @@ export class JOpenAIEmbedder extends AsyncSingleton {
 class JOpenAIEmbeddings extends Embeddings {
   /** Server URL for making requests */
   timeout = 1500;
-  _llmTarget = "@jackcom/openai";
+  /** @type {"@jackcom/openai-3"|"@jackcom/openai-4T"|"@jackcom/openai-4o"|"@jackcom/mistral-7B"|"@jackcom/llama3-8B"|"@jackcom/code-llama3-7Bi"|"@jackcom/striped-hyena-7B"} llmTarget */
+  _llmTarget = "@jackcom/openai-3";
 
   constructor(args) {
     super(args);

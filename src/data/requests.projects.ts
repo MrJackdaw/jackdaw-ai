@@ -11,9 +11,8 @@ import { SETTING__PROJECT_SYNC } from "utils/strings";
 import { DateTime } from "luxon";
 
 export async function refreshProjectsCache() {
-  const fetchRemote = cloudDataFetch<{ data: UserProject[] }>(
-    "user-projects:list"
-  );
+  const action = "user-projects:list";
+  const fetchRemote = cloudDataFetch<{ data: UserProject[] }>(action);
 
   // Fetch remote projects if cloud storage is enabled
   return (

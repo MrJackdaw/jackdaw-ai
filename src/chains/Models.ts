@@ -4,7 +4,10 @@ import { LS_ASSISTANT_KEY } from "utils/strings";
 import { AISource } from "utils/general";
 import { SettingsStore } from "state/settings-store";
 import { UserStore } from "state/user";
-import ChatJackCOM, { ChatJackCOMArgs } from "./Models.JackCom";
+import ChatJackCOM, {
+  ChatJackCOMArgs,
+  JackComAIModel
+} from "./Models.JackCom";
 
 const OPENAI_4T = "gpt-4-turbo-2024-04-09";
 const OPENAI_4o = "gpt-4o";
@@ -30,7 +33,7 @@ export type JInvokeAssistantParams = {
 };
 
 export const jackComOpenAI = (
-  model: ChatJackCOMArgs["model"] = "@jackcom/openai"
+  model: ChatJackCOMArgs["model"] = "@jackcom/openai-3"
 ) => new ChatJackCOM({ model });
 
 const openAI3_5T = () => openAIInstance(OPENAI_3_5T);
@@ -40,7 +43,6 @@ export const LLMs = {
   openAI3_5T,
   openAI4T,
   openAI4o,
-  "@jackcom/openai": () => jackComOpenAI("@jackcom/openai"),
   "@jackcom/openai-3": () => jackComOpenAI("@jackcom/openai-3"),
   "@jackcom/openai-4T": () => jackComOpenAI("@jackcom/openai-4T"),
   "@jackcom/openai-4o": () => jackComOpenAI("@jackcom/openai-4o"),
@@ -56,5 +58,8 @@ export const llmsForAISource = (src?: AISource) => {
 
 export function getActiveChatLLM() {
   const assistant = localStorage.getItem(LS_ASSISTANT_KEY);
+  if (assistant?.startsWith("@jackcom/"))
+    return jackComOpenAI(assistant as JackComAIModel);
+
   return LLMs[assistant as keyof typeof LLMs]();
 }

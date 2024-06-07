@@ -6,23 +6,22 @@ import { ChatResult } from "@langchain/core/outputs";
 import { assistantActionFetch } from "data/requests.shared";
 import { updateAsError } from "state/notifications";
 
-export type JackComAIModels =
-  | "@jackcom/openai"
+export type JackComAIModel =
   | "@jackcom/openai-3"
   | "@jackcom/openai-4T"
   | "@jackcom/openai-4o"
   | "@jackcom/togetherai";
 export type ChatJackCOMArgs = BaseLanguageModelParams & {
-  model: JackComAIModels;
+  model: JackComAIModel;
 };
 
 /** Custom Chat LLM for proxying calls to OpenAI */
 export default class ChatJackCOM extends BaseChatModel {
-  private _llmTarget: JackComAIModels;
+  private _llmTarget: JackComAIModel;
 
   constructor(args: ChatJackCOMArgs) {
     super(args);
-    this._llmTarget = args.model ?? "@jackcom/openai";
+    this._llmTarget = args.model ?? "@jackcom/openai-3";
   }
 
   async _call(
@@ -58,10 +57,8 @@ export default class ChatJackCOM extends BaseChatModel {
 
     try {
       // Make the HTTP request to your server
-      const response = await assistantActionFetch(
-        "assistant:generate-text",
-        payload
-      );
+      const action = "assistant:generate-text";
+      const response = await assistantActionFetch(action, payload);
       const text = response.data.content;
 
       return {

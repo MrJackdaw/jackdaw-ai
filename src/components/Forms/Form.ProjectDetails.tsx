@@ -52,11 +52,8 @@ const ProjectDetailsForm = () => {
       }
 
       type Insert = { data: UserProject; error?: string };
-      await cloudDataFetch<Insert>("user-projects:insert", {
-        id,
-        name,
-        description
-      })
+      const action = "user-projects:insert";
+      await cloudDataFetch<Insert>(action, { id, name, description })
         .then(({ error }) => {
           if (error) return void updateAsError(error);
           return deleteCachedProject(tempKey);

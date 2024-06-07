@@ -18,7 +18,17 @@ export const AUTH_OPTS: RequestInit = {
   credentials: "include",
   method: "post"
 };
-export type AISource = "@jackcom/openai" | "huggingface" | "ollama" | "openai";
+export type AISource =
+  | "@jackcom/openai-3"
+  | "@jackcom/openai-4T"
+  | "@jackcom/openai-4o"
+  | "@jackcom/mistral-7B"
+  | "@jackcom/llama3-8B"
+  | "@jackcom/code-llama3-7Bi"
+  | "@jackcom/striped-hyena-7B"
+  | "huggingface"
+  | "ollama"
+  | "openai";
 export type User = {
   anonymous: boolean;
   authenticated: boolean;
