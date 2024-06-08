@@ -10,6 +10,7 @@ import usePreserveRouteHistory from "hooks/usePreserveRouteHistory";
 import AssistantSettingsForm from "components/Forms/Form.AssistantSettings";
 import ManageVectorStorageFields from "components/Fieldsets/Fields.ManageVectorStorage";
 import "./Route.Settings.scss";
+import StripePricingTable from "components/StripePricingTable";
 
 /** User Settings Route */
 const SettingsRoute = () => {
@@ -22,7 +23,8 @@ const SettingsRoute = () => {
     return [
       { label: "General Settings", icon: "security" },
       { label: "Assistant Settings", icon: "psychology" },
-      { label: "Online Settings", icon: "wifi" }
+      { label: "Online Settings", icon: "wifi" },
+      { label: "Manage Subscriptions", icon: "credit_card" }
     ];
   }, [authenticated]);
   const activeTab = useMemo(() => {
@@ -63,6 +65,8 @@ const SettingsRoute = () => {
           <form onSubmit={suppressEvent}>
             <ManageVectorStorageFields saveImmediately />
           </form>
+
+          <StripePricingTable />
         </TabbedInterface>
       ) : (
         <FullscreenLoader msg="Just a moment..." />
