@@ -48,8 +48,6 @@ export default function AssistantSettingsForm() {
 
       <DataEmbeddingFields />
 
-      <hr />
-
       {requireAPIKey && (
         <fieldset>
           <legend className={aiProviderAPIKey ? undefined : "error"}>

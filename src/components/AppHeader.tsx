@@ -16,9 +16,16 @@ const AppHeader = () => {
   return (
     <header id="app-header">
       <h1 className="logo-link">
-        <Link to="/inbox" style={{ color: colorIdent }}>
+        <Link to="/" className="grey">
           <b>Jackdaw</b>.ai
         </Link>
+        &nbsp;
+        <span
+          className="material-symbols-outlined"
+          style={{ color: colorIdent }}
+        >
+          adjust
+        </span>
       </h1>
     </header>
   );

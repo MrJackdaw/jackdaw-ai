@@ -95,6 +95,7 @@ const ChatModule = () => {
   };
 
   useEffect(() => {
+    if ($messageView.current) scrollMessagesView();
     const onState = () => setState(ChatStore.getState());
     return ChatStore.subscribe(onState);
   }, []);
