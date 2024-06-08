@@ -81,6 +81,6 @@ export function getActiveChatLLM() {
 
   if (assistant?.startsWith("togetherAI/"))
     return LLMs[assistant as keyof typeof LLMs]();
-  
+
   return openAI3_5T();
 }
