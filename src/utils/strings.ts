@@ -1,4 +1,4 @@
-/** @file Mirrors __PUBLIC__/workers/Mbox.Strings.mjs */
+/** @file Mirrors __PUBLIC__/workers/Worker.Strings.mjs */
 
 export const ERR_FILE_OPEN = "Could not read file";
 export const ERR_NO_ACTION = "Invalid action (or none provided)";
@@ -16,17 +16,16 @@ export const LS_EMBEDDER_KEY = "jc-embedder";
 export const LS_EMBEDDER_APIKEY = "jc-embedder-APIKey";
 export const LS_OLLAMA_BASEURL = "jc-ollama-APIKey";
 export const LS_USE_CLOUD_STORE = "jc-cloud-vectorstore";
-export const LS_ACTIVE_PROJECT = "jc-project"
+export const LS_ACTIVE_PROJECT = "jc-project";
 
 // storage keys - mailbox
 export const LS_OWNER_KEY = "jc-owner";
 
-// storage keys - application user
+// storage keys - localstorage - application user
+export const LS_FORM_SAVE_KEY = "jc-dump";
 export const LS_NEXT_PATH = "jc-next-rt";
 export const LS_COLOR_IDENT_OVERRIDE = "jc-ident-hex";
+
+// storage keys - indexeddb - application data sync
 export const SETTING__USER_KEY = "jc-user";
-
-// storage keys - application data sync
-export const LS_FORM_SAVE_KEY = "jc-dump"
-export const SETTING__PROJECT_SYNC = "sync--projects-list"
-
+export const SETTING__PROJECT_SYNC = "sync--projects-list";

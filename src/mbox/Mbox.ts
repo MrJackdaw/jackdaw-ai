@@ -103,7 +103,7 @@ export function sendFilesToParser(
     return [fileName];
   } catch (error) {
     const errorM = (error as Error)?.message ?? error?.toString();
-    const fullM = `Mbox.SendFilesToHandler.Error::${errorM ?? "No details"}`;
+    const fullM = `Worker.SendFilesToHandler.Error::${errorM ?? "No details"}`;
     return [null, fullM];
   }
 }

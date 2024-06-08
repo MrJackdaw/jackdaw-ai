@@ -2,7 +2,11 @@ import { STATUS, clearCachedModels, workerError } from "./Workers.Utils.mjs";
 import { ERR_NO_ACTION, ERR_NO_DATA } from "./Workers.Strings.mjs";
 import { initializeWorker, resetWorker, parseFile } from "./Workers.Parser.mjs";
 import { setActiveEmbedder } from "./Workers.ActiveEmbedder.mjs";
-import { MboxWorkerSettings, MboxWorkerStore } from "./Workers.State.mjs";
+import {
+  MboxWorkerSettings,
+  MboxWorkerStore,
+  exportWorkerAlert
+} from "./Workers.State.mjs";
 import { searchVectors } from "./Workers.VectorStore.mjs";
 
 /**
@@ -22,6 +26,13 @@ self.addEventListener(
       case "Worker.initialize": {
         // Post a message whenever the worker state changes
         attachParserToUI();
+        // Ensure the user has set an API key, or let them know they haven't and halt startup
+        console.log(data, CheckAPIKeyRequired(data));
+        if (CheckAPIKeyRequired(data)) {
+          const embedder = data.embedder.split("/")[0];
+          const err = `Please set your API Key for provider "${embedder}"`;
+          return exportWorkerAlert(err, "Error");
+        }
         // Prepare worker for ingesting data
         return initializeWorker(data);
       }
@@ -85,4 +96,25 @@ function attachParserToUI() {
       message: "Worker.State::Update"
     })
   );
+}
+
+/** Early check to verify (or alert user of) presence of API Key */
+function CheckAPIKeyRequired({ apiKey, embedder }) {
+  if (isJackCOMStr__W(embedder)) return false;
+  return Boolean(!apiKey);
+}
+
+export function isJackCOMStr__W(s) {
+  if (!s) return false;
+  return /^(@jackcom\/)/gi.test(s);
+}
+
+export function isTogetherAIStr__W(s) {
+  if (!s) return false;
+  return /^(togetherAI\/)/gi.test(s);
+}
+
+export function isOpenAIStr__W(s) {
+  if (!s) return false;
+  return /^openai/gi.test(s);
 }

@@ -185,14 +185,17 @@ export function truncateEndString(str?: string | null, minLength = 6): string {
   return truncd.length > length ? str : truncd;
 }
 
-export function isJackCOMStr(s: string) {
+export function isJackCOMStr(s?: string) {
+  if (!s) return false;
   return /^(@jackcom\/)/gi.test(s);
 }
 
-export function isTogetherAIStr(s: string) {
+export function isTogetherAIStr(s?: string) {
+  if (!s) return false;
   return /^(togetherAI\/)/gi.test(s);
 }
 
-export function isOpenAIStr(s: string) {
+export function isOpenAIStr(s?: string) {
+  if (!s) return false;
   return /^openai/gi.test(s);
 }

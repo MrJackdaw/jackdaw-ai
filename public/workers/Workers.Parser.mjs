@@ -46,7 +46,8 @@ export async function parseFile(file) {
   // MBOX (plain text mailbox file with no file type) and normal plain-text files
   const canParseAsText = ["text/plain", "text/rtf", "application/json"];
   const readAsText =
-    /mbox$/.test(fileName) || canParseAsText.includes(file.type);
+    canParseAsText.includes(file.type) ||
+    /(^mbox$|\.mbox$|\.md)/.test(fileName);
   if (readAsText) return void parsePlainTextFile(file);
 
   // Everything else gets filtered

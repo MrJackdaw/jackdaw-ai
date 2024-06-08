@@ -1,4 +1,4 @@
-import { User } from "utils/general";
+import { User, isJackCOMStr } from "utils/general";
 import { UserStore } from "state/user";
 import { updateAsWarning } from "state/notifications";
 import {
@@ -82,9 +82,17 @@ export async function completeOAuthFlow(hash: string) {
 /** Logout */
 export async function logoutUser() {
   await sessionFetch("session:logout");
+  UserStore.reset();
   deleteCachedSetting(SETTING__USER_KEY);
   localStorage.removeItem(LS_OWNER_KEY);
-  UserStore.reset();
+  // reset the assistant and embedder models if necessary
+  const [assistant, embedder] = [
+    localStorage.getItem(LS_ASSISTANT_KEY),
+    localStorage.getItem(LS_EMBEDDER_KEY)
+  ];
+  if (isJackCOMStr(assistant ?? "")) localStorage.removeItem(LS_ASSISTANT_KEY);
+  if (isJackCOMStr(embedder ?? "")) localStorage.removeItem(LS_EMBEDDER_KEY);
+  // Refresh window
   window.location.reload();
 }
 
