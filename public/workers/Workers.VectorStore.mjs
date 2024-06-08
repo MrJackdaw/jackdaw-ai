@@ -46,6 +46,12 @@ export async function addToVectorStore(blurb, docName = "My Note") {
   const { enableCloudStorage } = MboxWorkerSettings.getState();
   const { documents, fragments } = await documentsFromTextBlurb(blurb);
 
+  if (!enableCloudStorage && !MVectorStore)
+    return exportWorkerAlert(
+      "VectorStore not ready: please check your Assistant Settings!",
+      "Error"
+    );
+
   if (enableCloudStorage)
     return addDocumentsOnline(documents).then(finishedAddingToVectorStore);
 

@@ -65,8 +65,8 @@ export const Notification = (props: NotificationProps) => {
         <SVGCloseButton size={10} />
       </button>
 
-      {notification.persistent && notification.type === "info" ? (
-        // show spinner for loading notifications of type 'info'
+      {notification.persistent && notification.type !== "error" ? (
+        // show spinner for non-error notifications
         <span className="spinner--before" />
       ) : (
         <MatIcon icon={icon} className={iconClass} />

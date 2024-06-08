@@ -34,10 +34,7 @@ const ChatModule = () => {
     () => state,
     [state.loading, state.messages, state.question]
   );
-  const { vectorStoreLoaded, messagesLoaded } = useMboxStore([
-    "vectorStoreLoaded",
-    "messagesLoaded"
-  ]);
+  const { messagesLoaded } = useMboxStore(["messagesLoaded"]);
   const emptyMessage = useMemo(() => {
     if (criticalError) return "⚠️ Jackdaw Server is offline";
     if (loading) return "Please wait...";
@@ -150,13 +147,6 @@ const ChatModule = () => {
         </div>
       </div>
 
-      {/* Loading message */}
-      {messagesLoaded && !vectorStoreLoaded && (
-        <div className="message--input">
-          <span className="spinner--before">Building Local index...</span>
-        </div>
-      )}
-
       {/* User text input */}
       <InputGroup
         allowAttachments
@@ -164,7 +154,7 @@ const ChatModule = () => {
         placeholder={placeholder}
         onAddNewFile={showFilePicker}
         onChange={ChatStore.question}
-        disabled={!vectorStoreLoaded}
+        disabled={streamState !== STREAM.IDLE}
         handleSubmit={askQuestion}
       />
       <input

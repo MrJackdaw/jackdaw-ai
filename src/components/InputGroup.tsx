@@ -44,10 +44,6 @@ export default function InputGroup(opts: InputGroupOpts) {
       >
         {text}
       </ContentEditable>
-
-      <button className="button--send" disabled={disabled} type="button">
-        <span className="material-symbols-outlined">send</span>
-      </button>
     </section>
   );
 }

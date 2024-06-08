@@ -128,7 +128,11 @@ export class JTogetherAIEmbedder extends AsyncSingleton {
   static async getInstance({ apiKey, llmTarget = "togetherAI/llama3-8B" }) {
     if (!this.instance) {
       this.llmTarget = llmTarget;
-      this.instance = new TogetherAIEmbeddings({ apiKey, model: this.model });
+      this.instance = new TogetherAIEmbeddings({
+        apiKey,
+        model: this.model,
+        maxConcurrency: 2
+      });
     }
 
     return Promise.resolve(this.instance);
@@ -166,7 +170,7 @@ export class JOpenAIEmbedder extends AsyncSingleton {
 class JOpenAIEmbeddings extends Embeddings {
   /** Server URL for making requests */
   timeout = 1500;
-  /** @type {"@jackcom/openai-3"|"@jackcom/openai-4T"|"@jackcom/openai-4o"|"@jackcom/mistral-7B"|"@jackcom/llama3-8B"|"@jackcom/code-llama3-7Bi"|"@jackcom/striped-hyena-7B"} llmTarget */
+  /** @type {JackComAIModel} llmTarget */
   _llmTarget = "@jackcom/openai-3";
 
   constructor(args) {

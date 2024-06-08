@@ -1,3 +1,6 @@
+@import "../css/Colors.scss";
+
+
 .input-group {
   display: grid;
   grid-template-columns: max-content auto max-content;
@@ -44,5 +47,11 @@
 
   .input-group__input {
     padding: 0.6rem;
+    min-height: 2.4rem;
+  }
+
+  .input-group__input[aria-disabled="true"]::after {
+    content: "Upload a File";
+    color: $grey;
   }
 }
