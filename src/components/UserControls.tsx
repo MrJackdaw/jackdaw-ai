@@ -114,18 +114,18 @@ export default function UserControls(props: ComponentPropsWithRef<"div">) {
             </Link>
           )}
 
-          <div className="item-menu--footer item-menu__item">
-            <Link
-              className="flex"
-              to={import.meta.env.VITE_DOCS_SITE}
-              target="_blank"
-            >
+          <Link
+            className="item-menu--footer item-menu__item"
+            to={import.meta.env.VITE_DOCS_SITE}
+            target="_blank"
+          >
+            <span className="flex gold">
               <span className="material-symbols-outlined">help</span>&nbsp;
               <span>Help Docs</span>
-            </Link>
+            </span>
 
-            <span className="hint">version {version}</span>
-          </div>
+            <span className="grey">App version {version}</span>
+          </Link>
         </ItemMenu>
       )}
     </aside>

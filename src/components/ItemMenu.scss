@@ -43,10 +43,4 @@
   font-size: small;
   grid-template-columns: repeat(2, max-content);
   justify-content: space-between;
-  pointer-events: none;
-
-  > a {
-    color: $gold;
-    pointer-events: fill;
-  }
 }

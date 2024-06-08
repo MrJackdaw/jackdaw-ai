@@ -137,6 +137,10 @@ h6,
   margin: 0.2rem 0 0;
 }
 
+.justify {
+  justify-content: space-between;
+}
+
 .legendary {
   @include legendary;
 
