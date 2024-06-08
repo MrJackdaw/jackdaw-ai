@@ -27,7 +27,6 @@ self.addEventListener(
         // Post a message whenever the worker state changes
         attachParserToUI();
         // Ensure the user has set an API key, or let them know they haven't and halt startup
-        console.log(data, CheckAPIKeyRequired(data));
         if (CheckAPIKeyRequired(data)) {
           const embedder = data.embedder.split("/")[0];
           const err = `Please set your API Key for provider "${embedder}"`;
