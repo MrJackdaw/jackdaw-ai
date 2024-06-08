@@ -17,7 +17,24 @@ export default function AssistantLLMFields() {
     "assistantLLM",
     "enableCloudStorage"
   ]);
-  const LLMs = useMemo(() => llmsForAISource(), [enableCloudStorage]);
+  const LLMs = useMemo(() => {
+    const all = llmsForAISource();
+    const jackcom: string[] = [];
+    const together: string[] = [];
+    const openai: string[] = [];
+
+    all.forEach((llm) => {
+      if (isOpenAIStr(llm)) openai.push(llm);
+      if (isJackCOMStr(llm)) jackcom.push(llm);
+      if (isTogetherAIStr(llm)) together.push(llm);
+    });
+
+    const values: [label: string, vals: string[]][] = [];
+    if (jackcom.length) values.push(["@JackCOM", jackcom]);
+    if (together.length) values.push(["TogetherAI (requires API Key)", together]);
+    if (openai.length) values.push(["OpenAI (requires API Key)", openai]);
+    return values;
+  }, [enableCloudStorage]);
   const onAssistantLLM = (newLLM: AISource = "huggingface") => {
     const { assistantLLM: prev } = SettingsStore.getState();
     const clearAPIKey =
@@ -46,10 +63,14 @@ export default function AssistantLLMFields() {
           onChange={({ target }) => onAssistantLLM(target.value as AISource)}
           value={assistantLLM}
         >
-          {LLMs.map((llm) => (
-            <option key={llm} value={llm}>
-              {llm}
-            </option>
+          {LLMs.map(([groupname, group]) => (
+            <optgroup label={groupname} key={groupname}>
+              {group.map((llm) => (
+                <option key={llm} value={llm}>
+                  {llm}
+                </option>
+              ))}
+            </optgroup>
           ))}
         </select>
       </label>

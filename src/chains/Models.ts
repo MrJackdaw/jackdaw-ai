@@ -52,12 +52,12 @@ export const LLMs = {
   "@jackcom/openai-4o": () => jackComAI("@jackcom/openai-4o"),
 
   // TogetherAI (requires user API key)
-  "@togetherAI/mistral-7B": () =>
+  "togetherAI/mistral-7B": () =>
     togetherAI("mistralai/Mistral-7B-Instruct-v0.3"),
-  "@togetherAI/llama3-8B": () => togetherAI("meta-llama/Llama-3-8b-chat-hf"),
-  "@togetherAI/code-llama3-7Bi": () =>
+  "togetherAI/llama3-8B": () => togetherAI("meta-llama/Llama-3-8b-chat-hf"),
+  "togetherAI/code-llama3-7Bi": () =>
     togetherAI("codellama/CodeLlama-7b-Instruct-hf"),
-  "@togetherAI/striped-hyena-7B": () =>
+  "togetherAI/striped-hyena-7B": () =>
     togetherAI("togethercomputer/StripedHyena-Nous-7B"),
 
   // OpenAI (requires user API key)
@@ -79,7 +79,7 @@ export function getActiveChatLLM() {
   if (assistant?.startsWith("@jackcom/"))
     return jackComAI(assistant as JackComAIModel);
 
-  if (assistant?.startsWith("@togetherAI/"))
+  if (assistant?.startsWith("togetherAI/"))
     return LLMs[assistant as keyof typeof LLMs]();
   
   return openAI3_5T();

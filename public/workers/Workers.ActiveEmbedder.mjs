@@ -34,10 +34,10 @@ export async function setActiveEmbedder(e, apiKey = "") {
       return activeEmbedder;
     }
 
-    case "@togetherAI/mistral-7B":
-    case "@togetherAI/llama3-8B":
-    case "@togetherAI/code-llama3-7Bi":
-    case "@togetherAI/striped-hyena-7B": {
+    case "togetherAI/mistral-7B":
+    case "togetherAI/llama3-8B":
+    case "togetherAI/code-llama3-7Bi":
+    case "togetherAI/striped-hyena-7B": {
       // requires user to provide their own API key
       if (!apiKey)
         return exportWorkerAlert("Please set your TogetherAI API key!", "Error");

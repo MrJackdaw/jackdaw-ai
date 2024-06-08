@@ -1,5 +1,9 @@
 import { FormEventHandler, useEffect, useMemo } from "react";
-import { updateUserSettings } from "utils/general";
+import {
+  isOpenAIStr,
+  isTogetherAIStr,
+  updateUserSettings
+} from "utils/general";
 import { clearModal } from "state/modal";
 import { SettingsStore, refreshSettingsFromCache } from "state/settings-store";
 import { updateNotification } from "state/notifications";
@@ -10,15 +14,14 @@ import "./Form.AssistantSettings.scss";
 
 /** @Modal Settings for Virtual Assistant */
 export default function AssistantSettingsForm() {
-  const isTogetherAI = /^(@togetherAI\/)/;
-  const isOpenAI = /^(openai)/;
-  const { embedder, aiProviderAPIKey, assistantLLM } = useSettings([
+  const settings = useSettings([
     "aiProviderAPIKey",
     "assistantLLM",
     "embedder"
   ]);
+  const { embedder, aiProviderAPIKey, assistantLLM } = settings;
   const requireAPIKey = useMemo(
-    () => isOpenAI.test(embedder) || isTogetherAI.test(embedder),
+    () => isOpenAIStr(embedder) || isTogetherAIStr(embedder),
     [embedder, assistantLLM]
   );
   const confirmUpdateSettings = () => {

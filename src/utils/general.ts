@@ -22,10 +22,10 @@ export type JackComAIModel =
   | "@jackcom/openai-4T"
   | "@jackcom/openai-4o";
 export type TogetherAIModel =
-  | "@togetherAI/mistral-7B"
-  | "@togetherAI/llama3-8B"
-  | "@togetherAI/code-llama3-7Bi"
-  | "@togetherAI/striped-hyena-7B";
+  | "togetherAI/mistral-7B"
+  | "togetherAI/llama3-8B"
+  | "togetherAI/code-llama3-7Bi"
+  | "togetherAI/striped-hyena-7B";
 export type AISource =
   | JackComAIModel
   | TogetherAIModel
@@ -190,7 +190,7 @@ export function isJackCOMStr(s: string) {
 }
 
 export function isTogetherAIStr(s: string) {
-  return /^(@togetherAI\/)/gi.test(s);
+  return /^(togetherAI\/)/gi.test(s);
 }
 
 export function isOpenAIStr(s: string) {

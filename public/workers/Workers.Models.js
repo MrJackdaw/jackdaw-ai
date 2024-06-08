@@ -109,13 +109,13 @@ export class OpenAIEmbedder extends AsyncSingleton {
 }
 
 /**
- * @typedef {"@togetherAI/mistral-7B"|"@togetherAI/llama3-8B"|"@togetherAI/code-llama3-7Bi"|"@togetherAI/striped-hyena-7B"} TogetherAIModel
+ * @typedef {"togetherAI/mistral-7B"|"togetherAI/llama3-8B"|"togetherAI/code-llama3-7Bi"|"togetherAI/striped-hyena-7B"} TogetherAIModel
  * Wrapper for TogetherAI Embeddings model
  */
 export class JTogetherAIEmbedder extends AsyncSingleton {
   static task = "feature-extraction";
   /** @type {TogetherAIModel} */
-  static llmTarget = "@togetherAI/openai-3";
+  static llmTarget = "togetherAI/openai-3";
   static model = "togethercomputer/m2-bert-80M-32k-retrieval";
 
   /** @type {TogetherAIEmbeddings} */
@@ -125,7 +125,7 @@ export class JTogetherAIEmbedder extends AsyncSingleton {
    * @param {object} opts
    * @param {string} opts.apiKey TogetherAI api key (required)
    * @param {TogetherAIModel} opts.llmTarget */
-  static async getInstance({ apiKey, llmTarget = "@togetherAI/llama3-8B" }) {
+  static async getInstance({ apiKey, llmTarget = "togetherAI/llama3-8B" }) {
     if (!this.instance) {
       this.llmTarget = llmTarget;
       this.instance = new TogetherAIEmbeddings({ apiKey, model: this.model });
