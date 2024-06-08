@@ -51,19 +51,19 @@ export const LLMs = {
   "@jackcom/openai-4T": () => jackComAI("@jackcom/openai-4T"),
   "@jackcom/openai-4o": () => jackComAI("@jackcom/openai-4o"),
 
-  // TogetherAI (requires user API key)
-  "togetherAI/mistral-7B": () =>
-    togetherAI("mistralai/Mistral-7B-Instruct-v0.3"),
-  "togetherAI/llama3-8B": () => togetherAI("meta-llama/Llama-3-8b-chat-hf"),
-  "togetherAI/code-llama3-7Bi": () =>
-    togetherAI("codellama/CodeLlama-7b-Instruct-hf"),
-  "togetherAI/striped-hyena-7B": () =>
-    togetherAI("togethercomputer/StripedHyena-Nous-7B"),
-
   // OpenAI (requires user API key)
   openAI3_5T,
   openAI4T,
-  openAI4o
+  openAI4o,
+
+  // TogetherAI (requires user API key)
+  "togetherAI/code-llama3-7Bi": () =>
+    togetherAI("codellama/CodeLlama-7b-Instruct-hf"),
+  "togetherAI/llama3-8B": () => togetherAI("meta-llama/Llama-3-8b-chat-hf"),
+  "togetherAI/mistral-7B": () =>
+    togetherAI("mistralai/Mistral-7B-Instruct-v0.3"),
+  "togetherAI/striped-hyena-7B": () =>
+    togetherAI("togethercomputer/StripedHyena-Nous-7B")
 };
 
 export const llmsForAISource = (src?: AISource) => {

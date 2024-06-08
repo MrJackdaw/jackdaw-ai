@@ -6,7 +6,8 @@ import useUser from "hooks/useUser";
 import useSettings from "hooks/useSettings";
 import InputGroup from "./InputGroup";
 import Markdown from "react-markdown";
-import { sendFilesToParser } from "mbox/Mbox";
+import { sendFilesToParser, addTextToProjectContext } from "mbox/Mbox";
+import { copyToClipboard } from "utils/general";
 import "./ChatModule.scss";
 
 const ERROR_MSG = {
@@ -25,7 +26,11 @@ enum STREAM {
 const ChatModule = () => {
   const $fileInputRef = useRef<HTMLInputElement>(null);
   const $messageView = useRef<HTMLDivElement>(null);
-  const { owner, colorIdent } = useSettings(["owner", "colorIdent"]);
+  const { owner, colorIdent, enableCloudStorage } = useSettings([
+    "owner",
+    "colorIdent",
+    "enableCloudStorage"
+  ]);
   const { criticalError } = useUser(["criticalError"]);
   const [streamResponse, setStreamResponse] = useState("");
   const [state, setState] = useState(ChatStore.getState());
@@ -126,6 +131,26 @@ const ChatModule = () => {
 
                   <Markdown>{text}</Markdown>
                 </div>
+                {incoming && (
+                  <span className="grid add-to-context">
+                    <button
+                      className="material-symbols-outlined"
+                      data-tooltip="Save to Project"
+                      disabled={!enableCloudStorage}
+                      onClick={() => addTextToProjectContext(text)}
+                    >
+                      upload
+                    </button>
+
+                    <button
+                      className="material-symbols-outlined"
+                      data-tooltip="Copy response"
+                      onClick={() => copyToClipboard(text)}
+                    >
+                      content_copy
+                    </button>
+                  </span>
+                )}
               </div>
             </div>
           ))}
@@ -160,7 +185,9 @@ const ChatModule = () => {
       <input
         type="file"
         ref={$fileInputRef}
-        onChange={({ currentTarget }) => sendFilesToParser(currentTarget.files)}
+        onChange={({ currentTarget }) =>
+          sendFilesToParser(currentTarget.files?.item(0))
+        }
         hidden
       />
     </section>

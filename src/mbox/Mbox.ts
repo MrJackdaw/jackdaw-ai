@@ -85,10 +85,23 @@ export function changeMboxOwner(owner: string = "") {
   updateUserSettings(SettingsStore.getState());
 }
 
+/**
+ * Creates a text file from the supplied string, and adds it to the current `Project` context
+ * (or user memory if cloud storage disabled)
+ * @param text Blurb to be added */
+export function addTextToProjectContext(text: string) {
+  const filename = `AssistantResponse-${Date.now()}`;
+  const tempFile = new File([text], filename, { type: "text/plain" });
+  return sendFilesToParser(tempFile);
+}
+
+/**
+ * Adds a file to the current `Project` context (or user memory if cloud storage disabled).
+ * This will first embed the file, then store the vectors as required (either in memory or db)
+ * @param uploadedFile User-uploaded or -created file */
 export function sendFilesToParser(
-  files: FileList | null
+  uploadedFile?: File | null
 ): [fileName: string | null, errorMessage?: string] {
-  const [uploadedFile] = files ?? [];
   if (!uploadedFile) return [null, "No file was uploaded"];
 
   try {

@@ -31,8 +31,8 @@ export default function AssistantLLMFields() {
 
     const values: [label: string, vals: string[]][] = [];
     if (jackcom.length) values.push(["@JackCOM", jackcom]);
-    if (together.length) values.push(["TogetherAI (+ your API Key)", together]);
     if (openai.length) values.push(["OpenAI (+ your API Key)", openai]);
+    if (together.length) values.push(["TogetherAI (+ your API Key)", together]);
     return values;
   }, [enableCloudStorage]);
   const onAssistantLLM = (newLLM: AISource = "huggingface") => {

@@ -26,7 +26,7 @@ const FileLoader = (props: Props) => {
   }, [messagesLoaded, docsCount]);
   const $inputRef = useRef<HTMLInputElement>(null);
   const onFiles = async (files: FileList | null) => {
-    const [fileName, error] = sendFilesToParser(files);
+    const [fileName, error] = sendFilesToParser(files?.item(0));
     if (error) return void updateAsError(error, CHANNEL);
     if (fileName) props.onParserNotified?.(fileName);
   };

@@ -16,6 +16,18 @@
   place-content: end;
 }
 
+.add-to-context {
+  column-gap: 0.2rem;
+  display: grid;
+  grid-template-columns: repeat(4, max-content);
+  place-content: end;
+}
+
+.add-to-context button {
+  font-size: 1rem;
+  padding: 0.2rem;
+}
+
 .message {
   display: flex;
 
@@ -32,7 +44,7 @@
 .message--outgoing {
   border-radius: 8px;
   margin-bottom: 1rem;
-  padding: 0.6rem 0.6rem 2rem;
+  padding: 0.6rem;
   text-align: left;
   word-break: break-word;
   width: 100%;

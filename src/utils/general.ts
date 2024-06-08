@@ -65,6 +65,12 @@ export const suppressEvent: FormEventHandler = (e) => {
   if (e.stopPropagation) e.stopPropagation();
 };
 
+/** Copy to clipboard if permissions available */
+export async function copyToClipboard(str: string) {
+  if (!navigator.clipboard) return;
+  return navigator.clipboard.writeText(str);
+}
+
 /** Generate a pseudo-unique component notification channel for user alerts */
 export function notificationChannel(str: string) {
   const start = str.slice(0, 18);
