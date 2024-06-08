@@ -42,7 +42,7 @@ export function initializeMboxModule() {
     DocumentHandler.removeEventListener("message", onWorkerUpdate);
   });
 
-  sendParserMessage("Mbox.initialize", {
+  sendParserMessage("Worker.initialize", {
     embedder: localStorage.getItem(LS_EMBEDDER_KEY),
     apiKey: localStorage.getItem(LS_AI_PROVIDER_APIKEY)
   });
@@ -53,13 +53,13 @@ export function initializeMboxModule() {
  * @param e Message from Web Worker
  */
 function onWorkerUpdate(e: MessageEvent<WorkerUpdate>) {
-  if (e.data.message === "Mbox.State::Update") {
+  if (e.data.message === "Worker.State::Update") {
     const update = (e.data as WorkerStateUpdate).state;
     if (!update) throw new Error("missing key 'state' in worker update data");
     return MBoxStore.multiple(update);
   }
 
-  if (e.data.message.startsWith("Mbox.Alert::")) {
+  if (e.data.message.startsWith("Worker.Alert::")) {
     const { msg, error, warning } = e.data.data;
     if (error) return updateAsError(msg, WORKER_CHANNEL);
     if (warning) return updateAsWarning(msg, WORKER_CHANNEL, true);
@@ -77,7 +77,7 @@ function onWorkerUpdate(e: MessageEvent<WorkerUpdate>) {
 
 export function clearParserModelCache() {
   changeMboxOwner();
-  sendParserMessage("Mbox.clearCache");
+  sendParserMessage("Worker.clearCache");
 }
 
 export function changeMboxOwner(owner: string = "") {
@@ -95,7 +95,7 @@ export function sendFilesToParser(
     const { owner, enableCloudStorage } = SettingsStore.getState();
     const fileName = uploadedFile.name;
     updateNotification(`Loading ${fileName}...`, WORKER_CHANNEL, true);
-    sendParserMessage("Mbox.parseFile", {
+    sendParserMessage("Worker.parseFile", {
       file: uploadedFile,
       owner,
       enableCloudStorage
@@ -109,13 +109,13 @@ export function sendFilesToParser(
 }
 
 type ParserAction =
-  | "Mbox.initialize"
-  | "Mbox.parseFile"
-  | "Mbox.searchVectors"
-  | "Mbox.clearCache"
-  | "Mbox.clearEmails"
-  | "Mbox.changeEmbedder"
-  | "Mbox.updateSettings";
+  | "Worker.initialize"
+  | "Worker.parseFile"
+  | "Worker.searchVectors"
+  | "Worker.clearCache"
+  | "Worker.clearEmails"
+  | "Worker.changeEmbedder"
+  | "Worker.updateSettings";
 
 /** Helper: Send a standardized message format to the active `Web Worker` */
 export function sendParserMessage(
@@ -128,5 +128,5 @@ export function sendParserMessage(
 /** Copy current user settings to `Worker` */
 function copySettingsToParser() {
   const settings = () => ({ settings: SettingsStore.getState() });
-  sendParserMessage("Mbox.updateSettings", settings());
+  sendParserMessage("Worker.updateSettings", settings());
 }

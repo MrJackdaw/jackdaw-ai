@@ -5,8 +5,8 @@ import {
   STATUS,
   workerError,
   csvToJson
-} from "./Mbox.Utils.mjs";
-import { ERR_NO_FILE } from "./Mbox.Strings.mjs";
+} from "./Workers.Utils.mjs";
+import { ERR_NO_FILE } from "./Workers.Strings.mjs";
 import { setActiveEmbedder } from "./Workers.ActiveEmbedder.mjs";
 import {
   MboxWorkerStore,
@@ -206,7 +206,7 @@ export async function readFileStream(file) {
  * @param {string|undefined} opts.embedder
  * @param {string|undefined} opts.apiKey
  */
-export async function initializeMboxWorker(opts) {
+export async function initializeWorker(opts) {
   const { embedder, apiKey } = opts;
   if (embedder) await setActiveEmbedder(embedder, apiKey);
 
@@ -218,7 +218,7 @@ export async function initializeMboxWorker(opts) {
 }
 
 /** @LifeCycle Clear inbox stuff */
-export function resetMboxWorker() {
+export function resetWorker() {
   if (!MboxWorkerStore.getState().initialized) return exportWorkerState();
   exportWorkerState(STATE__LOADING);
   initializeVectorStore();

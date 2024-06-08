@@ -1,6 +1,6 @@
 import createState from "@jackcom/raphsducks";
-import { STATUS } from "./Mbox.Utils.mjs";
-import { RES_STATE_UPDATE } from "./Mbox.Strings.mjs";
+import { STATUS } from "./Workers.Utils.mjs";
+import { RES_STATE_UPDATE } from "./Workers.Strings.mjs";
 
 /** Values for loading */
 export const STATE__LOADING = {

@@ -1,9 +1,9 @@
 import { RecursiveCharacterTextSplitter } from "@langchain/textsplitters";
 import { Document } from "@langchain/core/documents";
 import { MemoryVectorStore } from "langchain/vectorstores/memory";
-import { pruneHTMLString, STATUS } from "./Mbox.Utils.mjs";
+import { pruneHTMLString, STATUS } from "./Workers.Utils.mjs";
 import { getEmbedder } from "./Workers.ActiveEmbedder.mjs";
-import { RES_VECTOR_SEARCH } from "./Mbox.Strings.mjs";
+import { RES_VECTOR_SEARCH } from "./Workers.Strings.mjs";
 import {
   exportWorkerAlert,
   exportWorkerState,

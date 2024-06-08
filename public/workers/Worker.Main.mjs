@@ -1,10 +1,6 @@
-import { STATUS, clearCachedModels, workerError } from "./Mbox.Utils.mjs";
-import { ERR_NO_ACTION, ERR_NO_DATA } from "./Mbox.Strings.mjs";
-import {
-  initializeMboxWorker,
-  resetMboxWorker,
-  parseFile
-} from "./Mbox.Parser.mjs";
+import { STATUS, clearCachedModels, workerError } from "./Workers.Utils.mjs";
+import { ERR_NO_ACTION, ERR_NO_DATA } from "./Workers.Strings.mjs";
+import { initializeWorker, resetWorker, parseFile } from "./Workers.Parser.mjs";
 import { setActiveEmbedder } from "./Workers.ActiveEmbedder.mjs";
 import { MboxWorkerSettings, MboxWorkerStore } from "./Workers.State.mjs";
 import { searchVectors } from "./Workers.VectorStore.mjs";
@@ -23,43 +19,43 @@ self.addEventListener(
     const { action, data } = event.data;
 
     switch (action) {
-      case "Mbox.initialize": {
+      case "Worker.initialize": {
         // Post a message whenever the worker state changes
         attachParserToUI();
         // Prepare worker for ingesting data
-        return initializeMboxWorker(data);
+        return initializeWorker(data);
       }
 
       // Clear cached values
-      case "Mbox.clearCache": {
+      case "Worker.clearCache": {
         return clearCachedModels();
       }
 
       // Load an mbox file
-      case "Mbox.parseFile": {
+      case "Worker.parseFile": {
         return data
           ? parseFile(data.file, data.owner, data.enableCloudStorage)
           : workerError(ERR_NO_DATA);
       }
 
       // Find relevant vectors: Expects a query string at `e.data.data`
-      case "Mbox.searchVectors": {
+      case "Worker.searchVectors": {
         return data.query
           ? searchVectors(data.query)
           : workerError(ERR_NO_DATA);
       }
 
-      case "Mbox.clearEmails": {
-        return resetMboxWorker();
+      case "Worker.clearEmails": {
+        return resetWorker();
       }
 
-      case "Mbox.changeEmbedder": {
+      case "Worker.changeEmbedder": {
         return data
           ? setActiveEmbedder(data.embedder, data.apiKey)
           : workerError(ERR_NO_DATA);
       }
 
-      case "Mbox.updateSettings": {
+      case "Worker.updateSettings": {
         return data.settings
           ? MboxWorkerSettings.multiple(data.settings)
           : MboxWorkerSettings.reset();
@@ -86,7 +82,7 @@ function attachParserToUI() {
     self.postMessage({
       state: d,
       status: STATUS.OK,
-      message: "Mbox.State::Update"
+      message: "Worker.State::Update"
     })
   );
 }

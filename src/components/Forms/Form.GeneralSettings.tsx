@@ -42,7 +42,7 @@ export default function GeneralSettingsForm() {
   };
   const clearInbox = () => {
     ChatStore.reset();
-    sendParserMessage("Mbox.clearEmails");
+    sendParserMessage("Worker.clearEmails");
     setTimeout(() => navigate("/"));
   };
   const clearOwnerIdent = () => {

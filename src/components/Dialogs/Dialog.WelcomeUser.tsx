@@ -1,10 +1,10 @@
 import { FormEventHandler, useEffect, useMemo, useState } from "react";
 import useSettings from "hooks/useSettings";
-import MboxFileLoader from "components/Mbox.FileLoader";
 import { changeMboxOwner } from "mbox/Mbox";
 import Dialog from "./Dialog.Default";
 import { clearModal } from "state/modal";
 import { useMboxStore } from "hooks/useMboxStore";
+import FileLoader from "../Forms/Form.FileLoader";
 
 export default function WelcomeUserDialog() {
   const { owner } = useSettings(["owner"]);
@@ -43,7 +43,7 @@ export default function WelcomeUserDialog() {
       )}
 
       {owner ? (
-        <MboxFileLoader onParserNotified={() => clearModal()} />
+        <FileLoader onParserNotified={() => clearModal()} />
       ) : (
         <form onSubmit={onNewUserHandle}>
           <label>

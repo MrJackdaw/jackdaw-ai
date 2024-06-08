@@ -3,9 +3,9 @@ import { sendFilesToParser } from "mbox/Mbox";
 import { useMboxStore } from "hooks/useMboxStore";
 import { updateAsError } from "state/notifications";
 import { notificationChannel } from "utils/general";
-import "./Mbox.FileLoader.scss";
+import "./Form.FileLoader.scss";
 
-const CHANNEL = notificationChannel("Mbox.FileLoader");
+const CHANNEL = notificationChannel("Worker.FileLoader");
 
 type Props = {
   /** Notify parent when file has been sent to `Parser` worker thread */
@@ -13,7 +13,7 @@ type Props = {
 };
 
 /** @FormComponent File selector for .mbox files */
-const MboxFileLoader = (props: Props) => {
+const FileLoader = (props: Props) => {
   const { loading, messagesLoaded, docsCount } = useMboxStore([
     "loading",
     "messagesLoaded",
@@ -85,4 +85,4 @@ const MboxFileLoader = (props: Props) => {
   );
 };
 
-export default MboxFileLoader;
+export default FileLoader;

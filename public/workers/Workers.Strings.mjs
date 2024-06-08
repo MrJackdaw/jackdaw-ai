@@ -4,8 +4,8 @@ export const ERR_NO_DATA = "No 'data' parameter was sent with request";
 export const ERR_NO_FILE = "No inbox found";
 
 // response keys
-export const RES_VECTOR_SEARCH = "Mbox.VectorStore::Search";
-export const RES_STATE_UPDATE = "Mbox.State::Update";
+export const RES_VECTOR_SEARCH = "Worker.VectorStore::Search";
+export const RES_STATE_UPDATE = "Worker.State::Update";
 
 // storage keys
 export const LS_ASSISTANT_KEY = "jc-assistant";

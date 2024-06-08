@@ -28,7 +28,7 @@ export enum CHANNELS {
 }
 /** Single dedicated notification channel for ALL worker notifications */
 export const WORKER_CHANNEL =
-  notificationChannel("Mbox.Worker") + CHANNELS.MAIN;
+  notificationChannel("Worker.Worker") + CHANNELS.MAIN;
 
 /** Check if alerts (UI only) are globally enabled */
 export function notificationsActive() {

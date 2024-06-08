@@ -24,6 +24,6 @@ export async function findRelevantVectors(query: string): Promise<Document[]> {
     });
 
     // Send a message to the Web Worker
-    sendParserMessage("Mbox.searchVectors", { query });
+    sendParserMessage("Worker.searchVectors", { query });
   });
 }
