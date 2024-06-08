@@ -48,33 +48,31 @@ export default function UserControls(props: ComponentPropsWithRef<"div">) {
       {submenuIsVisible && (
         <ItemMenu target={target} onClose={close} placement="top">
           {authenticated && (
-            <>
-              <form
-                className="enable-cloud-storage"
-                onSubmit={suppressEvent}
-                data-tooltip={authenticated ? undefined : "Log in to change"}
-              >
-                <label className="hint" data-checkbox>
-                  <input
-                    type="checkbox"
-                    disabled={!authenticated}
-                    onChange={toggleOnlineVectorStore}
-                    checked={enableCloudStorage}
-                  />
-                  <span className="label">Store Documents online</span>
-                </label>
-              </form>
-
-              <Link
-                className="item-menu__item user-control__item"
-                to={JRoutes.Projects}
-                onClick={close}
-              >
-                <span>My Projects</span>
-                <span className="material-symbols-outlined">folder_open</span>
-              </Link>
-            </>
+            <form
+              className="enable-cloud-storage"
+              onSubmit={suppressEvent}
+              data-tooltip={authenticated ? undefined : "Log in to change"}
+            >
+              <label className="hint" data-checkbox>
+                <input
+                  type="checkbox"
+                  disabled={!authenticated}
+                  onChange={toggleOnlineVectorStore}
+                  checked={enableCloudStorage}
+                />
+                <span className="label">Store Documents online</span>
+              </label>
+            </form>
           )}
+
+          <Link
+            className="item-menu__item user-control__item"
+            to={JRoutes.Projects}
+            onClick={close}
+          >
+            <span>My Projects</span>
+            <span className="material-symbols-outlined">folder_open</span>
+          </Link>
 
           <Link
             className="item-menu__item user-control__item"

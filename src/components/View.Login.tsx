@@ -13,9 +13,8 @@ export default function LoginView() {
 
       <LogInWithGoogle />
 
-      <div className="hint">
-        Create an account to access cloud features. You can use the platform
-        without this, although it may become unresponsive with very large files.
+      <div className="hint center">
+        Create an account to access cloud features and manage subscriptions.
       </div>
     </section>
   );

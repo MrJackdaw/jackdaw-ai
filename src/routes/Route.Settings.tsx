@@ -11,6 +11,7 @@ import AssistantSettingsForm from "components/Forms/Form.AssistantSettings";
 import ManageVectorStorageFields from "components/Fieldsets/Fields.ManageVectorStorage";
 import "./Route.Settings.scss";
 import StripePricingTable from "components/StripePricingTable";
+import LoginView from "components/View.Login";
 
 /** User Settings Route */
 const SettingsRoute = () => {
@@ -66,7 +67,7 @@ const SettingsRoute = () => {
             <ManageVectorStorageFields saveImmediately />
           </form>
 
-          <StripePricingTable />
+          {authenticated ? <StripePricingTable /> : <LoginView />}
         </TabbedInterface>
       ) : (
         <FullscreenLoader msg="Just a moment..." />
