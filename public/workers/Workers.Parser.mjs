@@ -88,13 +88,12 @@ function extractFileTextAWS(file) {
     return exportWorkerState({ loading: false });
   }
 
-  let url = import.meta.env.VITE_SERVER_URL;
-  url = `${url}/extract-text`;
-
   const formData = new FormData();
   formData.append("file", file);
 
   // Send file to server for text-extraction
+  let url = import.meta.env.VITE_SERVER_URL;
+  url = `${url}/extract-text`;
   fetch(url, {
     method: "post",
     credentials: "include",
