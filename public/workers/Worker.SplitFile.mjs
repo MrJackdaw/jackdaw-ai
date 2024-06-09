@@ -54,7 +54,7 @@ export async function splitTextFile(file, numSegments = 5) {
  * @param {File} file The file to read.
  * @param {number} chunkSize The size of each chunk to read.
  */
-async function* readFileChunks(file, _chunkSize = 1024 * 1024) {
+async function* readFileChunks(file) {
   // Default to 1MB chunks
   const reader = file.stream().getReader();
 
