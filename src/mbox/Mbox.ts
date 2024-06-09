@@ -54,12 +54,25 @@ export function initializeMboxModule() {
  */
 function onWorkerUpdate(e: MessageEvent<WorkerUpdate>) {
   if (e.data.message === "Worker.State::Update") {
+    // Worker State update: pass into UI's mirror-state
     const update = (e.data as WorkerStateUpdate).state;
     if (!update) throw new Error("missing key 'state' in worker update data");
     return MBoxStore.multiple(update);
   }
 
+  if (e.data.message.startsWith("Worker.FileSplit::")) {
+    // Worker splits up a text file into segments, then zips them up. Allow
+    // user to download zip file.
+    const { zipFile, fileName } = e.data.data;
+    const downloadLink = document.createElement("a");
+    downloadLink.href = URL.createObjectURL(zipFile);
+    downloadLink.download = fileName;
+    downloadLink.click();
+  }
+
   if (e.data.message.startsWith("Worker.Alert::")) {
+    // Worker splits up a text file into segments, then zips them up. Allow
+    // user to download zip file.
     const { msg, error, warning } = e.data.data;
     if (error) return updateAsError(msg, WORKER_CHANNEL);
     if (warning) return updateAsWarning(msg, WORKER_CHANNEL, true);
@@ -121,9 +134,31 @@ export function sendFilesToParser(
   }
 }
 
+/**
+ * Splits a large text-based file up into smaller segments.
+ * @param uploadedFile User-uploaded or -created file */
+export function splitFileIntoSegments(
+  uploadedFile?: File | null,
+  numSegments = 5
+) {
+  if (!uploadedFile) return [null, "No file was uploaded"];
+
+  try {
+    const fileName = uploadedFile.name;
+    updateNotification(`Splitting ${fileName}...`, WORKER_CHANNEL, true);
+    sendParserMessage("Worker.splitFile", { file: uploadedFile, numSegments });
+    return [fileName];
+  } catch (error) {
+    const errorM = (error as Error)?.message ?? error?.toString();
+    const fullM = `Worker.SendFilesToHandler.Error::${errorM ?? "No details"}`;
+    return [null, fullM];
+  }
+}
+
 type ParserAction =
   | "Worker.initialize"
   | "Worker.parseFile"
+  | "Worker.splitFile"
   | "Worker.searchVectors"
   | "Worker.clearCache"
   | "Worker.clearEmails"

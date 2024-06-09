@@ -8,6 +8,7 @@ import {
   exportWorkerAlert
 } from "./Workers.State.mjs";
 import { searchVectors } from "./Workers.VectorStore.mjs";
+import { splitTextFile } from "./Worker.SplitFile.mjs";
 
 /**
  * This uses "Mbox" because it was originally conceived to handle just Mbox files.
@@ -41,7 +42,14 @@ self.addEventListener(
         return clearCachedModels();
       }
 
-      // Load an mbox file
+      // Split up a file
+      case "Worker.splitFile": {
+        return data
+          ? splitTextFile(data.file, data.numSegments)
+          : workerError(ERR_NO_DATA);
+      }
+
+      // Load a file
       case "Worker.parseFile": {
         return data
           ? parseFile(data.file, data.owner, data.enableCloudStorage)

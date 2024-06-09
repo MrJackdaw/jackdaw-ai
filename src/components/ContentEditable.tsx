@@ -32,7 +32,7 @@ export default function ContentEditable(props: Props) {
 
   /** Handle user input into element. Forward to blur on submit */
   const handleTextChange: KeyboardEventHandler<HTMLSpanElement> = (e) => {
-    if (e.key !== "Enter") return;
+    if (e.key !== "Enter" || e.shiftKey) return;
     e.preventDefault();
     // forward event to blur handler if "submit-on-blur" is enabled
     if (submitOnBlur) return e.currentTarget.blur();

@@ -14,7 +14,7 @@ import {
   getCachedUser
 } from "indexedDB";
 import { DateTime } from "luxon";
-import { sessionFetch } from "./requests.shared";
+import { sessionFetch, stripeFetch } from "./requests.shared";
 import { refreshSettingsFromCache } from "state/settings-store";
 
 /** Check if user is logged in */
@@ -29,6 +29,10 @@ export async function isUserAuthenticated() {
 
   return sessionFetch<{ user: User }>("get-user")
     .then(({ user }) => {
+      // TESTOSAURUS
+      stripeFetch("usage:storage").then(console.log);
+      // TESTOSAURUS
+
       if (user) cacheUserSetting(SETTING__USER_KEY, JSON.stringify(user));
       return user;
     })

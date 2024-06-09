@@ -50,6 +50,18 @@ export function exportWorkerState(state = null, status = STATUS.OK, error) {
 }
 
 /**
+ * Emit a file that was created in (or by) the worker. Used when breaking up very large files.
+ * @param {File} zipFile File to send to UI thread
+ */
+export function exportWorkerFile(zipFile, fileName) {
+  self.postMessage({
+    message: "Worker.FileSplit::Done",
+    data: { zipFile, fileName },
+    status: STATUS.OK
+  });
+}
+
+/**
  * Send a message that triggers a UI notification
  * @param {string} msg Alert to frontend
  * @param {"Info"|"Error"|"Warning"} type Type of Alert

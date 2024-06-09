@@ -85,11 +85,18 @@
 .message__text,
 .message__text p {
   margin: 0;
-  width: fit-content;
 }
 
 .message__text b {
   display: block;
+}
+
+.message__text p {
+  width: fit-content;
+}
+
+.message__text pre {
+  width: 100%;
 }
 
 .module--chat-messages__list-container {

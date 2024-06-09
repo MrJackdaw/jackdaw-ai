@@ -21,3 +21,8 @@ export type DataAction =
   | "user-projects:share"
   | "user-projects:update"
   | "vector-search";
+
+export type StripeAction =
+  | "user:get-subscription"
+  | "usage:tokens"
+  | "usage:storage";

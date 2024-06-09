@@ -3,9 +3,15 @@ import {
   SESSION_URL,
   AUTH_OPTS,
   SUPABASE_URL,
-  JACKCOM_AI_URL
+  JACKCOM_AI_URL,
+  STRIPE_URL
 } from "utils/general";
-import { SessionAction, DataAction, AssistantAction } from "./requests.types";
+import {
+  SessionAction,
+  DataAction,
+  AssistantAction,
+  StripeAction
+} from "./requests.types";
 import { cacheUserSetting } from "indexedDB";
 import { SETTING__USER_KEY } from "utils/strings";
 import { SettingsStore } from "state/settings-store";
@@ -38,6 +44,19 @@ export async function cloudDataFetch<T>(
     .then((d) => d.json())
     .then(checkSessionExpired)
     .then(returnOrRefetch(() => cloudDataFetch(action, data)));
+}
+
+/** Standardized request for subscription- (Stripe) related queries (supabase) */
+export async function stripeFetch<T = any>(
+  action: StripeAction,
+  data?: any
+): Promise<T> {
+  const body = JSON.stringify({ action, data });
+
+  return fetch(STRIPE_URL, { ...AUTH_OPTS, body })
+    .then((d) => d.json())
+    .then(checkSessionExpired)
+    .then(returnOrRefetch(() => stripeFetch(action, data)));
 }
 
 type LLMResponse = {

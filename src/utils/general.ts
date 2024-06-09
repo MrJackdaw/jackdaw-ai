@@ -10,9 +10,10 @@ import {
 } from "./strings";
 
 export const SERVER_URL = import.meta.env.VITE_SERVER_URL;
-export const SESSION_URL = `${SERVER_URL}/session`;
-export const SUPABASE_URL = `${SERVER_URL}/data`;
 export const JACKCOM_AI_URL = `${SERVER_URL}/jackcom-ai`;
+export const SESSION_URL = `${SERVER_URL}/session`;
+export const STRIPE_URL = `${SERVER_URL}/stripe`;
+export const SUPABASE_URL = `${SERVER_URL}/data`;
 export const AUTH_OPTS: RequestInit = {
   credentials: "include",
   method: "post"
