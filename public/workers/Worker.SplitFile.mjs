@@ -1,5 +1,5 @@
 import JSZip from "jszip";
-import { exportWorkerFile } from "./Workers.State.mjs";
+import { exportWorkerAlert, exportWorkerFile } from "./Workers.State.mjs";
 
 /**
  * Split a large text-based file into multiple smaller fragments.
@@ -45,9 +45,8 @@ export async function splitTextFile(file, numSegments = 5) {
   // Generate zip file
   const zipped = await zip.generateAsync({ type: "blob" });
   const zipFileName = `${file.name}_segments.zip`;
-  console.log(`OG file: ${file.name} (size ${file.size}B)`);
-  console.log(`Zip file generated: ${zipFileName} (size ${zipped.size}B)`);
   exportWorkerFile(zipped, zipFileName);
+  exportWorkerAlert(`${file.name} split into ${numSegments} segments`);
 }
 
 /**

@@ -1,6 +1,7 @@
 import { version } from "../../package.json";
 import { ComponentPropsWithRef } from "react";
 import { Link } from "react-router-dom";
+import { logoutUser } from "data/requests";
 import { suppressEvent, truncateMidString } from "utils/general";
 import { toggleOnlineVectorStore } from "state/settings-store";
 import useUser from "hooks/useUser";
@@ -10,7 +11,6 @@ import { ListViewItemContent } from "./Lists/ListViewItem";
 import ItemMenu from "./ItemMenu";
 import { JRoutes } from "routes";
 import "./UserControls.scss";
-import { logoutUser } from "data/requests";
 
 export default function UserControls(props: ComponentPropsWithRef<"div">) {
   const { enableCloudStorage, owner } = useSettings([
@@ -18,7 +18,7 @@ export default function UserControls(props: ComponentPropsWithRef<"div">) {
     "owner"
   ]);
   const { avatar, authenticated } = useUser(["avatar", "authenticated"]);
-  const { close, openSubmenu, submenuIsVisible, target } = useSubmenuHandler();
+  const { close, open, submenuIsVisible, target } = useSubmenuHandler();
   const classes = ["user-controls"];
   if (props.className) classes.push(props.className);
 
@@ -27,7 +27,7 @@ export default function UserControls(props: ComponentPropsWithRef<"div">) {
       <button
         className="button--grid slide-in-right"
         type="button"
-        onClick={openSubmenu}
+        onClick={open}
       >
         {/* User Settings */}
         <span className="button--round transparent white">

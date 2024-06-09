@@ -13,6 +13,10 @@
   position: absolute;
   width: 300px;
   z-index: inherit;
+
+  &.no-footer {
+    padding-bottom: 0.6rem;
+  }
 }
 
 .item-menu--container.item-menu--round {
@@ -26,14 +30,17 @@
 
 .item-menu--container .item-menu__item {
   align-items: center;
-  cursor: pointer;
   display: grid;
   grid-template-columns: 1fr 40px;
   min-height: 2.6rem;
   padding: 0 0.6rem;
 
-  &:hover {
-    background-color: lighten($color: $darkGrey, $amount: 10);
+  &:not([aria-disabled="true"]) {
+    cursor: pointer;
+
+    &:hover {
+      background-color: lighten($color: $darkGrey, $amount: 10);
+    }
   }
 }
 

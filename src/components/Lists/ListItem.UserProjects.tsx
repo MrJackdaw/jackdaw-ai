@@ -23,7 +23,7 @@ type ListItemProps = {
 
 /** @ListItemComponent */
 export default function UserProjectListItem(props: ListItemProps) {
-  const { target, openSubmenu, close, submenuIsVisible } = useSubmenuHandler();
+  const { target, open, close, submenuIsVisible } = useSubmenuHandler();
   const { enableCloudStorage } = useSettings(["enableCloudStorage"]);
   const {
     project,
@@ -129,7 +129,7 @@ export default function UserProjectListItem(props: ListItemProps) {
       <button
         className={`${materialButton} white`}
         type="button"
-        onClick={openSubmenu}
+        onClick={open}
       >
         more_vert
       </button>

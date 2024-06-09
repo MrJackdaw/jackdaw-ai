@@ -12,12 +12,12 @@ import { suppressEvent } from "utils/general";
  *
  * How it works: The Hook provides
  *
- * - A `openSubmenu` function to attach to the show/hide button (or other HTML target)
+ * - A `open()` function to attach to the show/hide button (or other HTML target)
+ * - A `close()` function to hide the submenu (attach to whatever you like)
  * - A `target` value that references the show/hide button (or other HTML target). This is
- * initially null, but will be populated when `openSubmenu` is clicked.
- * - A boolean that indicates whether the submenu target is currently visible (note: actual
- * visibility implementation is left to the developer)
- * - And a helper function for closing (not toggling) the submenu. */
+ * initially null, but will be populated when `open()` is clicked.
+ * - A boolean that indicates whether the submenu target is currently visible. Actual
+ * visibility implementation is left to the developer. */
 export default function useSubmenuHandler() {
   const [target, setTarget] = useState<HTMLElement | null>(null);
   const [submenuIsVisible, setSubmenuIsVisible] = useState(false);
@@ -25,7 +25,7 @@ export default function useSubmenuHandler() {
     setSubmenuIsVisible(false);
     setTarget(null);
   };
-  const openSubmenu: MouseEventHandler = (e) => {
+  const open: MouseEventHandler = (e) => {
     suppressEvent(e);
     setTarget(e.currentTarget as HTMLElement);
     setSubmenuIsVisible(true);
@@ -37,7 +37,7 @@ export default function useSubmenuHandler() {
     /** Submenu is visible when "true" */
     submenuIsVisible,
     /** Toggle Submenu visibility */
-    openSubmenu,
+    open,
     /** close Submenu */
     close
   };

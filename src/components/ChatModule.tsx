@@ -6,7 +6,11 @@ import useUser from "hooks/useUser";
 import useSettings from "hooks/useSettings";
 import InputGroup from "./InputGroup";
 import Markdown from "react-markdown";
-import { sendFilesToParser, addTextToProjectContext } from "mbox/Mbox";
+import {
+  sendFilesToParser,
+  addTextToProjectContext,
+  splitFileIntoSegments
+} from "mbox/Mbox";
 import { copyToClipboard } from "utils/general";
 import "./ChatModule.scss";
 
@@ -22,6 +26,12 @@ enum STREAM {
   ACTIVE
 }
 
+enum FILE_ACTION {
+  NONE,
+  PARSE,
+  SPLIT
+}
+
 /** Chat message list and input */
 const ChatModule = () => {
   const $fileInputRef = useRef<HTMLInputElement>(null);
@@ -34,6 +44,7 @@ const ChatModule = () => {
   const { criticalError } = useUser(["criticalError"]);
   const [streamResponse, setStreamResponse] = useState("");
   const [state, setState] = useState(ChatStore.getState());
+  const [fileAction, setFileAction] = useState(FILE_ACTION.PARSE);
   const [streamState, setStreamState] = useState(STREAM.IDLE);
   const { question, messages, loading } = useMemo(
     () => state,
@@ -50,7 +61,8 @@ const ChatModule = () => {
   const placeholder = useMemo(() => {
     return messagesLoaded ? "Ask a question" : "( No document loaded )";
   }, [messagesLoaded]);
-  const showFilePicker = () => {
+  const showFilePicker = (action = FILE_ACTION.PARSE) => {
+    setFileAction(action);
     if ($fileInputRef.current) $fileInputRef.current.click();
   };
   const scrollMessagesView = () => {
@@ -63,6 +75,23 @@ const ChatModule = () => {
     setStreamResponse("");
     ChatStore.multiple({ messages, question: "", loading: false });
     scrollMessagesView();
+  };
+  /** Send question to API; update messages list */
+  const handleFileSelection = (file?: File | null) => {
+    switch (fileAction) {
+      case FILE_ACTION.PARSE: {
+        sendFilesToParser(file);
+        break;
+      }
+      case FILE_ACTION.SPLIT: {
+        splitFileIntoSegments(file);
+        break;
+      }
+      default:
+        break;
+    }
+
+    setFileAction(FILE_ACTION.NONE);
   };
   /** Send question to API; update messages list */
   const askQuestion = async (q?: string) => {
@@ -177,7 +206,8 @@ const ChatModule = () => {
         allowAttachments
         highlightAttachmentsCtrl={!messagesLoaded}
         placeholder={placeholder}
-        onAddNewFile={showFilePicker}
+        onAddNewFile={() => showFilePicker(FILE_ACTION.PARSE)}
+        onSplitFile={() => showFilePicker(FILE_ACTION.SPLIT)}
         onChange={ChatStore.question}
         disabled={streamState !== STREAM.IDLE}
         handleSubmit={askQuestion}
@@ -186,7 +216,7 @@ const ChatModule = () => {
         type="file"
         ref={$fileInputRef}
         onChange={({ currentTarget }) =>
-          sendFilesToParser(currentTarget.files?.item(0))
+          handleFileSelection(currentTarget.files?.item(0))
         }
         hidden
       />
