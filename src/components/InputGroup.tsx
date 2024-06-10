@@ -3,6 +3,8 @@ import useSubmenuHandler from "hooks/useSubmenuHandler";
 import ContentEditable from "./ContentEditable";
 import ItemMenu, { MenuItem } from "./ItemMenu";
 import "./InputGroup.scss";
+import { removeNotification, updateAsWarning } from "state/notifications";
+import { notificationChannel } from "utils/general";
 
 type InputGroupOpts = {
   disabled?: boolean;
@@ -15,6 +17,8 @@ type InputGroupOpts = {
   onSplitFile?: { (): void };
 };
 
+const CHANNEL = notificationChannel("InputGroup");
+
 /** @Component */
 export default function InputGroup(opts: InputGroupOpts) {
   const submenu = useSubmenuHandler();
@@ -25,6 +29,8 @@ export default function InputGroup(opts: InputGroupOpts) {
     opts.onAddNewFile?.();
   };
   const handleSplitFile = () => {
+    updateAsWarning("Note: ensure your target is a plain text file", CHANNEL);
+    setTimeout(() => removeNotification(CHANNEL), 5000);
     submenu.close();
     opts.onSplitFile?.();
   };
@@ -69,7 +75,7 @@ export default function InputGroup(opts: InputGroupOpts) {
           </MenuItem>
 
           <MenuItem onClick={handleSplitFile}>
-            <span>Split large file</span>
+            <span>Split Text file</span>
             <span className="material-symbols-outlined">
               splitscreen_portrait
             </span>

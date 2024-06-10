@@ -65,11 +65,17 @@ export function exportWorkerFile(zipFile, fileName) {
  * Send a message that triggers a UI notification
  * @param {string} msg Alert to frontend
  * @param {"Info"|"Error"|"Warning"} type Type of Alert
+ * @param {boolean} [persist=false] Show a loading state on the notification when true
  */
-export function exportWorkerAlert(msg, type = "Info") {
+export function exportWorkerAlert(msg, type = "Info", persist = false) {
   self.postMessage({
     message: `Worker.Alert::${type}`,
-    data: { msg, error: type === "Error", warning: type === "Warning" },
+    data: {
+      msg,
+      error: type === "Error",
+      warning: type === "Warning",
+      persist
+    },
     status: STATUS.OK
   });
 }

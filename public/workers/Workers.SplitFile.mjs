@@ -1,66 +1,80 @@
+// import jschardet from "jschardet";
 import JSZip from "jszip";
 import { exportWorkerAlert, exportWorkerFile } from "./Workers.State.mjs";
 
+/* ITERATION 3x */
+
 /**
- * Split a large text-based file into multiple smaller fragments.
- * @param {File} file Target text(-based) file.
- * @param {number} [numSegments=5] Split `file` into this many parts (defaults to 5).
+ * Split file
+ * @param {File} file
+ * @param {number} numSegments
  */
 export async function splitTextFile(file, numSegments = 5) {
-  const chunkSize = 1024 * 1024; // 1MB
-  let accumulatedContent = "";
-  let totalEmails = 0;
-  const emails = [];
-
-  // Read file in chunks and process
-  for await (const chunk of readFileChunks(file, chunkSize)) {
-    accumulatedContent += new TextDecoder().decode(chunk);
-    const parts = accumulatedContent.split("From ");
-    accumulatedContent = parts.pop(); // Keep the last part for the next chunk
-    emails.push(...parts);
-  }
-  // Add the last accumulated part
-  if (accumulatedContent) {
-    emails.push(accumulatedContent);
-  }
-  totalEmails = emails.length;
-
-  const partSize = Math.ceil(totalEmails / numSegments);
+  const totalSize = file.size;
+  // Dynamically calculate chunk size based on file size
+  const chunkSize = Math.ceil(totalSize / numSegments);
   const zip = new JSZip();
+  const reader = file.stream().getReader();
+  let currentSegmentIndex = 0;
+  let currentSegmentContent = "";
 
-  for (let i = 0; i < numSegments; i++) {
-    const startIdx = i * partSize;
-    const endIdx =
-      (i + 1) * partSize < totalEmails ? (i + 1) * partSize : totalEmails;
+  // Detect character encoding
+  let encoding = "utf-8";
+  // const { value: firstChunk } = await reader.read();
+  // const detected = jschardet.detect(new TextDecoder().decode(firstChunk));
+  // if (detected.confidence > 0.5) encoding = detected.encoding;
 
-    const partEmails = emails.slice(startIdx, endIdx);
-    const partContent = partEmails.join("From ");
-    const partBlob = new Blob([partContent], { type: "text/plain" });
-    const partFileName = `${file.name}_part_${i + 1}.mbox`;
+  // Overwrite encoding
+  const textDecoder = new TextDecoder(encoding, { fatal: true });
 
-    zip.file(partFileName, partBlob);
-    console.log(`Created: ${partFileName} (size ${partBlob.size}B)`);
+  // Helper function to add files to zip
+  function addSegmentToFile(segmentContent, index) {
+    const blob = new Blob([segmentContent], { type: "text/plain" });
+    const fileName = `${file.name}_part_${index + 1}.txt`;
+    zip.file(fileName, blob);
+    exportWorkerAlert(
+      `Created: ${fileName} (size ${blob.size} bytes)`,
+      "Info",
+      true
+    );
+    blob.text().then(() => URL.revokeObjectURL(blob)); // Cleanup memory
   }
 
-  // Generate zip file
+  let inProgress = true;
+  let hasError = false;
+
+  while (inProgress) {
+    try {
+      const { done, value } = await reader.read();
+      if (done) {
+        if (currentSegmentContent) {
+          addSegmentToFile(currentSegmentContent, currentSegmentIndex);
+        }
+        inProgress = false;
+      }
+      const textChunk = textDecoder.decode(value, { stream: true });
+      currentSegmentContent += textChunk;
+
+      // Determine if we need to create a new segment
+      if (currentSegmentContent.length >= chunkSize) {
+        addSegmentToFile(currentSegmentContent, currentSegmentIndex);
+        currentSegmentIndex++;
+        currentSegmentContent = ""; // Reset for the next segment
+      }
+    } catch (error) {
+      console.error("Error processing file:", error);
+      hasError = true;
+      inProgress = false;
+      break;
+    }
+  }
+
+  if (hasError) {
+    return exportWorkerAlert(`Error: ${file.name} was not split`, "Error");
+  }
+
   const zipped = await zip.generateAsync({ type: "blob" });
   const zipFileName = `${file.name}_segments.zip`;
   exportWorkerFile(zipped, zipFileName);
   exportWorkerAlert(`${file.name} split into ${numSegments} segments`);
-}
-
-/**
- * Reads a file in chunks and returns an async generator.
- * @param {File} file The file to read.
- * @param {number} chunkSize The size of each chunk to read.
- */
-async function* readFileChunks(file) {
-  // Default to 1MB chunks
-  const reader = file.stream().getReader();
-
-  while (true) {
-    const { done, value } = await reader.read();
-    if (done) break;
-    yield value;
-  }
 }

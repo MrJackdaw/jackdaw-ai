@@ -53,6 +53,7 @@ export function initializeMboxModule() {
  * @param e Message from Web Worker
  */
 function onWorkerUpdate(e: MessageEvent<WorkerUpdate>) {
+  // Worker State changed
   if (e.data.message === "Worker.State::Update") {
     // Worker State update: pass into UI's mirror-state
     const update = (e.data as WorkerStateUpdate).state;
@@ -60,9 +61,8 @@ function onWorkerUpdate(e: MessageEvent<WorkerUpdate>) {
     return MBoxStore.multiple(update);
   }
 
+  // Worker split up a text file into segments, and returned zipped folder
   if (e.data.message.startsWith("Worker.FileSplit::")) {
-    // Worker splits up a text file into segments, then zips them up. Allow
-    // user to download zip file.
     const { zipFile, fileName } = e.data.data;
     const downloadLink = document.createElement("a");
     downloadLink.href = URL.createObjectURL(zipFile);
@@ -70,13 +70,12 @@ function onWorkerUpdate(e: MessageEvent<WorkerUpdate>) {
     downloadLink.click();
   }
 
+  // Worker sent a UI notification for the user
   if (e.data.message.startsWith("Worker.Alert::")) {
-    // Worker splits up a text file into segments, then zips them up. Allow
-    // user to download zip file.
-    const { msg, error, warning } = e.data.data;
+    const { msg, error, warning, persist = false } = e.data.data;
     if (error) return updateAsError(msg, WORKER_CHANNEL);
-    if (warning) return updateAsWarning(msg, WORKER_CHANNEL, true);
-    return updateNotification(msg, WORKER_CHANNEL);
+    if (warning) return updateAsWarning(msg, WORKER_CHANNEL);
+    return updateNotification(msg, WORKER_CHANNEL, persist);
   }
 
   // This is now an edge-case

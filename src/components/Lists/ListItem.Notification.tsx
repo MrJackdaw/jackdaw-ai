@@ -27,9 +27,9 @@ export const Notification = (props: NotificationProps) => {
     return "success";
   }, [error, notification]);
   const icon = useMemo(() => {
-    if (error || notification?.type === "warning")
-      return String.fromCodePoint(0x26a0);
-    return String.fromCodePoint(0x2714);
+    if (!notification) return "";
+    if (notification.type === "info") return "check_circle";
+    return notification.type;
   }, [error, notification]);
   const duration = useMemo(() => {
     if (!notification || notification.persistent) return 0;
@@ -65,11 +65,11 @@ export const Notification = (props: NotificationProps) => {
         <SVGCloseButton size={10} />
       </button>
 
-      {notification.persistent && notification.type !== "error" ? (
+      {notification.persistent && notification.type === "info" ? (
         // show spinner for non-error notifications
         <span className="spinner--before" />
       ) : (
-        <MatIcon icon={icon} className={iconClass} />
+        <MatIcon icon={icon ?? ""} className={`${iconClass} bounce infinite`} />
       )}
 
       <span className="notification__text">{msg}</span>
@@ -80,5 +80,5 @@ export const Notification = (props: NotificationProps) => {
 export default Notification;
 
 function MatIcon({ icon, className }: { icon: string; className?: string }) {
-  return <i className={`material-icons ${className}`}>{icon}</i>;
+  return <i className={`material-symbols-outlined ${className}`}>{icon}</i>;
 }

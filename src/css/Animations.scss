@@ -344,7 +344,7 @@
   animation-fill-mode: forwards;
 }
 
-@mixin spinner($size: 0.75rem) {
+@mixin spinner($size: 1rem) {
   animation: spin 0.8s linear infinite;
   border-radius: 50%;
   border: 0.15rem solid;
@@ -362,6 +362,7 @@
 .spinner--after,
 .spinner--before {
   display: flex;
+  width: 36px;
 }
 
 .spinner--after::after,
