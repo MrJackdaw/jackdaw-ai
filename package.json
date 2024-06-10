@@ -2,7 +2,7 @@
   "name": "@jackcom/jackdaw-ai",
   "description": "Talk to your mailbox, and other documents.",
   "private": true,
-  "version": "0.3.2",
+  "version": "0.3.3",
   "type": "module",
   "scripts": {
     "start": "dotenv -e .env.local -- vite",
