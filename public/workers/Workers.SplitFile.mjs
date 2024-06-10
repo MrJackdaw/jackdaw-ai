@@ -12,26 +12,23 @@ import { exportWorkerAlert, exportWorkerFile } from "./Workers.State.mjs";
 export async function splitTextFile(file, numSegments = 5) {
   const totalSize = file.size;
   // Dynamically calculate chunk size based on file size
-  const chunkSize = Math.ceil(totalSize / numSegments);
+  const chunkSize = Math.min(Math.ceil(totalSize / numSegments), 209715200);
   const zip = new JSZip();
   const reader = file.stream().getReader();
   let currentSegmentIndex = 0;
   let currentSegmentContent = "";
 
-  // Detect character encoding
-  let encoding = "utf-8";
-  // const { value: firstChunk } = await reader.read();
-  // const detected = jschardet.detect(new TextDecoder().decode(firstChunk));
-  // if (detected.confidence > 0.5) encoding = detected.encoding;
-
   // Overwrite encoding
-  const textDecoder = new TextDecoder(encoding, { fatal: true });
+  const textDecoder = new TextDecoder("utf-8", { fatal: true });
+
+  let addedSegments = 0;
 
   // Helper function to add files to zip
   function addSegmentToFile(segmentContent, index) {
     const blob = new Blob([segmentContent], { type: "text/plain" });
     const fileName = `${file.name}_part_${index + 1}.txt`;
     zip.file(fileName, blob);
+    addedSegments = addedSegments + 1;
     exportWorkerAlert(
       `Created: ${fileName} (size ${blob.size} bytes)`,
       "Info",
@@ -76,5 +73,5 @@ export async function splitTextFile(file, numSegments = 5) {
   const zipped = await zip.generateAsync({ type: "blob" });
   const zipFileName = `${file.name}_segments.zip`;
   exportWorkerFile(zipped, zipFileName);
-  exportWorkerAlert(`${file.name} split into ${numSegments} segments`);
+  exportWorkerAlert(`${file.name} split into ${addedSegments} segments`);
 }

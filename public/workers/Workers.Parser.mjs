@@ -9,10 +9,10 @@ import {
 import { ERR_NO_FILE } from "./Workers.Strings.mjs";
 import { setActiveEmbedder } from "./Workers.ActiveEmbedder.mjs";
 import {
-  MboxWorkerStore,
   exportWorkerState,
-  STATE__LOADING,
-  exportWorkerAlert
+  exportWorkerAlert,
+  MboxWorkerStore,
+  STATE__LOADING
 } from "./Workers.State.mjs";
 import {
   addToVectorStore,
@@ -38,8 +38,9 @@ export async function parseFile(file) {
 
   // Intercept proprietary MSWord docs
   if (file.type === "application/msword") {
-    exportWorkerAlert(
-      "MS Word document detected: please convert to a .docx file first"
+    return exportWorkerAlert(
+      "MS Word document detected: please convert to a .docx file first",
+      "Error"
     );
   }
 
@@ -135,7 +136,8 @@ async function batchConvertCSVToJSON(file) {
 
   exportWorkerAlert(
     "Batch-exporting CSV rows: do not refresh the page",
-    "Warning"
+    "Info",
+    true
   );
   const result = getRows(); // generator function
   let i = result.next();
