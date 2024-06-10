@@ -3,8 +3,9 @@ import JSZip from "jszip";
 import { exportWorkerAlert, exportWorkerFile } from "./Workers.State.mjs";
 
 /** Convert a number to Megabytes */
-const megabytesToBytes = (n) => n * 1048576;
-const bytesToMegabytes = (n) => n / 1048576;
+const MEGABYTE = 1048576;
+const megabytesToBytes = (n) => n * MEGABYTE;
+const bytesToMegabytes = (n) => n / MEGABYTE;
 const GIGAB = megabytesToBytes(1000);
 
 /**
