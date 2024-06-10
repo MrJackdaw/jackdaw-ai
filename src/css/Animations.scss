@@ -351,18 +351,17 @@
   border-top-color: transparent;
   content: "";
   display: inline-block;
-  height: $size;
+  height: 0.9rem;
   left: 48%;
   top: 40%;
   transform-origin: center;
-  width: $size;
+  width: 0.9rem;
 }
 
 /* Classes */
 .spinner--after,
 .spinner--before {
   display: flex;
-  width: 36px;
 }
 
 .spinner--after::after,

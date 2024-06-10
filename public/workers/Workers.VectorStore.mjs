@@ -275,7 +275,7 @@ async function refreshUserSession() {
  * @description Check if session expired based on response from server
  * @param {T} v Response from server
  */
-export function checkSessionExpired(v) {
+function checkSessionExpired(v) {
   if (v.message === "Session Expired") return refreshUserSession();
   return v;
 }

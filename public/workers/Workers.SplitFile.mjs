@@ -20,7 +20,6 @@ export async function splitTextFile(file, numSegments = 5) {
 
   // Overwrite encoding
   const textDecoder = new TextDecoder("utf-8", { fatal: true });
-
   let addedSegments = 0;
 
   // Helper function to add files to zip
