@@ -6,7 +6,7 @@ import { exportWorkerAlert, exportWorkerFile } from "./Workers.State.mjs";
 const MEGABYTE = 1048576;
 const megabytesToBytes = (n) => n * MEGABYTE;
 const bytesToMegabytes = (n) => n / MEGABYTE;
-const ZIP_FILE_THRESH_MB = 75; // Max size of each zip file
+const ZIP_FILE_THRESH_MB = 90; // Max size of each zip file
 const ZIP_FILE_THRESH = megabytesToBytes(ZIP_FILE_THRESH_MB); // Max size of each zip file
 
 /**
@@ -15,7 +15,7 @@ const ZIP_FILE_THRESH = megabytesToBytes(ZIP_FILE_THRESH_MB); // Max size of eac
  * @param {number} numSegments
  */
 export async function splitTextFile(file, numSegments = 5) {
-  const MAX_SIZE_MB = 20;
+  const MAX_SIZE_MB = 15;
   const totalSize = file.size;
   // Restrict max chunk size to MAX_SIZE_MB
   const chunkSize = Math.min(
