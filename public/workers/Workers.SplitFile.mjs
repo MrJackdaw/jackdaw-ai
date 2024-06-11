@@ -34,7 +34,11 @@ export async function splitTextFile(file, numSegments = 5) {
   let addedSegments = 0;
   let accumulatedSize = 0;
 
-  // Helper function to add files to zip
+  /**
+   * Helper function to add files to zip
+   * @param {string} segmentContent Actual data for segment
+   * @param {number} index Segment index in collection
+   */
   async function addSegmentToFile(segmentContent, index) {
     const blob = new Blob([segmentContent], { type: "text/plain" });
     const blobSizeMB = Math.round(bytesToMegabytes(blob.size));
