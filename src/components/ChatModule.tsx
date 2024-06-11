@@ -50,14 +50,17 @@ const ChatModule = () => {
     () => state,
     [state.loading, state.messages, state.question]
   );
-  const { messagesLoaded } = useMboxStore(["messagesLoaded"]);
+  const { messagesLoaded, vectorStoreLoaded } = useMboxStore([
+    "messagesLoaded",
+    "vectorStoreLoaded"
+  ]);
   const emptyMessage = useMemo(() => {
     if (criticalError) return "⚠️ Jackdaw Server is offline";
     if (loading) return "Please wait...";
-    if (!messagesLoaded) return "Load a file";
+    if (!vectorStoreLoaded) return "Load file or select Project";
     if (!messages.length) return "Ask a question";
     return "";
-  }, [messagesLoaded]);
+  }, [vectorStoreLoaded]);
   const placeholder = useMemo(() => {
     return messagesLoaded ? "Ask a question" : "( No document loaded )";
   }, [messagesLoaded]);
@@ -138,7 +141,7 @@ const ChatModule = () => {
         id="message-view"
         ref={$messageView}
         className="module--chat-messages__list-container"
-        data-loaded={messagesLoaded}
+        data-loaded={vectorStoreLoaded}
         data-error={criticalError}
         data-empty={!messages.length}
         data-empty-message={emptyMessage}

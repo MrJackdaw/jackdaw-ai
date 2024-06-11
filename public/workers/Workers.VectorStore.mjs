@@ -53,7 +53,9 @@ export async function addToVectorStore(blurb, docName = "My Note") {
     );
 
   if (enableCloudStorage)
-    return addDocumentsOnline(documents).then(finishedAddingToVectorStore);
+    return addDocumentsOnline(docName, documents).then(
+      finishedAddingToVectorStore
+    );
 
   // Local embedders are slow (unless a good model replacement is found). Amount of time
   // will scale horribly with file size.
@@ -141,14 +143,13 @@ function documentsFromTextBlurb(blurb) {
           metadata: {
             id: documents.length + 1,
             owner,
-            project_id,
-            documentName
+            project_id
           }
         })
       );
     });
 
-    return { documents, fragments };
+    return { documentName, documents, fragments };
   });
 }
 
@@ -157,9 +158,8 @@ function documentsFromTextBlurb(blurb) {
  * @param {string} prunedString Plain text string without special characters */
 async function splitTextBlurb(prunedString) {
   const fileSplitter = new RecursiveCharacterTextSplitter({
-    // separators: ["From ", "From: "],
-    chunkOverlap: 100,
-    chunkSize: 1000
+    chunkOverlap: 0,
+    chunkSize: 1000 // allow room for 8K context models
   });
 
   return fileSplitter.splitText(prunedString);
@@ -202,9 +202,10 @@ async function searchVectorsOnline(query, projectId) {
 
 /**
  * Save one or more `Documents` to an online vector store
+ * @param {string} docName Name of source document
  * @param {import("@langchain/core/documents").Document[]} documents Documents to save
  */
-async function addDocumentsOnline(documents) {
+async function addDocumentsOnline(docName, documents) {
   const { selectedProject: projectId } = MboxWorkerSettings.getState();
   if (!projectId || projectId <= 0) {
     exportWorkerAlert(
@@ -214,7 +215,15 @@ async function addDocumentsOnline(documents) {
     return Promise.resolve(null);
   }
 
-  const body = { action: "documents:upsert", data: { documents, projectId } };
+  if (!docName) {
+    exportWorkerAlert("Document name is required!", "Error");
+    return Promise.resolve(null);
+  }
+
+  const body = {
+    action: "documents:upsert",
+    data: { documentName: docName, documents, projectId }
+  };
   return fetch(SUPABASE_URL, {
     method: "post",
     credentials: "include",
@@ -225,7 +234,7 @@ async function addDocumentsOnline(documents) {
     .then((v) => {
       // refetch data (depending on whether session was/wasn't refreshed)
       if (!v) return null;
-      if (v.email) return addDocumentsOnline(documents);
+      if (v.email) return addDocumentsOnline(docName, documents);
       return v;
     })
     .then((res) => {

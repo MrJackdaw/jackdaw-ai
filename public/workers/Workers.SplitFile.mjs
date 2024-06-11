@@ -71,10 +71,10 @@ export async function splitTextFile(file, numSegments = 5) {
     try {
       const { done, value } = await reader.read();
       if (done) {
+        inProgress = false;
         if (currentSegmentContent) {
           addSegmentToFile(currentSegmentContent, currentSegmentIndex);
         }
-        inProgress = false;
       }
       const textChunk = textDecoder.decode(value, { stream: true });
       currentSegmentContent += textChunk;

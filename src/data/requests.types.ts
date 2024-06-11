@@ -17,6 +17,7 @@ export type DataAction =
   | "user-projects:delete"
   | "user-projects:insert"
   | "user-projects:list"
+  | "user-projects:list-documents"
   | "user-projects:reset"
   | "user-projects:share"
   | "user-projects:update"
