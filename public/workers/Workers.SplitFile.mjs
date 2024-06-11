@@ -6,7 +6,8 @@ import { exportWorkerAlert, exportWorkerFile } from "./Workers.State.mjs";
 const MEGABYTE = 1048576;
 const megabytesToBytes = (n) => n * MEGABYTE;
 const bytesToMegabytes = (n) => n / MEGABYTE;
-const GIGAB = megabytesToBytes(1000);
+const ZIP_FILE_THRESH_MB = 75; // Max size of each zip file
+const ZIP_FILE_THRESH = megabytesToBytes(ZIP_FILE_THRESH_MB); // Max size of each zip file
 
 /**
  * Split file
@@ -14,11 +15,12 @@ const GIGAB = megabytesToBytes(1000);
  * @param {number} numSegments
  */
 export async function splitTextFile(file, numSegments = 5) {
+  const MAX_SIZE_MB = 20;
   const totalSize = file.size;
-  // Restrict max chunk size to 200MB
+  // Restrict max chunk size to MAX_SIZE_MB
   const chunkSize = Math.min(
     Math.ceil(totalSize / numSegments),
-    megabytesToBytes(175)
+    megabytesToBytes(MAX_SIZE_MB)
   );
 
   const expectSegments = Math.ceil(totalSize / chunkSize);
@@ -81,8 +83,8 @@ export async function splitTextFile(file, numSegments = 5) {
       }
 
       // When accumulated zip is larger than 1GB, warn user, emit a file, and then continue.
-      if (accumulatedSize >= GIGAB) {
-        let warn = `Your file download is at or over 1GB.`;
+      if (accumulatedSize >= ZIP_FILE_THRESH) {
+        let warn = `Your file download is at or over ${ZIP_FILE_THRESH_MB}MB.`;
         warn = `${warn} Generating zip file with ${addedSegments} of ${expectSegments} segments:`;
         warn = `${warn} please don't refresh the page until all segments are completed.`;
         exportWorkerAlert(warn, "Warning");
