@@ -18,7 +18,7 @@ export async function splitTextFile(file, numSegments = 5) {
   // Restrict max chunk size to 200MB
   const chunkSize = Math.min(
     Math.ceil(totalSize / numSegments),
-    megabytesToBytes(200)
+    megabytesToBytes(175)
   );
 
   const expectSegments = Math.ceil(totalSize / chunkSize);
