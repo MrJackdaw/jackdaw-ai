@@ -35,7 +35,7 @@ export default function AssistantLLMFields() {
     if (together.length) values.push(["TogetherAI (+ your API Key)", together]);
     return values;
   }, [enableCloudStorage]);
-  const onAssistantLLM = (newLLM: AISource = "huggingface") => {
+  const onAssistantLLM = (newLLM: AISource = "openai") => {
     const { assistantLLM: prev } = SettingsStore.getState();
     const clearAPIKey =
       (isTogetherAIStr(prev) && !isTogetherAIStr(newLLM)) ||

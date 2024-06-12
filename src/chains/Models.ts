@@ -88,9 +88,8 @@ export const LLMs = {
     togetherAI("togethercomputer/StripedHyena-Nous-7B")
 };
 
-export const llmsForAISource = (src?: AISource) => {
-  if (src === "huggingface") return ["huggingface"];
-  const all = [...Object.keys(LLMs), "huggingface"];
+export const llmsForAISource = (_src?: AISource) => {
+  const all = Object.keys(LLMs);
   const { authenticated } = UserStore.getState();
   return authenticated ? all : all.filter((k) => !k.startsWith("@jackcom"));
 };

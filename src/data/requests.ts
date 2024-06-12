@@ -105,9 +105,9 @@ export async function logoutUser() {
 function migrateLegacyStorageKeys() {
   // Add required defaults
   if (!localStorage.getItem(LS_EMBEDDER_KEY))
-    localStorage.setItem(LS_EMBEDDER_KEY, "huggingface");
+    localStorage.setItem(LS_EMBEDDER_KEY, "openai");
   if (!localStorage.getItem(LS_ASSISTANT_KEY))
-    localStorage.setItem(LS_ASSISTANT_KEY, "huggingface");
+    localStorage.setItem(LS_ASSISTANT_KEY, "openai");
   if (!localStorage.getItem(LS_OWNER_KEY))
     localStorage.setItem(LS_OWNER_KEY, "Guest");
 

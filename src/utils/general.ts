@@ -27,12 +27,7 @@ export type TogetherAIModel =
   | "togetherAI/llama3-8B"
   | "togetherAI/code-llama3-7Bi"
   | "togetherAI/striped-hyena-7B";
-export type AISource =
-  | JackComAIModel
-  | TogetherAIModel
-  | "huggingface"
-  | "ollama"
-  | "openai";
+export type AISource = JackComAIModel | TogetherAIModel | "ollama" | "openai";
 export type User = {
   anonymous: boolean;
   authenticated: boolean;
@@ -139,9 +134,9 @@ export type LocalUserSettings = {
 export function getUserSettings(): LocalUserSettings {
   return {
     aiProviderAPIKey: localStorage.getItem(LS_AI_PROVIDER_APIKEY) ?? "",
-    assistantLLM: localStorage.getItem(LS_ASSISTANT_KEY) ?? "huggingface",
+    assistantLLM: localStorage.getItem(LS_ASSISTANT_KEY) ?? "openai",
     colorIdent: localStorage.getItem(LS_COLOR_IDENT_OVERRIDE) ?? "",
-    embedder: localStorage.getItem(LS_EMBEDDER_KEY) ?? "huggingface",
+    embedder: localStorage.getItem(LS_EMBEDDER_KEY) ?? "openai",
     enableCloudStorage: localStorage.getItem(LS_USE_CLOUD_STORE) === "1",
     owner: localStorage.getItem(LS_OWNER_KEY) ?? "",
     selectedProject: Number(localStorage.getItem(LS_ACTIVE_PROJECT) ?? -1)

@@ -1,11 +1,11 @@
 import {
-  HFEmbedder,
   JOpenAIEmbedder,
   JTogetherAIEmbedder,
   OpenAIEmbedder
 } from "./Workers.Models";
 import { MboxWorkerSettings, exportWorkerAlert } from "./Workers.State.mjs";
 
+ /** @typedef {"@jackcom/openai-3"|"@jackcom/openai-4T"|"@jackcom/openai-4o"|"@jackcom/mistral-7B"|"@jackcom/llama3-8B"|"@jackcom/code-llama3-7Bi"|"@jackcom/striped-hyena-7B"|"openai"} AIProvider */
 /** @type {AsyncSingleton} Active embedding (user can conditionally override) */
 let activeEmbedder = null;
 /**
@@ -13,12 +13,12 @@ let activeEmbedder = null;
  * huggingface (local), personal open-ai, or proxy-openai (jackcom))
  * @returns {Promise<AsyncSingleton>} */
 export async function getEmbedder() {
-  return activeEmbedder || setActiveEmbedder("huggingface");
+  return activeEmbedder || setActiveEmbedder("@jackcom/code-llama3-7Bi");
 }
 
 /**
  * Override active embedder class (user can conditionally override)
- * @param {"@jackcom/openai-3"|"@jackcom/openai-4T"|"@jackcom/openai-4o"|"@jackcom/mistral-7B"|"@jackcom/llama3-8B"|"@jackcom/code-llama3-7Bi"|"@jackcom/striped-hyena-7B"|"huggingface"|"openai"} e New Embedder model target
+ * @param {AIProvider} e New Embedder model target
  * @param {string?} apiKey  Optional API key for AI service provider */
 export async function setActiveEmbedder(e, apiKey = "") {
   // Update shared worker settings state
@@ -40,13 +40,11 @@ export async function setActiveEmbedder(e, apiKey = "") {
     case "togetherAI/striped-hyena-7B": {
       // requires user to provide their own API key
       if (!apiKey)
-        return exportWorkerAlert("Please set your TogetherAI API key!", "Error");
+        return exportWorkerAlert(
+          "Please set your TogetherAI API key!",
+          "Error"
+        );
       activeEmbedder = await JTogetherAIEmbedder.getInstance(opts);
-      return activeEmbedder;
-    }
-
-    case "huggingface": {
-      activeEmbedder = await HFEmbedder.getInstance();
       return activeEmbedder;
     }
 
