@@ -15,7 +15,7 @@ export default function ProjectsRoute() {
     "enableCloudStorage"
   ]);
   const showDocuments = useMemo(
-    () => Boolean(selectedProject) && enableCloudStorage,
+    () => Boolean(selectedProject) && enableCloudStorage && authenticated,
     [selectedProject]
   );
   const tabs = [{ label: "All Projects", icon: "folder" }];

@@ -1,28 +1,40 @@
 import { cloudDataFetch } from "data/requests.shared";
 import { useEffect, useState } from "react";
 import ListView from "./ListView";
+import UserDocumentListItem from "./ListItem.UserDocs";
 
 type Props = { projectId: number };
 type DocMetadata = { data: { document_name: string; project_id: number }[] };
-let fetching = false;
+let init = false;
 
 const UserDocumentsList = ({ projectId }: Props) => {
   const [docs, setDocs] = useState<DocMetadata["data"]>([]);
   const fetchDocs = async () => {
-    fetching = true;
+    if (init) return;
+    init = true;
     const opts = { projectId };
     const action = "user-projects:list-documents";
     const { data } = await cloudDataFetch<DocMetadata>(action, opts);
-    fetching = false;
     setDocs(data);
   };
 
   useEffect(() => {
-    if (fetching) return;
     if (projectId) fetchDocs();
   }, []);
 
-  return <ListView data={docs} itemText={(d) => <p>{d.document_name}</p>} />;
+  return (
+    <ListView
+      className="centered"
+      data-medium
+      data={docs}
+      dummyFirstItem={
+        <p className="hint">
+          A list of unique documents you have embedded in the active project.
+        </p>
+      }
+      itemText={(d) => <UserDocumentListItem name={d.document_name} />}
+    />
+  );
 };
 
 export default UserDocumentsList;

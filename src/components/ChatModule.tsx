@@ -13,6 +13,7 @@ import {
 } from "mbox/Mbox";
 import { copyToClipboard } from "utils/general";
 import "./ChatModule.scss";
+import { MODEL_NAMES } from "chains/Models";
 
 const ERROR_MSG = {
   from: "Application",
@@ -36,11 +37,13 @@ enum FILE_ACTION {
 const ChatModule = () => {
   const $fileInputRef = useRef<HTMLInputElement>(null);
   const $messageView = useRef<HTMLDivElement>(null);
-  const { owner, colorIdent, enableCloudStorage } = useSettings([
+  const settings = useSettings([
+    "assistantLLM",
     "owner",
     "colorIdent",
     "enableCloudStorage"
   ]);
+  const { owner, colorIdent, enableCloudStorage, assistantLLM } = settings;
   const { criticalError } = useUser(["criticalError"]);
   const [streamResponse, setStreamResponse] = useState("");
   const [state, setState] = useState(ChatStore.getState());
@@ -146,6 +149,7 @@ const ChatModule = () => {
         data-empty={!messages.length}
         data-empty-message={emptyMessage}
       >
+        <span className="active-assistant">{MODEL_NAMES(assistantLLM)}</span>
         <div className="list--chat-messages">
           {messages.map(({ incoming, text, from }, i) => (
             <div

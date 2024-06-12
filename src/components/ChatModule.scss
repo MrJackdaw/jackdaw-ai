@@ -14,6 +14,7 @@
   flex-direction: column;
   padding: 1rem;
   place-content: end;
+  min-height: 100%;
 }
 
 .add-to-context {
@@ -132,5 +133,30 @@
     left: 50%;
     margin-left: -200px;
     width: 400px;
+  }
+}
+
+.module--chat-messages__list-container .active-assistant {
+  align-items: center;
+  background-color: #000;
+  border-radius: 4px;
+  column-gap: 0.4rem;
+  display: grid;
+  font-size: 0.7rem;
+  grid-template-columns: max-content 1fr;
+  left: 0.2rem;
+  opacity: .7;
+  padding: 0.2rem 0.6rem;
+  position: sticky;
+  top: 0.2rem;
+  width: fit-content;
+
+  &::before {
+    background-color: $purple;
+    border-radius: 100%;
+    content: "";
+    display: inline-block;
+    height: 10px;
+    width: 10px;
   }
 }

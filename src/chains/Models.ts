@@ -11,11 +11,33 @@ const OPENAI_4T = "gpt-4-turbo-2024-04-09";
 const OPENAI_4o = "gpt-4o";
 const OPENAI_3_5T = "gpt-3.5-turbo-0125";
 const OPENAI_EMB_AI = "text-embedding-3-large";
-export const MODEL_NAMES = {
-  [OPENAI_4T]: "OpenAI GPT-4 Turbo",
-  [OPENAI_4o]: "OpenAI GPT-4o",
-  [OPENAI_3_5T]: "OpenAI GPT-3.5T",
-  [OPENAI_EMB_AI]: "OpenAI Text Embedding 3 (Large)"
+export const MODEL_NAMES = (k: string) => {
+  switch (k) {
+    case "@jackcom/openai-4T":
+    case "openAI4T":
+    case OPENAI_4T:
+      return "OpenAI GPT-4 Turbo";
+    case "@jackcom/openai-4o":
+    case "openAI4o":
+    case OPENAI_4o:
+      return "OpenAI GPT-4o";
+    case "@jackcom/openai-3":
+    case "openAI3_5T":
+    case OPENAI_3_5T:
+      return "OpenAI GPT-3.5T";
+    case OPENAI_EMB_AI:
+      return "OpenAI Text Embedding 3 (Large)";
+    case "togetherAI/code-llama3-7Bi":
+      return "codellama/CodeLlama-7b-Instruct-hf";
+    case "togetherAI/llama3-8B":
+      return "meta-llama/Llama-3-8b-chat-hf";
+    case "togetherAI/mistral-7B":
+      return "mistralai/Mistral-7B-Instruct-v0.3";
+    case "togetherAI/striped-hyena-7B":
+      return "togethercomputer/StripedHyena-Nous-7B";
+    default:
+      return "Unknown";
+  }
 };
 
 /** @Helper `ChatOpenAI` instance with variable model */

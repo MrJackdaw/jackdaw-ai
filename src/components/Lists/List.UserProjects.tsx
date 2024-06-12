@@ -46,7 +46,8 @@ export default function UserProjectsList({ display, showTitle }: Props) {
     return fetchingProjects || !authenticated;
   }, [fetchingProjects, authenticated]);
   const fetchProjects = async () => {
-    if (requestInFlight || criticalError) return;
+    if (init || requestInFlight || criticalError) return;
+    init = true;
     await loadProjects();
   };
   // Save local projects to cloud, and fetch projects
@@ -128,8 +129,6 @@ export default function UserProjectsList({ display, showTitle }: Props) {
   };
 
   useEffect(() => {
-    if (init) return;
-    init = true;
     fetchProjects();
   }, []);
 
@@ -145,7 +144,18 @@ export default function UserProjectsList({ display, showTitle }: Props) {
         <>
           {showTitle && <h4 className="legendary">All Projects</h4>}
 
-          {display !== "compact" && (
+          <form className="enable-cloud-storage" onSubmit={suppressEvent}>
+            <label className="hint" data-checkbox>
+              <input
+                type="checkbox"
+                onChange={toggleOnlineVectorStore}
+                checked={enableCloudStorage}
+              />
+              <span className="label">Store Documents online</span>
+            </label>
+          </form>
+
+          {!projects.length && (
             <details>
               <summary>
                 <span className="material-symbols-outlined">info</span>
@@ -165,17 +175,6 @@ export default function UserProjectsList({ display, showTitle }: Props) {
               </p>
             </details>
           )}
-
-          <form className="enable-cloud-storage" onSubmit={suppressEvent}>
-            <label className="hint" data-checkbox>
-              <input
-                type="checkbox"
-                onChange={toggleOnlineVectorStore}
-                checked={enableCloudStorage}
-              />
-              <span className="label">Store Documents online</span>
-            </label>
-          </form>
         </>
       }
       placeholder={
