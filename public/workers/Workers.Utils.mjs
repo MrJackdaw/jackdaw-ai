@@ -178,3 +178,12 @@ export async function csvToJson(file, batchSize = 300) {
     reader.readAsText(file);
   });
 }
+
+/**
+ * Create a plain-text `File` object from a string
+ * @param {string} txt Input text
+ * @returns {Blob}
+ */
+export function plainTextToBlob(txt) {
+  return new Blob([txt], { type: "text/plain" });
+}

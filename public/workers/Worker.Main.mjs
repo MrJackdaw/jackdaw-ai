@@ -9,6 +9,7 @@ import {
 } from "./Workers.State.mjs";
 import { searchVectors } from "./Workers.VectorStore.mjs";
 import { splitTextFile } from "./Workers.SplitFile.mjs";
+import { unzipAndParse } from "./Workers.Unzip.mjs";
 
 /**
  * Main function: handles and routes all messages received (or reports error)
@@ -46,9 +47,10 @@ function workerMain(event) {
 
     // Load a file
     case "Worker.parseFile": {
-      return data
-        ? parseFile(data.file, data.owner, data.enableCloudStorage)
-        : workerError(ERR_NO_DATA);
+      if (!data) return workerError(ERR_NO_DATA);
+      if (data.file?.type === "application/zip")
+        return unzipAndParse(data.file);
+      return parseFile(data.file, data.owner, data.enableCloudStorage);
     }
 
     // Find relevant vectors: Expects a query string at `e.data.data`

@@ -1,4 +1,3 @@
-// import jschardet from "jschardet";
 import JSZip from "jszip";
 import { exportWorkerAlert, exportWorkerFile } from "./Workers.State.mjs";
 

@@ -4,7 +4,8 @@ import {
   stopTimer,
   STATUS,
   workerError,
-  csvToJson
+  csvToJson,
+  plainTextToBlob
 } from "./Workers.Utils.mjs";
 import { ERR_NO_FILE } from "./Workers.Strings.mjs";
 import { setActiveEmbedder } from "./Workers.ActiveEmbedder.mjs";
@@ -22,7 +23,6 @@ import {
 let pctOfFileRead = 0;
 let fileSize = 0;
 let fileName = "";
-const plainTextToBlob = (s) => new Blob([s], { type: "text/plain" });
 
 /**
  * @Action Read Inbox file and initialize VectorStore (async)
