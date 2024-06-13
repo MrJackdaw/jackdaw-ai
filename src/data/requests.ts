@@ -2,10 +2,12 @@ import { User, isJackCOMStr } from "utils/general";
 import { UserStore } from "state/user";
 import { updateAsWarning } from "state/notifications";
 import {
+  LS_ACTIVE_PROJECT,
   LS_ASSISTANT_KEY,
   LS_EMBEDDER_APIKEY,
   LS_EMBEDDER_KEY,
   LS_OWNER_KEY,
+  LS_USE_CLOUD_STORE,
   SETTING__USER_KEY
 } from "utils/strings";
 import {
@@ -90,18 +92,21 @@ export async function completeOAuthFlow(hash: string) {
 
 /** Logout */
 export async function logoutUser() {
-  await sessionFetch("session:logout");
-  UserStore.reset();
-  deleteCachedSetting(SETTING__USER_KEY);
-  localStorage.removeItem(LS_OWNER_KEY);
+  await Promise.all([
+    sessionFetch("session:logout"),
+    deleteCachedSetting(SETTING__USER_KEY)
+  ]);
+  // Remove authenticated user stuff
+  [LS_OWNER_KEY, LS_USE_CLOUD_STORE, LS_ACTIVE_PROJECT].map(
+    localStorage.removeItem
+  );
   // reset the assistant and embedder models if necessary
-  const [assistant, embedder] = [
-    localStorage.getItem(LS_ASSISTANT_KEY),
-    localStorage.getItem(LS_EMBEDDER_KEY)
-  ];
-  if (isJackCOMStr(assistant ?? "")) localStorage.removeItem(LS_ASSISTANT_KEY);
-  if (isJackCOMStr(embedder ?? "")) localStorage.removeItem(LS_EMBEDDER_KEY);
+  [LS_ASSISTANT_KEY, LS_EMBEDDER_KEY].forEach((k) => {
+    const v = localStorage.getItem(k) ?? "";
+    if (isJackCOMStr(v)) localStorage.removeItem(LS_ASSISTANT_KEY);
+  });
   // Refresh window
+  UserStore.reset();
   window.location.reload();
 }
 
