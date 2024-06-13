@@ -1,7 +1,11 @@
 import JSZip from "jszip";
 import { workerError } from "./Workers.Utils.mjs";
 import { exportWorkerAlert } from "./Workers.State.mjs";
-import { addToVectorStore } from "./Workers.VectorStore.mjs";
+import {
+  documentsFromTextBlurb,
+  batchLoad,
+  setVectorStoreDocumentContext
+} from "./Workers.VectorStore.mjs";
 
 /**
  * Unzip a target file and attempt to parse and embed its contents. The zip
@@ -21,11 +25,13 @@ export async function unzipAndParse(file) {
   zip.forEach(async (path, file) => {
     // Notify user of each file attempt
     exportWorkerAlert(`Opening ${file.name}...`, "Warning");
+    setVectorStoreDocumentContext(file.name);
 
     await zip
       .file(path)
       .async("text") // read contents as text
-      .then((t) => addToVectorStore(t, file.name))
+      .then(documentsFromTextBlurb)
+      .then(batchLoad)
       .catch((e) => {
         console.log(e);
         // Warn user that this one failed, and move on

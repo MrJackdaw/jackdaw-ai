@@ -35,25 +35,40 @@ let docsCount = 0;
 let errorMessage = "";
 let documentName = "";
 
+/** Set name of document to be vectorized (Track for metadata insertion) */
+export function setVectorStoreDocumentContext(docName = "My Note") {
+  documentName = docName;
+}
+
 /**
  * Initialize a `MemoryVectorStore` instance for `MailboxReader` from a single text blurb
  * @param {string|undefined} blurb
  * @param {string} [docName="My Note"] Progress percent (amount of file read so far) for UI alert */
 export async function addToVectorStore(blurb, docName = "My Note") {
+  setVectorStoreDocumentContext(docName);
   exportWorkerAlert(`Generating Embeddings for ${docName}...`, "Warning");
-  // Track current document name for metadata insertion
-  documentName = docName;
   const { enableCloudStorage } = MboxWorkerSettings.getState();
-  const { documents, fragments } = await documentsFromTextBlurb(blurb);
-
   if (!enableCloudStorage && !MVectorStore)
     return exportWorkerAlert(
       "VectorStore not ready: please check your Assistant Settings!",
       "Error"
     );
 
+  // loadDocuments(documents, fragments, docName);
+  await documentsFromTextBlurb(blurb).then(batchLoad);
+}
+
+/**
+ * Send documents to vector storage online or locally (depending on user setting)
+ * @param {import("@langchain/core/documents").Document[]} documents
+ * @param {string} docName
+ * @param {number} numFragments
+ * @returns
+ */
+export async function loadDocuments(documents, numFragments, docName) {
+  const { enableCloudStorage } = MboxWorkerSettings.getState();
   if (enableCloudStorage)
-    return addDocumentsOnline(docName, documents).then(
+    return addDocumentsOnline(documents, docName).then(
       finishedAddingToVectorStore
     );
 
@@ -61,7 +76,7 @@ export async function addToVectorStore(blurb, docName = "My Note") {
   // will scale horribly with file size.
   return MVectorStore.addDocuments(documents)
     .then(() => {
-      docsCount = docsCount + fragments;
+      docsCount = docsCount + numFragments;
       return true;
     })
     .catch((error) => {
@@ -71,6 +86,7 @@ export async function addToVectorStore(blurb, docName = "My Note") {
     .finally(finishedAddingToVectorStore);
 }
 
+/** Helper: complete add-to-vectorStore operation */
 function finishedAddingToVectorStore() {
   const { enableCloudStorage } = MboxWorkerSettings.getState();
   const status = errorMessage ? STATUS.ERROR : STATUS.OK;
@@ -124,12 +140,12 @@ export async function searchVectors(q) {
 /**
  * Turns a text blurb into multiple Langchain `Document` objects with some owner metadata
  * @param {string} blurb Text blurb to be converted */
-function documentsFromTextBlurb(blurb) {
+export function documentsFromTextBlurb(blurb) {
   const { owner, selectedProject: projectId } = MboxWorkerSettings.getState();
   const project_id = !projectId || projectId < 1 ? undefined : projectId;
 
   return splitTextBlurb(pruneHTMLString(blurb)).then((parts) => {
-    /** @type {Document[]} Langchain `Documents` from email fragments */
+    /** @type {import("@langchain/core/documents").Document[]} Langchain `Documents` from email fragments */
     const documents = [];
     const fragments = 0;
 
@@ -205,7 +221,7 @@ async function searchVectorsOnline(query, projectId) {
  * @param {string} docName Name of source document
  * @param {import("@langchain/core/documents").Document[]} documents Documents to save
  */
-async function addDocumentsOnline(docName, documents) {
+async function addDocumentsOnline(documents, docName) {
   const { selectedProject: projectId } = MboxWorkerSettings.getState();
   if (!projectId || projectId <= 0) {
     exportWorkerAlert(
@@ -234,7 +250,7 @@ async function addDocumentsOnline(docName, documents) {
     .then((v) => {
       // refetch data (depending on whether session was/wasn't refreshed)
       if (!v) return null;
-      if (v.email) return addDocumentsOnline(docName, documents);
+      if (v.email) return addDocumentsOnline(documents, docName);
       return v;
     })
     .then((res) => {
@@ -287,4 +303,46 @@ async function refreshUserSession() {
 function checkSessionExpired(v) {
   if (v.message === "Session Expired") return refreshUserSession();
   return v;
+}
+
+const queue = [];
+let inflight = false;
+
+/**
+ * Save documents to server in batches to prevent failures
+ * @param {Object} opts
+ * @param {import("@langchain/core/documents").Document[]} opts.documents
+ * @param {number} opts.fragments
+ * @param {string} opts.documentName */
+export async function batchLoad({ documents, fragments, documentName }) {
+  if (inflight) {
+    return queue.push({ documents, fragments, documentName });
+  } else inflight = true;
+
+  const BATCH_SIZE = 40; // how many documents to upload at a time
+  const expectBatches = Math.ceil(documents.length / BATCH_SIZE);
+  let dox = [...documents];
+  let currentBatch = 0;
+  const doLoad = async () => {
+    currentBatch += 1;
+
+    // Alert user
+    exportWorkerAlert(
+      `Batch-loading ${documentName} (${currentBatch} of ${expectBatches}) ...`,
+      "Warning"
+    );
+
+    // Load documents to db or memory
+    await loadDocuments(dox.slice(0, BATCH_SIZE), fragments, documentName);
+
+    // Move cursor forward (remove the uploaded items) and
+    // continue if there are still files
+    dox = dox.slice(BATCH_SIZE);
+    if (dox.length) return doLoad();
+
+    inflight = false;
+    if (queue.length) batchLoad(queue.shift());
+  };
+
+  doLoad();
 }

@@ -52,8 +52,13 @@ export async function initializeUserState() {
   try {
     migrateLegacyStorageKeys();
     const user = await isUserAuthenticated();
-    if (user && !localStorage.getItem(LS_OWNER_KEY)) {
-      localStorage.setItem(LS_OWNER_KEY, user.email);
+    const lastOwner = localStorage.getItem(LS_OWNER_KEY);
+    if (user) {
+      if (!lastOwner || lastOwner === "Guest")
+        localStorage.setItem(
+          LS_OWNER_KEY,
+          user.email.split("@").shift() ?? user.email
+        );
     }
     UserStore.multiple({
       ...user,
