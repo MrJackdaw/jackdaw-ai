@@ -19,6 +19,7 @@ import {
   addToVectorStore,
   initializeVectorStore
 } from "./Workers.VectorStore.mjs";
+import PostalMime from "postal-mime";
 
 let pctOfFileRead = 0;
 let fileSize = 0;
@@ -44,11 +45,13 @@ export async function parseFile(file) {
     );
   }
 
-  // MBOX (plain text mailbox file with no file type) and normal plain-text files
+  // MBOX (plain text mailbox file with no file type)
+  if (/^mbox$|\.mbox$/.test(fileName)) return parseMBoxFile(file);
+
+  // normal plain-text files
   const canParseAsText = ["text/plain", "text/rtf", "application/json"];
   const readAsText =
-    canParseAsText.includes(file.type) ||
-    /(^mbox$|\.mbox$|\.md)/.test(fileName);
+    canParseAsText.includes(file.type) || /(\.md$)/.test(fileName);
   if (readAsText) return void parsePlainTextFile(file);
 
   // Everything else gets filtered
@@ -61,7 +64,7 @@ export async function parseFile(file) {
     case `application/vnd.openxmlformats-officedocument.spreadsheetml.sheet`: // (XLSX)
     case `application/vnd.openxmlformats-officedocument.presentationml.presentation`: // (PPTX)
     case "application/pdf": {
-      return void extractFileTextAWS(file);
+      return void extractDocumentTextAWS(file);
     }
 
     default: {
@@ -73,10 +76,22 @@ export async function parseFile(file) {
 }
 
 /**
+ * Extract text content from Mbox file
+ * @param {File} file Mbox file target
+ */
+async function parseMBoxFile(file) {
+  console.log("parsing mbox");
+  PostalMime.parse(file).then(({ text }) => {
+    // console.log(text);
+    if (text.length) readFileStream(plainTextToBlob(text));
+  });
+}
+
+/**
  * Send a file to the server for text extraction (no embedding or preserving)
  * @param {File} file
  */
-function extractFileTextAWS(file) {
+function extractDocumentTextAWS(file) {
   const MEGABYTE = 1024 * 1024;
   const MAX_FILE_SIZE_BYTES = 4 * MEGABYTE;
 

@@ -1,5 +1,6 @@
 import JSZip from "jszip";
 import { exportWorkerAlert, exportWorkerFile } from "./Workers.State.mjs";
+import { pruneHTMLString } from "./Workers.Utils.mjs";
 
 /** Convert a number to Megabytes */
 const MEGABYTE = 1048576;
@@ -76,7 +77,7 @@ export async function splitTextFile(file, numSegments = 5) {
         }
       }
       const textChunk = textDecoder.decode(value, { stream: true });
-      currentSegmentContent += textChunk;
+      currentSegmentContent += pruneHTMLString(textChunk);
 
       // Determine if we need to create a new segment
       if (currentSegmentContent.length >= chunkSize) {

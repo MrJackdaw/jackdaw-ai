@@ -9,23 +9,30 @@ export const STATUS = Object.freeze({
  * @param {string} data Parsed text or HTML file as a string
  */
 export function pruneHTMLString(data) {
+  const marker1 = /From\s(\w+@\w+\.\w+\b|\d{1,}@xxx)/gm;
+  const marker2 = /<!--\s(=\s){43}-->/gm;
   return (
     data
+      // Hopefully ignore/remove strings of encoded signatures
+      .replace(/^[a-zA-Z0-9\s]+$/gim, "")
       // Remove script and style content
       .replace(/<(script|style)[^>]*>([\s\S]*?)<\/\1>/gim, "")
-      // remove leading `>` from inlined reply-sections
+      // remove leading `>` from quoted replies
       .replace(/>+(\s|\t|\n)+?/gim, "\n")
+      // Remove excessive line-breaks
+      .replace(/\n{3,}/gm, "\n")
       // Remove all remaining HTML tags
-      // .replace(/<.[^<>]*?>/gim, "")
       .replace(/<\/?[a-z][\s\S]*?>/gim, "")
       // Normalize white space
-      .replace(/\s{2,}/g, " ")
+      .replace(/\s{2,}/gm, " ")
+      // remove "= " (result of formatting)
+      .replace(/(=.){1,}/gm, "") 
       // Convert HTML entities to their corresponding characters
       .replace(/&[#A-Za-z0-9]+;/gim, decodeHtmlEntities)
-      // Remove leading `>` from quoted lines
-      .replace(/^>{3,}\s+/gm, "")
-      // Remove excessive line-breaks
-      .replace(/\n{3,}/g, "\n")
+      .replace(/<.[^<>]*?>/gim, "")
+      // TEST: split into individual emails
+      .replace(marker1, (m) => `\n\n${m}`)
+      .replace(marker2, (m) => `\n\n${m}`)
   );
 }
 
