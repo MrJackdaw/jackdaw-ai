@@ -5,7 +5,7 @@ import {
 } from "./Workers.Models";
 import { MboxWorkerSettings, exportWorkerAlert } from "./Workers.State.mjs";
 
- /** @typedef {"@jackcom/openai-3"|"@jackcom/openai-4T"|"@jackcom/openai-4o"|"@jackcom/mistral-7B"|"@jackcom/llama3-8B"|"@jackcom/code-llama3-7Bi"|"@jackcom/striped-hyena-7B"|"openai"} AIProvider */
+ /** @typedef {"@jackcom/openai-3"|"@jackcom/anthropic"|"@jackcom/openai-4T"|"@jackcom/openai-4o"|"@jackcom/mistral-7B"|"@jackcom/llama3-8B"|"@jackcom/code-llama3-7Bi"|"@jackcom/striped-hyena-7B"|"openai"} AIProvider */
 /** @type {AsyncSingleton} Active embedding (user can conditionally override) */
 let activeEmbedder = null;
 /**
@@ -28,6 +28,7 @@ export async function setActiveEmbedder(e, apiKey = "") {
 
   switch (e) {
     case "@jackcom/openai-3":
+    case "@jackcom/anthropic":
     case "@jackcom/openai-4T":
     case "@jackcom/openai-4o": {
       activeEmbedder = await JOpenAIEmbedder.getInstance(e);

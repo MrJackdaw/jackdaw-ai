@@ -140,7 +140,7 @@ export class JTogetherAIEmbedder extends AsyncSingleton {
 }
 
 /**
- * @typedef {"@jackcom/openai-3"|"@jackcom/openai-4T"|"@jackcom/openai-4o"} JackComAIModel
+ * @typedef {"@jackcom/openai-3"|"@jackcom/openai-4T"|"@jackcom/anthropic"|"@jackcom/openai-4o"} JackComAIModel
  * Wrapper for OpenAI proxy (no user api key required)
  */
 export class JOpenAIEmbedder extends AsyncSingleton {

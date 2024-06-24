@@ -13,6 +13,8 @@ const OPENAI_3_5T = "gpt-3.5-turbo-0125";
 const OPENAI_EMB_AI = "text-embedding-3-large";
 export const MODEL_NAMES = (k: string) => {
   switch (k) {
+    case "@jackcom/anthropic":
+      return "Anthropic AI";
     case "@jackcom/openai-4T":
     case "openAI4T":
     case OPENAI_4T:
@@ -68,6 +70,7 @@ const openAI4o = () => openAI(OPENAI_4o);
 
 // All supported LLMs
 export const LLMs = {
+  "@jackcom/anthropic": () => jackComAI("@jackcom/anthropic"),
   // Jackcom + OpenAI (no user API key)
   "@jackcom/openai-3": () => jackComAI("@jackcom/openai-3"),
   "@jackcom/openai-4T": () => jackComAI("@jackcom/openai-4T"),

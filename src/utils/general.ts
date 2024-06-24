@@ -19,6 +19,7 @@ export const AUTH_OPTS: RequestInit = {
   method: "post"
 };
 export type JackComAIModel =
+  | "@jackcom/anthropic"
   | "@jackcom/openai-3"
   | "@jackcom/openai-4T"
   | "@jackcom/openai-4o";
