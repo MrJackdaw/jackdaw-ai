@@ -110,16 +110,6 @@ export function isJackCOMStr__W(s) {
   return /^(@jackcom\/)/gi.test(s);
 }
 
-export function isTogetherAIStr__W(s) {
-  if (!s) return false;
-  return /^(togetherAI\/)/gi.test(s);
-}
-
-export function isOpenAIStr__W(s) {
-  if (!s) return false;
-  return /^openai/gi.test(s);
-}
-
 /**
  * This uses "Mbox" because it was originally conceived to handle just Mbox files.
  * Since that's changed, it now represents "Magic Box." Or that's what I tell myself
