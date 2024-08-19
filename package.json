@@ -1,6 +1,6 @@
 {
   "name": "@jackcom/jackdaw-ai",
-  "description": "Talk to your mailbox, and other documents.",
+  "description": "Talk to your documents.",
   "private": true,
   "version": "0.5.0",
   "type": "module",
